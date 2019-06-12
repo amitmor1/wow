@@ -31,15 +31,11 @@ import com.mapbox.mapboxsdk.maps.Style
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
-    private val defaultIntervalMilliseconds = 1000L
-    private val defaultMaxWaitTime = defaultIntervalMilliseconds * 5
-
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
 
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
-    private lateinit var locationEngine: LocationEngine
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,23 +60,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         enableLocationService()
     }
 
-    private fun enableLocationService() {
-        val gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        if (!gpsEnabled) {
-            AlertDialog.Builder(this).setTitle("Location service settings")
-                .setMessage("Location services are off, would you like to turn it on?")
-                .setPositiveButton("Yes", DialogInterface.OnClickListener() { dialog, id ->
-                    val settingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                    startActivity(settingIntent)
-                }).setNegativeButton("No, thanks", DialogInterface.OnClickListener() { dialog, id ->
-                    dialog.cancel()
-                }).show()
-        }
-    }
-
-    @SuppressLint("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+        if ((PermissionsManager.areLocationPermissionsGranted(this))
+            && (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
 
             val myLocationComponentOptions = LocationComponentOptions.builder(this)
                 .trackingGesturesManagement(true)
@@ -106,6 +92,20 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
+    private fun enableLocationService() {
+        val gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        if (!gpsEnabled) {
+            AlertDialog.Builder(this).setTitle("Location service settings")
+                .setMessage("Location services are off, would you like to turn it on?")
+                .setPositiveButton("Yes", DialogInterface.OnClickListener() { dialog, id ->
+                    val settingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(settingIntent)
+                }).setNegativeButton("No, thanks", DialogInterface.OnClickListener() { dialog, id ->
+                    dialog.cancel()
+                }).show()
+        }
+    }
+
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
 
     }
@@ -121,20 +121,15 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-
     @SuppressWarnings("MissingPermission")
     override fun onStart() {
         super.onStart()
         mapView.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
     }
 
     override fun onDestroy() {
@@ -145,6 +140,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     override fun onStop() {
         super.onStop()
         mapView.onStop()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
     }
 
     override fun onLowMemory() {
