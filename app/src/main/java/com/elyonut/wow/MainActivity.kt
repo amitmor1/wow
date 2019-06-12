@@ -2,12 +2,16 @@ package com.elyonut.wow
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.provider.Settings
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.widget.Toast
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineProvider
@@ -57,6 +61,21 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private fun startLocationService(loadedMapStyle: Style) {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         enableLocationComponent(loadedMapStyle)
+        enableLocationService()
+    }
+
+    private fun enableLocationService() {
+        val gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        if (!gpsEnabled) {
+            AlertDialog.Builder(this).setTitle("Location service settings")
+                .setMessage("Location services are off, would you like to turn it on?")
+                .setPositiveButton("Yes", DialogInterface.OnClickListener() { dialog, id ->
+                    val settingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(settingIntent)
+                }).setNegativeButton("No, thanks", DialogInterface.OnClickListener() { dialog, id ->
+                    dialog.cancel()
+                }).show()
+        }
     }
 
     @SuppressLint("MissingPermission")
