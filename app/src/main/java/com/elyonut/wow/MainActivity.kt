@@ -1,23 +1,21 @@
 package com.elyonut.wow
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.support.design.widget.FloatingActionButton
+import android.provider.Settings
 import android.support.v4.content.ContextCompat
 import android.view.View
+import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.mapbox.android.core.location.LocationEngine
-import com.mapbox.android.core.location.LocationEngineProvider
-import com.mapbox.android.core.location.LocationEngineRequest
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.location.CompassEngine
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -29,15 +27,11 @@ import com.mapbox.mapboxsdk.maps.Style
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
-    private val defaultIntervalMilliseconds = 1000L
-    private val defaultMaxWaitTime = defaultIntervalMilliseconds * 5
-
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
 
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
-    private lateinit var locationEngine: LocationEngine
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,9 +41,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        val currLocBtn: View = findViewById(R.id.currLoc)
-        currLocBtn.setOnClickListener { view ->
-            enableLocationComponent(map.getStyle()!!)
+        val currentLocationButton: View = findViewById(R.id.currentLocation)
+        currentLocationButton.setOnClickListener { view ->
+            map.locationComponent.apply {
+
+                cameraMode = CameraMode.TRACKING
+
+                renderMode = RenderMode.COMPASS
+            }
         }
     }
 
@@ -64,11 +63,16 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private fun startLocationService(loadedMapStyle: Style) {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         enableLocationComponent(loadedMapStyle)
+        enableLocationService()
     }
 
-    @SuppressLint("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+        if ((PermissionsManager.areLocationPermissionsGranted(this))
+            && (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
 
             val myLocationComponentOptions = LocationComponentOptions.builder(this)
                 .trackingGesturesManagement(true)
@@ -94,6 +98,20 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
+    private fun enableLocationService() {
+        val gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        if (!gpsEnabled) {
+            AlertDialog.Builder(this).setTitle("Location service settings")
+                .setMessage("Location services are off, would you like to turn it on?")
+                .setPositiveButton("Yes", DialogInterface.OnClickListener() { dialog, id ->
+                    val settingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(settingIntent)
+                }).setNegativeButton("No, thanks", DialogInterface.OnClickListener() { dialog, id ->
+                    dialog.cancel()
+                }).show()
+        }
+    }
+
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
 
     }
@@ -109,20 +127,15 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-
     @SuppressWarnings("MissingPermission")
     override fun onStart() {
         super.onStart()
         mapView.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
     }
 
     override fun onDestroy() {
@@ -133,6 +146,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     override fun onStop() {
         super.onStop()
         mapView.onStop()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
     }
 
     override fun onLowMemory() {
