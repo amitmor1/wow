@@ -1,7 +1,6 @@
 package com.elyonut.wow
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -12,10 +11,13 @@ import android.support.v4.content.ContextCompat
 import android.view.View
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.widget.Toast
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -24,6 +26,9 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.offline.OfflineManager
+import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -40,8 +45,15 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
-
         initLocationButton()
+    }
+
+    override fun onMapReady(mapboxMap: MapboxMap) {
+        map = mapboxMap
+
+        mapboxMap.setStyle(getString(R.string.STYLE_ACCESS_TOKEN)) { style ->
+            startLocationService(style)
+        }
     }
 
     private fun initLocationButton() {
@@ -54,11 +66,33 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
-    override fun onMapReady(mapboxMap: MapboxMap) {
-        map = mapboxMap
+    private fun initOfflineMap() {
+        // Set up the OfflineManager
+        val offlineManager = OfflineManager.getInstance(this@MainActivity)
 
-        mapboxMap.setStyle(getString(R.string.STYLE_ACCESS_TOKEN)) { style ->
-            startLocationService(style)
+        // Create a bounding box for the offline region
+        val latLngBounds = LatLngBounds.Builder()
+            .include(LatLng(32.1826, 35.0110)) // Northeast
+            .include(LatLng(31.9291, 34.5808)) // Southwest
+            .build()
+
+        // Define the offline region
+        val definition = OfflineTilePyramidRegionDefinition(
+            map.style?.url,
+            latLngBounds,
+            10.0,
+            20.0, this@MainActivity.resources.displayMetrics.density
+        )
+
+        // Implementation that uses JSON to store Yosemite National Park as the offline region name.
+        var metadata: ByteArray?
+        try {
+            val jsonObject = JSONObject()
+            jsonObject.put(getString(R.string.json_field_region_name), getString(R.string.region_name))
+            val json = jsonObject.toString()
+            metadata = json.toByteArray(charset(getString(R.string.charset)))
+        } catch (exception: Exception) {
+//            Log.e(TAG, "Failed to encode metadata: " + exception.message)metadata = null
         }
     }
 
@@ -84,13 +118,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                 .locationComponentOptions(myLocationComponentOptions).build()
 
             map.locationComponent.apply {
-
                 activateLocationComponent(locationComponentActivationOptions)
-
                 isLocationComponentEnabled = true
-
                 cameraMode = CameraMode.TRACKING
-
                 renderMode = RenderMode.COMPASS
             }
 
@@ -105,12 +135,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         if (!gpsEnabled) {
             AlertDialog.Builder(this).setTitle("Location service settings")
                 .setMessage("Location services are off, would you like to turn it on?")
-                .setPositiveButton("Yes", DialogInterface.OnClickListener() { dialog, id ->
+                .setPositiveButton("Yes") { dialog, id ->
                     val settingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     startActivity(settingIntent)
-                }).setNegativeButton("No, thanks", DialogInterface.OnClickListener() { dialog, id ->
+                }.setNegativeButton("No, thanks") { dialog, id ->
                     dialog.cancel()
-                }).show()
+                }.show()
         }
     }
 
