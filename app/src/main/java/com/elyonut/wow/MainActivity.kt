@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
 
-        mapboxMap.setStyle(Style.MAPBOX_STREETS) { style ->
+        mapboxMap.setStyle("mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x") { style ->
             startLocationService(style)
         }
     }

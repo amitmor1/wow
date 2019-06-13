@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">wow</string>
     <string name="MAPBOX_ACCESS_TOKEN">
-        pk.eyJ1Ijoid293ZGV2IiwiYSI6ImNqd2o2NXpzdDAwNmQ0YXBqbW40aW1uOXAifQ.MI7wNeDntB9uVL-i7W_vWw
+        pk.eyJ1Ijoid293ZGV2IiwiYSI6ImNqd2o2NWJvZDBnMHkzeXFrY2JncDA4YnAifQ.nBIwjHkMCNx5H25pCTl4Vg
     </string>
     <string name="permission_not_granted">Can\'t find location, permission not granted</string>
 </resources>
