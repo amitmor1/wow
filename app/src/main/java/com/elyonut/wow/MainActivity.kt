@@ -41,12 +41,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
+        initLocationButton()
+    }
+
+    private fun initLocationButton() {
         val currentLocationButton: View = findViewById(R.id.currentLocation)
-        currentLocationButton.setOnClickListener { view ->
+        currentLocationButton.setOnClickListener {
             map.locationComponent.apply {
-
                 cameraMode = CameraMode.TRACKING
-
                 renderMode = RenderMode.COMPASS
             }
         }
@@ -55,7 +57,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
 
-        mapboxMap.setStyle("mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x") { style ->
+        mapboxMap.setStyle(getString(R.string.STYLE_ACCESS_TOKEN)) { style ->
             startLocationService(style)
         }
     }
