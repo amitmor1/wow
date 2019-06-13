@@ -7,7 +7,9 @@ import android.location.LocationManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.support.design.widget.FloatingActionButton
 import android.support.v4.content.ContextCompat
+import android.view.View
 import android.widget.Toast
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineProvider
@@ -44,6 +46,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
+
+        val currLocBtn: View = findViewById(R.id.currLoc)
+        currLocBtn.setOnClickListener { view ->
+            enableLocationComponent(map.getStyle()!!)
+        }
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {

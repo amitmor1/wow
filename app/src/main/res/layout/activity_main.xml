@@ -7,8 +7,8 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.mapbox.mapboxsdk.maps.MapView android:layout_width="wrap_content"
-                                       android:layout_height="wrap_content"
+    <com.mapbox.mapboxsdk.maps.MapView android:layout_width="match_parent"
+                                       android:layout_height="match_parent"
                                        android:id="@+id/mainMapView"
                                        mapbox:mapbox_cameraZoom="12"
                                        mapbox:mapbox_cameraTargetLat="32.078899"
@@ -17,6 +17,15 @@
                                        app:layout_constraintBottom_toBottomOf="parent"
                                        app:layout_constraintStart_toStartOf="parent"
                                        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.design.widget.FloatingActionButton
+                android:id="@+id/currLoc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_my_location_black"/>
+
     </com.mapbox.mapboxsdk.maps.MapView>
 
 </android.support.constraint.ConstraintLayout>
