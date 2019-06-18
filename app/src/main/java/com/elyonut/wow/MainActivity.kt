@@ -11,7 +11,6 @@ import android.support.v4.content.ContextCompat
 import android.view.View
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.widget.Toast
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -26,9 +25,9 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.offline.OfflineManager
-import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition
+import com.mapbox.mapboxsdk.offline.*
 import org.json.JSONObject
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -42,6 +41,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(applicationContext, getString(R.string.MAPBOX_ACCESS_TOKEN))
         setContentView(R.layout.activity_main)
+        Timber.i("started app")
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
         mapboxMap.setStyle(getString(R.string.STYLE_ACCESS_TOKEN)) { style ->
             startLocationService(style)
+            initOfflineMap(style)
         }
     }
 
@@ -66,9 +67,52 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
-    private fun initOfflineMap() {
-        // Set up the OfflineManager
+    private fun initOfflineMap(loadedMapStyle: Style) {
+
         val offlineManager = OfflineManager.getInstance(this@MainActivity)
+        val definition = getDefinition(loadedMapStyle)
+        val metadata = getMetadata()
+
+        if (metadata != null) {
+            offlineManager.createOfflineRegion(
+                definition,
+                metadata,
+                object : OfflineManager.CreateOfflineRegionCallback {
+                    override fun onCreate(offlineRegion: OfflineRegion?) {
+                        offlineRegion?.setDownloadState(OfflineRegion.STATE_ACTIVE)
+                        offlineRegion?.setObserver(object : OfflineRegion.OfflineRegionObserver {
+                            override fun onStatusChanged(status: OfflineRegionStatus) {
+
+                                val percentage = if (status.requiredResourceCount >= 0)
+                                    100.0 * status.completedResourceCount / status.requiredResourceCount else 0.0
+
+                                if (status.isComplete) {
+                                    Timber.d("Region downloaded successfully.")
+                                } else if (status.isRequiredResourceCountPrecise) {
+                                    Timber.d(percentage.toString())
+                                }
+                            }
+
+                            override fun onError(error: OfflineRegionError) {
+                                Timber.e("onError reason: %s", error.reason)
+                                Timber.e("onError message: %s", error.message)
+                            }
+
+                            override fun mapboxTileCountLimitExceeded(limit: Long) {
+                                Timber.e("Mapbox tile count limit exceeded: $limit")
+                            }
+                        })
+                    }
+
+                    override fun onError(error: String?) {
+                        Timber.e("Error: $error")
+                    }
+
+                })
+        }
+    }
+
+    private fun getDefinition(loadedMapStyle: Style): OfflineRegionDefinition {
 
         // Create a bounding box for the offline region
         val latLngBounds = LatLngBounds.Builder()
@@ -76,23 +120,26 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             .include(LatLng(31.9291, 34.5808)) // Southwest
             .build()
 
-        // Define the offline region
-        val definition = OfflineTilePyramidRegionDefinition(
-            map.style?.url,
+        return OfflineTilePyramidRegionDefinition(
+            loadedMapStyle.url,
             latLngBounds,
             10.0,
-            20.0, this@MainActivity.resources.displayMetrics.density
+            20.0,
+            resources.displayMetrics.density
         )
+    }
 
-        // Implementation that uses JSON to store Yosemite National Park as the offline region name.
-        var metadata: ByteArray?
+    private fun getMetadata(): ByteArray? {
+        var metadata: ByteArray? = null
         try {
             val jsonObject = JSONObject()
             jsonObject.put(getString(R.string.json_field_region_name), getString(R.string.region_name))
             val json = jsonObject.toString()
             metadata = json.toByteArray(charset(getString(R.string.charset)))
         } catch (exception: Exception) {
-//            Log.e(TAG, "Failed to encode metadata: " + exception.message)metadata = null
+            Timber.e("Failed to encode metadata: %s", exception.message)
+        } finally {
+            return metadata
         }
     }
 
