@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
-
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
 
@@ -72,43 +71,55 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         val offlineManager = OfflineManager.getInstance(this@MainActivity)
         val definition = getDefinition(loadedMapStyle)
         val metadata = getMetadata()
+        val callback = getOfflineRegionCallback()
 
         if (metadata != null) {
             offlineManager.createOfflineRegion(
                 definition,
                 metadata,
-                object : OfflineManager.CreateOfflineRegionCallback {
-                    override fun onCreate(offlineRegion: OfflineRegion?) {
-                        offlineRegion?.setDownloadState(OfflineRegion.STATE_ACTIVE)
-                        offlineRegion?.setObserver(object : OfflineRegion.OfflineRegionObserver {
-                            override fun onStatusChanged(status: OfflineRegionStatus) {
+                callback
+            )
+        }
+    }
 
-                                val percentage = if (status.requiredResourceCount >= 0)
-                                    100.0 * status.completedResourceCount / status.requiredResourceCount else 0.0
+    private fun getOfflineRegionCallback(): OfflineManager.CreateOfflineRegionCallback {
 
-                                if (status.isComplete) {
-                                    Timber.d("Region downloaded successfully.")
-                                } else if (status.isRequiredResourceCountPrecise) {
-                                    Timber.d(percentage.toString())
-                                }
-                            }
+        return object : OfflineManager.CreateOfflineRegionCallback {
+            override fun onCreate(offlineRegion: OfflineRegion?) {
+                offlineRegion?.setDownloadState(OfflineRegion.STATE_ACTIVE)
+                offlineRegion?.setObserver(getObserver())
+            }
 
-                            override fun onError(error: OfflineRegionError) {
-                                Timber.e("onError reason: %s", error.reason)
-                                Timber.e("onError message: %s", error.message)
-                            }
+            override fun onError(error: String?) {
+                Timber.e("Error: $error")
+            }
 
-                            override fun mapboxTileCountLimitExceeded(limit: Long) {
-                                Timber.e("Mapbox tile count limit exceeded: $limit")
-                            }
-                        })
-                    }
+        }
+    }
 
-                    override fun onError(error: String?) {
-                        Timber.e("Error: $error")
-                    }
+    private fun getObserver(): OfflineRegion.OfflineRegionObserver {
 
-                })
+        return object : OfflineRegion.OfflineRegionObserver {
+            override fun onStatusChanged(status: OfflineRegionStatus) {
+                val percentage = if (status.requiredResourceCount >= 0)
+                    100.0 * status.completedResourceCount / status.requiredResourceCount else 0.0
+
+                if (status.isComplete) {
+                    Timber.d("Region downloaded successfully.")
+                } else if (status.isRequiredResourceCountPrecise) {
+                    Timber.d(percentage.toString())
+                }
+            }
+
+            override fun onError(error: OfflineRegionError) {
+                Timber.e("onError reason: %s", error.reason)
+                Timber.e("onError message: %s", error.message)
+            }
+
+            override fun mapboxTileCountLimitExceeded(limit: Long) {
+                Timber.e("Mapbox tile count limit exceeded: $limit")
+            }
+
         }
     }
 
@@ -180,12 +191,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private fun enableLocationService() {
         val gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         if (!gpsEnabled) {
-            AlertDialog.Builder(this).setTitle("Location service settings")
-                .setMessage("Location services are off, would you like to turn it on?")
-                .setPositiveButton("Yes") { dialog, id ->
+            AlertDialog.Builder(this).setTitle(getString(R.string.turn_on_location_title))
+                .setMessage(getString(R.string.turn_on_location))
+                .setPositiveButton(getString(R.string.yes_hebrew)) { dialog, id ->
                     val settingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     startActivity(settingIntent)
-                }.setNegativeButton("No, thanks") { dialog, id ->
+                }.setNegativeButton(getString(R.string.no_thanks_hebrew)) { dialog, id ->
                     dialog.cancel()
                 }.show()
         }
