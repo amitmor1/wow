@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.RectF
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -24,6 +27,10 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import com.mapbox.mapboxsdk.style.layers.*
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.sources.VectorSource
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -57,6 +64,26 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
         mapboxMap.setStyle("mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x") { style ->
             startLocationService(style)
+//            var buildingLayer =  style.getLayer("building")
+//            (buildingLayer as FillExtrusionLayer).withProperties(
+//                fillExtrusionColor(step((get("height")), rgb(0,0,0),
+//                stop(3,rgb(242, 241, 45)),
+//                stop(10, rgb(218, 156, 32))))
+//            )
+
+            style.addSource(VectorSource("newbuilding", "mapbox://wowdev.cjx4dh8eu09dz2tmttorru3y1-2tzyf")
+            )
+
+            style.removeLayer("building")
+            var buildingLayer = FillLayer("newbuilding", "newbuilding")
+            buildingLayer.withSourceLayer("builingRisk")
+            buildingLayer.withProperties(
+                fillColor(step((get("risk")), rgb(0,0,0),
+                stop(0.3, rgb(242, 241, 45)),
+                stop(0.6, rgb(218, 156, 32))))
+            )
+            style.addLayer(buildingLayer)
+
         }
     }
 

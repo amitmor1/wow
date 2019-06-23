@@ -3,5 +3,8 @@
     <string name="MAPBOX_ACCESS_TOKEN">
         pk.eyJ1Ijoid293ZGV2IiwiYSI6ImNqd2o2NWJvZDBnMHkzeXFrY2JncDA4YnAifQ.nBIwjHkMCNx5H25pCTl4Vg
     </string>
+    <string name="style_url">
+        mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x
+    </string>
     <string name="permission_not_granted">Can\'t find location, permission not granted</string>
 </resources>
