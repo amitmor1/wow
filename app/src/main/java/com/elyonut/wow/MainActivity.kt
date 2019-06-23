@@ -1,7 +1,6 @@
 package com.elyonut.wow
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -16,6 +15,8 @@ import android.widget.Toast
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -28,12 +29,15 @@ import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor
 import com.mapbox.mapboxsdk.style.sources.VectorSource
+import com.mapbox.mapboxsdk.offline.*
+import org.json.JSONObject
+
+//import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
-
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
 
@@ -41,19 +45,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(applicationContext, getString(R.string.MAPBOX_ACCESS_TOKEN))
         setContentView(R.layout.activity_main)
+//        Timber.i("started app")
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
-
-        val currentLocationButton: View = findViewById(R.id.currentLocation)
-        currentLocationButton.setOnClickListener { view ->
-            map.locationComponent.apply {
-
-                cameraMode = CameraMode.TRACKING
-
-                renderMode = RenderMode.COMPASS
-            }
-        }
+        initLocationButton()
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -61,26 +57,129 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
         mapboxMap.setStyle("mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x") { style ->
             startLocationService(style)
-//            var buildingLayer =  style.getLayer("building")
+            initOfflineMap(style)
+            //            var buildingLayer =  style.getLayer("building")
 //            (buildingLayer as FillExtrusionLayer).withProperties(
 //                fillExtrusionColor(step((get("height")), rgb(0,0,0),
 //                stop(3,rgb(242, 241, 45)),
 //                stop(10, rgb(218, 156, 32))))
 //            )
 
-            style.addSource(VectorSource("newbuilding", "mapbox://wowdev.cjx4dh8eu09dz2tmttorru3y1-2tzyf")
+            style.addSource(
+                VectorSource("newbuilding", "mapbox://wowdev.cjx4dh8eu09dz2tmttorru3y1-2tzyf")
             )
 
             style.removeLayer("building")
             var buildingLayer = FillLayer("newbuilding", "newbuilding")
             buildingLayer.withSourceLayer("builingRisk")
             buildingLayer.withProperties(
-                fillColor(step((get("risk")), rgb(0,0,0),
-                stop(0.3, rgb(242, 241, 45)),
-                stop(0.6, rgb(218, 156, 32))))
+                fillColor(
+                    step(
+                        (get("risk")), rgb(0, 0, 0),
+                        stop(0.3, rgb(242, 241, 45)),
+                        stop(0.6, rgb(218, 156, 32))
+                    )
+                )
             )
             style.addLayer(buildingLayer)
+        }
+    }
 
+    private fun initLocationButton() {
+        val currentLocationButton: View = findViewById(R.id.currentLocation)
+        currentLocationButton.setOnClickListener {
+            map.locationComponent.apply {
+                cameraMode = CameraMode.TRACKING
+                renderMode = RenderMode.COMPASS
+            }
+        }
+    }
+
+    private fun initOfflineMap(loadedMapStyle: Style) {
+
+        val offlineManager = OfflineManager.getInstance(this@MainActivity)
+        val definition = getDefinition(loadedMapStyle)
+        val metadata = getMetadata()
+        val callback = getOfflineRegionCallback()
+
+        if (metadata != null) {
+            offlineManager.createOfflineRegion(
+                definition,
+                metadata,
+                callback
+            )
+        }
+    }
+
+    private fun getOfflineRegionCallback(): OfflineManager.CreateOfflineRegionCallback {
+
+        return object : OfflineManager.CreateOfflineRegionCallback {
+            override fun onCreate(offlineRegion: OfflineRegion?) {
+                offlineRegion?.setDownloadState(OfflineRegion.STATE_ACTIVE)
+                offlineRegion?.setObserver(getObserver())
+            }
+
+            override fun onError(error: String?) {
+//                Timber.e("Error: $error")
+            }
+
+        }
+    }
+
+    private fun getObserver(): OfflineRegion.OfflineRegionObserver {
+
+        return object : OfflineRegion.OfflineRegionObserver {
+            override fun onStatusChanged(status: OfflineRegionStatus) {
+                val percentage = if (status.requiredResourceCount >= 0)
+                    100.0 * status.completedResourceCount / status.requiredResourceCount else 0.0
+
+                if (status.isComplete) {
+//                    Timber.d("Region downloaded successfully.")
+                } else if (status.isRequiredResourceCountPrecise) {
+//                    Timber.d(percentage.toString())
+                }
+            }
+
+            override fun onError(error: OfflineRegionError) {
+//                Timber.e("onError reason: %s", error.reason)
+//                Timber.e("onError message: %s", error.message)
+            }
+
+            override fun mapboxTileCountLimitExceeded(limit: Long) {
+//                Timber.e("Mapbox tile count limit exceeded: $limit")
+            }
+
+        }
+    }
+
+    private fun getDefinition(loadedMapStyle: Style): OfflineRegionDefinition {
+
+        // Create a bounding box for the offline region
+        val latLngBounds = LatLngBounds.Builder()
+            .include(LatLng(32.1826, 35.0110)) // Northeast
+            .include(LatLng(31.9291, 34.5808)) // Southwest
+            .build()
+
+        return OfflineTilePyramidRegionDefinition(
+            loadedMapStyle.url,
+            latLngBounds,
+            10.0,
+            20.0,
+            resources.displayMetrics.density
+        )
+    }
+
+    private fun getMetadata(): ByteArray? {
+        var metadata: ByteArray? = null
+        try {
+            val jsonObject = JSONObject()
+            jsonObject.put(getString(R.string.json_field_region_name), getString(R.string.region_name))
+            val json = jsonObject.toString()
+            metadata = json.toByteArray(charset(getString(R.string.charset)))
+        } catch (exception: Exception) {
+//            Timber.e("Failed to encode metadata: %s", exception.message)
+        } finally {
+            return metadata
         }
     }
 
@@ -106,13 +205,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                 .locationComponentOptions(myLocationComponentOptions).build()
 
             map.locationComponent.apply {
-
                 activateLocationComponent(locationComponentActivationOptions)
-
                 isLocationComponentEnabled = true
-
                 cameraMode = CameraMode.TRACKING
-
                 renderMode = RenderMode.COMPASS
             }
 
@@ -125,14 +220,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private fun enableLocationService() {
         val gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         if (!gpsEnabled) {
-            AlertDialog.Builder(this).setTitle("Location service settings")
-                .setMessage("Location services are off, would you like to turn it on?")
-                .setPositiveButton("Yes", DialogInterface.OnClickListener() { dialog, id ->
+            AlertDialog.Builder(this).setTitle(getString(R.string.turn_on_location_title))
+                .setMessage(getString(R.string.turn_on_location))
+                .setPositiveButton(getString(R.string.yes_hebrew)) { dialog, id ->
                     val settingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     startActivity(settingIntent)
-                }).setNegativeButton("No, thanks", DialogInterface.OnClickListener() { dialog, id ->
+                }.setNegativeButton(getString(R.string.no_thanks_hebrew)) { dialog, id ->
                     dialog.cancel()
-                }).show()
+                }.show()
         }
     }
 
