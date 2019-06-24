@@ -25,11 +25,10 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression.*
-import com.mapbox.mapboxsdk.style.layers.FillLayer
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor
-import com.mapbox.mapboxsdk.style.sources.VectorSource
 import com.mapbox.mapboxsdk.offline.*
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor
 import org.json.JSONObject
 import timber.log.Timber
 
@@ -39,6 +38,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private lateinit var map: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
+
+    // Constant values
+    private var DEFAULT_COLOR = rgb(0,0,0)
+    private var LOW_HEIGHT_COLOR = rgb(242, 241, 45)
+    private var MIDDLE_HEIGHT_COLOR = rgb(218, 156, 32)
+    private var HIGH_HEIGHT_COLOR = rgb(255,0,0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,34 +59,21 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
 
-        mapboxMap.setStyle("mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x") { style ->
+        mapboxMap.setStyle(getString(R.string.style_url)) { style ->
             startLocationService(style)
             initOfflineMap(style)
-            //            var buildingLayer =  style.getLayer("building")
-//            (buildingLayer as FillExtrusionLayer).withProperties(
-//                fillExtrusionColor(step((get("height")), rgb(0,0,0),
-//                stop(3,rgb(242, 241, 45)),
-//                stop(10, rgb(218, 156, 32))))
-//            )
-
-            style.addSource(
-                VectorSource("newbuilding", "mapbox://wowdev.cjx4dh8eu09dz2tmttorru3y1-2tzyf")
-            )
-
-            style.removeLayer("building")
-            var buildingLayer = FillLayer("newbuilding", "newbuilding")
-            buildingLayer.withSourceLayer("builingRisk")
-            buildingLayer.withProperties(
-                fillColor(
-                    step(
-                        (get("risk")), rgb(0, 0, 0),
-                        stop(0.3, rgb(242, 241, 45)),
-                        stop(0.6, rgb(218, 156, 32))
-                    )
-                )
-            )
-            style.addLayer(buildingLayer)
+            setBuildingFilter(style)
         }
+    }
+
+    private fun setBuildingFilter(style: Style) {
+        var buildingLayer =  style.getLayer("building")
+        (buildingLayer as FillExtrusionLayer).withProperties(
+            fillExtrusionColor(step((get("height")), DEFAULT_COLOR,
+                stop(3,LOW_HEIGHT_COLOR),
+                stop(10, MIDDLE_HEIGHT_COLOR),
+                stop(100, HIGH_HEIGHT_COLOR)))
+        )
     }
 
     private fun initLocationButton() {
