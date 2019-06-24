@@ -1,10 +1,13 @@
 <resources>
     <string name="app_name">wow</string>
-    <string name="MAPBOX_ACCESS_TOKEN">
-        pk.eyJ1Ijoid293ZGV2IiwiYSI6ImNqd2o2NWJvZDBnMHkzeXFrY2JncDA4YnAifQ.nBIwjHkMCNx5H25pCTl4Vg
-    </string>
-    <string name="style_url">
-        mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x
-    </string>
+    <string name="MAPBOX_ACCESS_TOKEN">pk.eyJ1Ijoid293ZGV2IiwiYSI6ImNqd2o2NWJvZDBnMHkzeXFrY2JncDA4YnAifQ.nBIwjHkMCNx5H25pCTl4Vg</string>
+    <string name="style_url">mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x</string>
     <string name="permission_not_granted">Can\'t find location, permission not granted</string>
+    <string name="json_field_region_name">region_name</string>
+    <string name="region_name">Tel Aviv Yafo erea</string>
+    <string name="charset">UTF-8</string>
+    <string name="turn_on_location">שירותי המיקום כבויים, האם תרצה להפעיל אותם?</string>
+    <string name="yes_hebrew">כן</string>
+    <string name="no_thanks_hebrew">לא, תודה</string>
+    <string name="turn_on_location_title">הפעלת שירותי מיקום</string>
 </resources>
