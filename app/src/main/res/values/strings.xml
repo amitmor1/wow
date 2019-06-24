@@ -7,4 +7,12 @@
         mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x
     </string>
     <string name="permission_not_granted">Can\'t find location, permission not granted</string>
+    <string name="STYLE_ACCESS_TOKEN">mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x</string>
+    <string name="json_field_region_name">region_name</string>
+    <string name="region_name">Tel Aviv Yafo erea</string>
+    <string name="charset">UTF-8</string>
+    <string name="turn_on_location">שירותי המיקום כבויים, האם תרצה להפעיל אותם?</string>
+    <string name="yes_hebrew">כן</string>
+    <string name="no_thanks_hebrew">לא, תודה</string>
+    <string name="turn_on_location_title">הפעלת שירותי מיקום</string>
 </resources>
