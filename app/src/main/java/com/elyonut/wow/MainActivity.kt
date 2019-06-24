@@ -1,5 +1,6 @@
 package com.elyonut.wow
 
+//import timber.log.Timber
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -25,18 +26,12 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression.*
-import com.mapbox.mapboxsdk.style.layers.FillLayer
-import com.mapbox.mapboxsdk.style.sources.VectorSource
 import com.mapbox.mapboxsdk.offline.*
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
-import com.mapbox.mapboxsdk.style.layers.Property
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor
 import org.json.JSONObject
-import com.mapbox.mapboxsdk.style.layers.Property.NONE
-import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
-
-//import timber.log.Timber
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -55,7 +50,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(applicationContext, getString(R.string.MAPBOX_ACCESS_TOKEN))
         setContentView(R.layout.activity_main)
-//        Timber.i("started app")
+        Timber.i("started app")
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
@@ -65,7 +60,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
 
-        mapboxMap.setStyle("mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl") { style ->
+        mapboxMap.setStyle(getString(R.string.style_url)) { style ->
             startLocationService(style)
             initOfflineMap(style)
             setBuildingFilter(style)
@@ -117,7 +112,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             }
 
             override fun onError(error: String?) {
-//                Timber.e("Error: $error")
+                Timber.e("Error: $error")
             }
 
         }
@@ -131,19 +126,19 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                     100.0 * status.completedResourceCount / status.requiredResourceCount else 0.0
 
                 if (status.isComplete) {
-//                    Timber.d("Region downloaded successfully.")
+                    Timber.d("Region downloaded successfully.")
                 } else if (status.isRequiredResourceCountPrecise) {
-//                    Timber.d(percentage.toString())
+                    Timber.d(percentage.toString())
                 }
             }
 
             override fun onError(error: OfflineRegionError) {
-//                Timber.e("onError reason: %s", error.reason)
-//                Timber.e("onError message: %s", error.message)
+                Timber.e("onError reason: %s", error.reason)
+                Timber.e("onError message: %s", error.message)
             }
 
             override fun mapboxTileCountLimitExceeded(limit: Long) {
-//                Timber.e("Mapbox tile count limit exceeded: $limit")
+                Timber.e("Mapbox tile count limit exceeded: $limit")
             }
 
         }
@@ -174,7 +169,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             val json = jsonObject.toString()
             metadata = json.toByteArray(charset(getString(R.string.charset)))
         } catch (exception: Exception) {
-//            Timber.e("Failed to encode metadata: %s", exception.message)
+            Timber.e("Failed to encode metadata: %s", exception.message)
         } finally {
             return metadata
         }
