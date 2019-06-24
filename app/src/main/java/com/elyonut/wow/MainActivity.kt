@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private var defaultColor = rgb(0,0,0)
     private var lowHeightColor = rgb(242, 241, 45)
     private var middleHeightColor = rgb(218, 156, 32)
-    private var HIGH_HEIGHT_COLOR = rgb(255,0,0)
+    private var highHeightColor = rgb(255,0,0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             fillExtrusionColor(step((get("height")), defaultColor,
                 stop(3,lowHeightColor),
                 stop(10, middleHeightColor),
-                stop(100, HIGH_HEIGHT_COLOR)))
+                stop(100, highHeightColor)))
         )
     }
 
