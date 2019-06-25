@@ -40,10 +40,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private lateinit var locationManager: LocationManager
 
     // Constant values
-    private var DEFAULT_COLOR = rgb(0,0,0)
-    private var LOW_HEIGHT_COLOR = rgb(242, 241, 45)
-    private var MIDDLE_HEIGHT_COLOR = rgb(218, 156, 32)
-    private var HIGH_HEIGHT_COLOR = rgb(255,0,0)
+    private var defaultColor = rgb(0,0,0)
+    private var lowHeightColor = rgb(242, 241, 45)
+    private var middleHeightColor = rgb(218, 156, 32)
+    private var highHeightColor = rgb(255,0,0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,12 +67,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     }
 
     private fun setBuildingFilter(style: Style) {
-        var buildingLayer =  style.getLayer("building")
+        val buildingLayer =  style.getLayer("building")
         (buildingLayer as FillExtrusionLayer).withProperties(
-            fillExtrusionColor(step((get("height")), DEFAULT_COLOR,
-                stop(3,LOW_HEIGHT_COLOR),
-                stop(10, MIDDLE_HEIGHT_COLOR),
-                stop(100, HIGH_HEIGHT_COLOR)))
+            fillExtrusionColor(step((get("height")), defaultColor,
+                stop(3,lowHeightColor),
+                stop(10, middleHeightColor),
+                stop(100, highHeightColor)))
         )
     }
 
