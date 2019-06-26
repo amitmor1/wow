@@ -49,6 +49,19 @@
             app:backgroundTint="#4d79ff"
             tools:backgroundTint="#4d79ff" />
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            mapbox:srcCompat="@drawable/mapbox_info_icon_default" />
+
+        <LinearLayout
+            android:id="@+id/fragmentParent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+
     </com.mapbox.mapboxsdk.maps.MapView>
 
 </android.support.constraint.ConstraintLayout>

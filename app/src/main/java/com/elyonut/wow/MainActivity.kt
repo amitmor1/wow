@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.Settings
@@ -32,7 +33,10 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor
 import org.json.JSONObject
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback,
+    DataCardFragment.OnFragmentInteractionListener {
+    override fun onFragmentInteraction(uri: Uri) {
+    }
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
@@ -40,10 +44,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private lateinit var locationManager: LocationManager
 
     // Constant values
-    private var defaultColor = rgb(0,0,0)
+    private var defaultColor = rgb(0, 0, 0)
     private var lowHeightColor = rgb(242, 241, 45)
     private var middleHeightColor = rgb(218, 156, 32)
-    private var highHeightColor = rgb(255,0,0)
+    private var highHeightColor = rgb(255, 0, 0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +58,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initLocationButton()
+        openCard()
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -67,13 +72,25 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     }
 
     private fun setBuildingFilter(style: Style) {
-        val buildingLayer =  style.getLayer("building")
+        val buildingLayer = style.getLayer("building")
         (buildingLayer as FillExtrusionLayer).withProperties(
-            fillExtrusionColor(step((get("height")), defaultColor,
-                stop(3,lowHeightColor),
-                stop(10, middleHeightColor),
-                stop(100, highHeightColor)))
+            fillExtrusionColor(
+                step(
+                    (get("height")), defaultColor,
+                    stop(3, lowHeightColor),
+                    stop(10, middleHeightColor),
+                    stop(100, highHeightColor)
+                )
+            )
         )
+    }
+
+    private fun openCard() {
+        val openCard = findViewById<View>(R.id.floatingActionButton)
+        openCard.setOnClickListener {
+            val fm = supportFragmentManager
+            fm.beginTransaction().add(R.id.fragmentParent, DataCardFragment.newInstance()).commit()
+        }
     }
 
     private fun initLocationButton() {
