@@ -14,6 +14,6 @@
     <string name="data_type">סוג מידע</string>
     <string name="data__second_title">כותרת משנה</string>
     <string name="image_desctiption">תמונת מהות</string>
-    <string name="time_passed">15 שניות</string>
+    <string name="time_passed">זמן שעבר</string>
     <string name="who_added">By who</string>
 </resources>
