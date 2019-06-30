@@ -53,12 +53,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(applicationContext, getString(R.string.MAPBOX_ACCESS_TOKEN))
         setContentView(R.layout.activity_main)
+        Timber.plant(Timber.DebugTree())
         Timber.i("started app")
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initLocationButton()
-        openCard()
+        initOpenCardButton()
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -85,11 +86,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         )
     }
 
-    private fun openCard() {
+    private fun initOpenCardButton() {
         val openCard = findViewById<View>(R.id.floatingActionButton)
+        val dataCardFragmentInstance = DataCardFragment.newInstance()
         openCard.setOnClickListener {
-            val fm = supportFragmentManager
-            fm.beginTransaction().add(R.id.fragmentParent, DataCardFragment.newInstance()).commit()
+            supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
         }
     }
 
