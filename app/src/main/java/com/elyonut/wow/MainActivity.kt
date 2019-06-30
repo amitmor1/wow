@@ -35,8 +35,6 @@ import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback,
     DataCardFragment.OnFragmentInteractionListener {
-    override fun onFragmentInteraction(uri: Uri) {
-    }
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
@@ -240,10 +238,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
-    override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
-
-    }
-
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
             if (map.style != null) {
@@ -253,6 +247,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             Toast.makeText(this, getString(R.string.permission_not_granted), Toast.LENGTH_LONG).show()
             finish()
         }
+    }
+
+    override fun onFragmentInteraction() {
+    }
+
+    override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
+
     }
 
     @SuppressWarnings("MissingPermission")
