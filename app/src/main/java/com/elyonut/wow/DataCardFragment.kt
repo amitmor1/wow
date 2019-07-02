@@ -1,7 +1,6 @@
 package com.elyonut.wow
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -33,6 +32,7 @@ class DataCardFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_data_card, container, false)
+        initCloseCardByClick(view)
         initCloseCardButton(view)
         initFlingCloseListener(view)
         return view
@@ -57,19 +57,25 @@ class DataCardFragment : Fragment() {
     }
 
     interface OnFragmentInteractionListener {
+
         fun onFragmentInteraction()
     }
 
+    private fun initCloseCardByClick(view: View) {
+        view.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
+        }
+    }
+
     private fun initCloseCardButton(view: View) {
-        val closeButton = view.closeButton
-        closeButton?.setOnClickListener {
+        view.closeButton?.setOnClickListener {
             Timber.i("click")
             activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         }
     }
 
     private fun initFlingCloseListener(view: View) {
-        view.setOnTouchListener(object : OnSwipeTouchListener(this@DataCardFragment.context!!) {
+        view.BuildingDataCard.setOnTouchListener(object : OnSwipeTouchListener(this@DataCardFragment.context!!) {
             override fun onSwipeRight() {
                 super.onSwipeRight()
                 Timber.i("fling")

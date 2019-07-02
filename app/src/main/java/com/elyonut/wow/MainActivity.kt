@@ -88,7 +88,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         val openCard = findViewById<View>(R.id.floatingActionButton)
         val dataCardFragmentInstance = DataCardFragment.newInstance()
         openCard.setOnClickListener {
-            supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
+            if (supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
+                supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
         }
     }
 
