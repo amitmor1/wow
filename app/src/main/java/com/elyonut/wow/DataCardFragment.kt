@@ -7,22 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_data_card.view.*
-import timber.log.Timber
-
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 class DataCardFragment : Fragment() {
-    //    private var param1: String? = null
-//    private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            //            param1 = it.getString(ARG_PARAM1)
-//            param2 = it.getString(ARG_PARAM2)
         }
     }
 
@@ -69,7 +60,6 @@ class DataCardFragment : Fragment() {
 
     private fun initCloseCardButton(view: View) {
         view.closeButton?.setOnClickListener {
-            Timber.i("click")
             activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         }
     }
@@ -78,7 +68,6 @@ class DataCardFragment : Fragment() {
         view.BuildingDataCard.setOnTouchListener(object : OnSwipeTouchListener(this@DataCardFragment.context!!) {
             override fun onSwipeRight() {
                 super.onSwipeRight()
-                Timber.i("fling")
                 activity?.supportFragmentManager?.beginTransaction()?.remove(this@DataCardFragment)?.commit()
             }
         })
@@ -88,10 +77,6 @@ class DataCardFragment : Fragment() {
         @JvmStatic
         fun newInstance() =
             DataCardFragment().apply {
-                //                arguments = Bundle().apply {
-//                    putString(ARG_PARAM1, param1)
-//                    putString(ARG_PARAM2, param2)
-//                }
             }
     }
 }
