@@ -16,4 +16,5 @@
     <string name="image_desctiption">תמונת מהות</string>
     <string name="time_passed">זמן שעבר</string>
     <string name="who_added">By who</string>
+    <string name="status_color">status color</string>
 </resources>
