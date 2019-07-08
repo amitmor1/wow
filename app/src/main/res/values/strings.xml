@@ -17,4 +17,7 @@
     <string name="time_passed">זמן שעבר</string>
     <string name="who_added">By who</string>
     <string name="status_color">status color</string>
+    <string name="buildings_layer">building</string>
+    <string name="readMoreHebrew">קרא עוד</string>
+    <string name="readLessHebrew">קרא פחות</string>
 </resources>

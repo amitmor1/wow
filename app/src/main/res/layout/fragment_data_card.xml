@@ -25,9 +25,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
-                app:layout_constraintEnd_toStartOf="@+id/DataTypeImage"
+                app:layout_constraintEnd_toEndOf="@+id/DataType"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/DataType">
 
@@ -39,12 +37,12 @@
                     <TextView
                         android:id="@+id/DataSecondTitle"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:lines="2"
                         android:maxLines="2"
                         android:singleLine="false"
                         android:text="@string/data__second_title"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/DataTypeImage"
                         app:layout_constraintTop_toBottomOf="@+id/DataType" />
@@ -56,10 +54,10 @@
                 android:id="@+id/DataType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
                 android:text="@string/data_type"
-                android:textSize="24sp"
+                android:textSize="22sp"
                 app:layout_constraintEnd_toStartOf="@+id/DataTypeImage"
                 app:layout_constraintTop_toTopOf="@+id/DataTypeImage" />
 
@@ -67,25 +65,22 @@
                 android:id="@+id/DataTypeImage"
                 android:layout_width="128dp"
                 android:layout_height="128dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginBottom="24dp"
                 android:contentDescription="@string/image_desctiption"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/BuildingStateColor"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.571"
+                app:layout_constraintTop_toTopOf="@+id/BuildingStateColor"
                 app:srcCompat="@drawable/sunflower" />
 
             <TextView
                 android:id="@+id/TimePassed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="@string/time_passed"
-                app:layout_constraintBottom_toBottomOf="@+id/DataTypeImage"
                 app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
-                app:layout_constraintTop_toBottomOf="@+id/DataTypeImage" />
+                app:layout_constraintTop_toBottomOf="@+id/readMore" />
 
             <ImageView
                 android:id="@+id/BuildingStateColor"
@@ -96,22 +91,50 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="8dp"
                 android:background="@color/sunflowerYellow"
+                android:contentDescription="@string/status_color"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0"
-                android:contentDescription="@string/status_color" />
+                app:layout_constraintVertical_bias="1.0" />
 
             <Button
                 android:id="@+id/closeButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
                 android:background="@android:drawable/presence_offline"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@+id/BuildingStateColor" />
+
+
+            <Button
+                android:id="@+id/readMore"
+                android:layout_width="75dp"
+                android:layout_height="37dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/readMoreHebrew"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
+                app:layout_constraintTop_toBottomOf="@+id/DataDescriptionContainer" />
+
+            <TextView
+                android:id="@+id/moreContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/readMore"
+                app:layout_constraintEnd_toEndOf="@+id/DataDescriptionContainer"
+                app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer" />
+
+            <!--<TextView-->
+            <!--android:id="@+id/readMore"-->
+            <!--android:layout_width="54dp"-->
+            <!--android:layout_height="18dp"-->
+            <!--android:layout_marginTop="8dp"-->
+            <!--android:text="קרא עוד"-->
+            <!--app:layout_constraintEnd_toEndOf="@+id/DataDescriptionContainer"-->
+            <!--app:layout_constraintTop_toBottomOf="@+id/DataDescriptionContainer" />-->
 
         </android.support.constraint.ConstraintLayout>
 

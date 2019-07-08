@@ -23,6 +23,7 @@ class DataCardFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_data_card, container, false)
+        initReadMoreButton(view)
         initCloseCardByClick(view)
         initCloseCardButton(view)
         initFlingCloseListener(view)
@@ -50,6 +51,18 @@ class DataCardFragment : Fragment() {
     interface OnFragmentInteractionListener {
 
         fun onFragmentInteraction()
+    }
+
+    private fun initReadMoreButton(view: View) {
+        view.readMore.setOnClickListener {
+            if (view.moreContent.visibility == View.GONE) {
+                view.moreContent.visibility = View.VISIBLE
+                view.readMore.text = getString(R.string.readLessHebrew)
+            } else {
+                view.moreContent.visibility = View.GONE
+                view.readMore.text = getString(R.string.readMoreHebrew)
+            }
+        }
     }
 
     private fun initCloseCardByClick(view: View) {
