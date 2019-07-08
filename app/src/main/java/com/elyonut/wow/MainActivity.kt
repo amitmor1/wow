@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.Settings
@@ -15,6 +14,7 @@ import android.view.View
 import android.widget.Toast
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
@@ -29,11 +29,14 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.offline.*
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
+import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionOpacity
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.json.JSONObject
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback,
+class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback, MapboxMap.OnMapClickListener,
     DataCardFragment.OnFragmentInteractionListener {
 
     private lateinit var mapView: MapView
@@ -46,7 +49,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private var lowHeightColor = rgb(242, 241, 45)
     private var middleHeightColor = rgb(218, 156, 32)
     private var highHeightColor = rgb(255, 0, 0)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(applicationContext, getString(R.string.MAPBOX_ACCESS_TOKEN))
@@ -57,21 +59,53 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initLocationButton()
-        initOpenCardButton()
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
 
         mapboxMap.setStyle(getString(R.string.style_url)) { style ->
+            mapboxMap.addOnMapClickListener(this)
             startLocationService(style)
+
             initOfflineMap(style)
             setBuildingFilter(style)
+            style.addSource(GeoJsonSource("selectedSrc"))
+            style.addLayer(FillLayer("selectedBuilding", "selectedSrc").withProperties(fillExtrusionOpacity(0.7f)))
         }
     }
 
+    override fun onMapClick(latLng: LatLng): Boolean {
+
+        val loadedMapStyle = map.style
+
+        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+            return false
+        }
+
+        val point = map.projection.toScreenLocation(latLng)
+        val features = map.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+
+        if (features.size > 0) {
+//            val s = GeoJsonSource("chosenSrc", FeatureCollection.fromFeatures(features))
+//            if (!loadedMapStyle.sources.map { s -> s.id }.contains("chosenSrc")) {
+//                loadedMapStyle.addSource(s)
+//                loadedMapStyle.addLayer(FillLayer("", "chosenSrc").withProperties(fillExtrusionOpacity(0.7f)))
+//            } else {
+//                if (loadedMapStyle.sources.map { s -> s. })
+//            }
+            val selectedBuildingSource = loadedMapStyle.getSourceAs<GeoJsonSource>("selectedSrc")
+            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+            val dataCardFragmentInstance = DataCardFragment.newInstance()
+            if (supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
+                supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
+
+        }
+        return false
+    }
+
     private fun setBuildingFilter(style: Style) {
-        val buildingLayer = style.getLayer("building")
+        val buildingLayer = style.getLayer(getString(R.string.buildings_layer))
         (buildingLayer as FillExtrusionLayer).withProperties(
             fillExtrusionColor(
                 step(
@@ -80,17 +114,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                     stop(10, middleHeightColor),
                     stop(100, highHeightColor)
                 )
-            )
+            ), fillExtrusionOpacity(0.5f)
         )
-    }
 
-    private fun initOpenCardButton() {
-        val openCard = findViewById<View>(R.id.floatingActionButton)
-        val dataCardFragmentInstance = DataCardFragment.newInstance()
-        openCard.setOnClickListener {
-            if (supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
-                supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
-        }
     }
 
     private fun initLocationButton() {
@@ -270,6 +296,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     override fun onDestroy() {
         super.onDestroy()
+        map.removeOnMapClickListener(this)
         mapView.onDestroy()
     }
 
