@@ -11,4 +11,7 @@
     <string name="no_thanks_hebrew">לא, תודה</string>
     <string name="turn_on_location_title">הפעלת שירותי מיקום</string>
     <string name="STYLE_ACCESS_TOKEN">mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x</string>
+    <string name="grey_status">אפור</string>
+    <string name="orange_status">כתום</string>
+    <string name="red_status">אדום</string>
 </resources>

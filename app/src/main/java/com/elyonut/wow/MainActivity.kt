@@ -3,6 +3,7 @@ package com.elyonut.wow
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -14,6 +15,7 @@ import android.view.View
 import android.widget.Toast
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
@@ -31,6 +33,7 @@ import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor
 import org.json.JSONObject
 import timber.log.Timber
+import java.io.InputStream
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -38,12 +41,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private lateinit var map: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
+    private var riskStatus = R.string.grey_status
 
     // Constant values
-    private var defaultColor = rgb(0,0,0)
-    private var lowHeightColor = rgb(242, 241, 45)
-    private var middleHeightColor = rgb(218, 156, 32)
-    private var highHeightColor = rgb(255,0,0)
+    private val defaultColor = rgb(0,0,0)
+    private val lowHeightColor = rgb(242, 241, 45)
+    private val middleHeightColor = rgb(218, 156, 32)
+    private val highHeightColor = rgb(255,0,0)
+    private val myRiskRadius = 3000.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +68,56 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             startLocationService(style)
             initOfflineMap(style)
             setBuildingFilter(style)
+            calcRiskStatus()
         }
+    }
+
+    private fun getFeatures(): FeatureCollection {
+        val stream: InputStream = assets.open("features.geojson")
+        val size = stream.available()
+        val buffer = ByteArray(size)
+        stream.read(buffer)
+        stream.close()
+        var jsonObj = String(buffer, charset("UTF-8"))
+        return FeatureCollection.fromJson(jsonObj)
+    }
+
+    private fun calcRiskStatus() {
+        val allFeatures = getFeatures()
+        var mylocation: Location = Location("")
+        mylocation.setLatitude(5.2)
+        mylocation.setLongitude(2.3)
+        var featureRiskRadius: Double
+        var featureCurrentLocation: LatLng
+
+        allFeatures.features()?.forEach {
+            val currentLatitude = it.properties()?.get("latitude")
+            val currentLongitude = it.properties()?.get("longitude")
+
+            if ((currentLatitude != null) && (currentLongitude != null)) {
+                featureCurrentLocation = LatLng(currentLatitude!!.asDouble, currentLongitude!!.asDouble)
+                featureRiskRadius = it.properties()?.get("radius")!!.asDouble
+
+                var distSq: Double = kotlin.math.sqrt(
+                    ((mylocation.longitude - featureCurrentLocation.longitude)
+                            * (mylocation.longitude - featureCurrentLocation.longitude))
+                            + ((mylocation.latitude - featureCurrentLocation.latitude)
+                            * (mylocation.latitude - featureCurrentLocation.latitude))
+                )
+
+                if (distSq + featureRiskRadius <= myRiskRadius) {
+                    riskStatus = R.string.red_status
+                    return@forEach
+                } else {
+                    riskStatus = R.string.orange_status
+                }
+
+                if (distSq > featureRiskRadius + myRiskRadius) {
+                    riskStatus = R.string.grey_status
+                }
+            }
+        }
+
     }
 
     private fun setBuildingFilter(style: Style) {
