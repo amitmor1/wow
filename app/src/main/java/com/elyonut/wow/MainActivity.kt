@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                     riskStatus = R.string.orange_status
                 }
 
-                if (distSq > featureRiskRadius + myRiskRadius) {
+                if (distSq > (featureRiskRadius + myRiskRadius) * (featureRiskRadius + myRiskRadius)) {
                     riskStatus = R.string.grey_status
                 }
             }
