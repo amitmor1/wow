@@ -1,11 +1,13 @@
 package com.elyonut.wow
 
 import android.content.Context
+import android.content.res.Resources
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import kotlinx.android.synthetic.main.fragment_data_card.view.*
 
 class DataCardFragment : Fragment() {
@@ -21,8 +23,12 @@ class DataCardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        var desiredLayoutHeight: Int = getDeviceHeight() * 1 / 3
+        var layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, desiredLayoutHeight)
+
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_data_card, container, false)
+        view.BuildingDataCard.layoutParams = layoutParams
         initReadMoreButton(view)
         initCloseCardByClick(view)
         initCloseCardButton(view)
@@ -54,14 +60,22 @@ class DataCardFragment : Fragment() {
     }
 
     private fun initReadMoreButton(view: View) {
-        view.readMore.setOnClickListener {
-            if (view.moreContent.visibility == View.GONE) {
-                view.moreContent.visibility = View.VISIBLE
-                view.readMore.text = getString(R.string.readLessHebrew)
+        view.ReadMore.setOnClickListener {
+            var desiredLayoutHeight: Int
+            lateinit var layoutParams: FrameLayout.LayoutParams
+            if (view.MoreContent.visibility == View.GONE) {
+                desiredLayoutHeight = getDeviceHeight() * 1 / 2
+                layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, desiredLayoutHeight)
+                view.MoreContent.visibility = View.VISIBLE
+                view.ReadMore.text = getString(R.string.readLessHebrew)
             } else {
-                view.moreContent.visibility = View.GONE
-                view.readMore.text = getString(R.string.readMoreHebrew)
+                desiredLayoutHeight = getDeviceHeight() * 1 / 3
+                layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, desiredLayoutHeight)
+                view.MoreContent.visibility = View.GONE
+                view.ReadMore.text = getString(R.string.readMoreHebrew)
             }
+
+            view.BuildingDataCard.layoutParams = layoutParams
         }
     }
 
@@ -72,7 +86,7 @@ class DataCardFragment : Fragment() {
     }
 
     private fun initCloseCardButton(view: View) {
-        view.closeButton?.setOnClickListener {
+        view.CloseButton?.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         }
     }
@@ -84,6 +98,10 @@ class DataCardFragment : Fragment() {
                 activity?.supportFragmentManager?.beginTransaction()?.remove(this@DataCardFragment)?.commit()
             }
         })
+    }
+
+    private fun getDeviceHeight(): Int {
+        return Resources.getSystem().displayMetrics.heightPixels
     }
 
     companion object {

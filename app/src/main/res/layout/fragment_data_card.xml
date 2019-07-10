@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/parentLayout"
+    android:id="@+id/ParentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
@@ -15,8 +15,9 @@
         android:layout_height="wrap_content">
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/CardConstraint"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <ScrollView
                 android:id="@+id/DataDescriptionContainer"
@@ -30,6 +31,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/DataType">
 
                 <LinearLayout
+                    android:id="@+id/ContentLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
@@ -47,6 +49,17 @@
                         app:layout_constraintStart_toEndOf="@+id/DataTypeImage"
                         app:layout_constraintTop_toBottomOf="@+id/DataType" />
 
+                    <TextView
+                        android:id="@+id/MoreContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n\n ועוד מלא"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="@+id/DataDescriptionContainer"
+                        app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
+                        app:layout_constraintTop_toBottomOf="@+id/DataDescriptionContainer"
+                        tools:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n ועוד מלא"
+                        tools:visibility="visible" />
                 </LinearLayout>
             </ScrollView>
 
@@ -73,19 +86,10 @@
                 app:layout_constraintTop_toTopOf="@+id/BuildingStateColor"
                 app:srcCompat="@drawable/sunflower" />
 
-            <TextView
-                android:id="@+id/TimePassed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/time_passed"
-                app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
-                app:layout_constraintTop_toBottomOf="@+id/readMore" />
-
             <ImageView
                 android:id="@+id/BuildingStateColor"
                 android:layout_width="50dp"
-                android:layout_height="190dp"
+                android:layout_height="0dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
@@ -98,7 +102,7 @@
                 app:layout_constraintVertical_bias="1.0" />
 
             <Button
-                android:id="@+id/closeButton"
+                android:id="@+id/CloseButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="8dp"
@@ -109,32 +113,22 @@
 
 
             <Button
-                android:id="@+id/readMore"
+                android:id="@+id/ReadMore"
                 android:layout_width="75dp"
                 android:layout_height="37dp"
-                android:layout_marginTop="8dp"
                 android:text="@string/readMoreHebrew"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
                 app:layout_constraintTop_toBottomOf="@+id/DataDescriptionContainer" />
 
             <TextView
-                android:id="@+id/moreContent"
+                android:id="@+id/TimePassed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:layout_constraintBottom_toTopOf="@+id/readMore"
-                app:layout_constraintEnd_toEndOf="@+id/DataDescriptionContainer"
-                app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer" />
-
-            <!--<TextView-->
-            <!--android:id="@+id/readMore"-->
-            <!--android:layout_width="54dp"-->
-            <!--android:layout_height="18dp"-->
-            <!--android:layout_marginTop="8dp"-->
-            <!--android:text="קרא עוד"-->
-            <!--app:layout_constraintEnd_toEndOf="@+id/DataDescriptionContainer"-->
-            <!--app:layout_constraintTop_toBottomOf="@+id/DataDescriptionContainer" />-->
+                android:text="@string/time_passed"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
+                app:layout_constraintTop_toBottomOf="@+id/ReadMore" />
 
         </android.support.constraint.ConstraintLayout>
 
