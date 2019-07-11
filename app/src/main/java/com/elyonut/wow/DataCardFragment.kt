@@ -23,12 +23,10 @@ class DataCardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        var desiredLayoutHeight: Int = getDeviceHeight() * 1 / 3
-        var layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, desiredLayoutHeight)
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_data_card, container, false)
-        view.BuildingDataCard.layoutParams = layoutParams
+        view.BuildingDataCard.layoutParams = getRelativeLayoutParams(0.33)
         initReadMoreButton(view)
         initCloseCardByClick(view)
         initCloseCardButton(view)
@@ -36,46 +34,17 @@ class DataCardFragment : Fragment() {
         return view
     }
 
-    fun onButtonPressed() {
-        listener?.onFragmentInteraction()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            listener = context
-        } else {
-            throw RuntimeException("$context must implement OnFragmentInteractionListener")
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
-    }
-
-    interface OnFragmentInteractionListener {
-
-        fun onFragmentInteraction()
-    }
-
     private fun initReadMoreButton(view: View) {
         view.ReadMore.setOnClickListener {
-            var desiredLayoutHeight: Int
-            lateinit var layoutParams: FrameLayout.LayoutParams
             if (view.MoreContent.visibility == View.GONE) {
-                desiredLayoutHeight = getDeviceHeight() * 1 / 2
-                layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, desiredLayoutHeight)
+                view.BuildingDataCard.layoutParams = getRelativeLayoutParams(0.5)
                 view.MoreContent.visibility = View.VISIBLE
                 view.ReadMore.text = getString(R.string.readLessHebrew)
             } else {
-                desiredLayoutHeight = getDeviceHeight() * 1 / 3
-                layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, desiredLayoutHeight)
+                view.BuildingDataCard.layoutParams = getRelativeLayoutParams(0.33)
                 view.MoreContent.visibility = View.GONE
                 view.ReadMore.text = getString(R.string.readMoreHebrew)
             }
-
-            view.BuildingDataCard.layoutParams = layoutParams
         }
     }
 
@@ -100,8 +69,39 @@ class DataCardFragment : Fragment() {
         })
     }
 
+    private fun getRelativeLayoutParams(sizeRelativelyToScreen: Double): FrameLayout.LayoutParams {
+        return FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            (getDeviceHeight() * sizeRelativelyToScreen).toInt()
+        )
+    }
+
     private fun getDeviceHeight(): Int {
         return Resources.getSystem().displayMetrics.heightPixels
+    }
+
+    fun onButtonPressed() {
+        listener?.onFragmentInteraction()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFragmentInteractionListener) {
+            listener = context
+        } else {
+            throw RuntimeException("$context must implement OnFragmentInteractionListener")
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        listener = null
+    }
+
+    interface OnFragmentInteractionListener {
+
+        fun onFragmentInteraction()
+
     }
 
     companion object {
