@@ -11,6 +11,11 @@ import android.widget.FrameLayout
 import kotlinx.android.synthetic.main.fragment_data_card.view.*
 
 class DataCardFragment : Fragment() {
+
+    // const variables
+    private val cardSizeRelativeToScreen = 0.33
+    private val openedCardSizeRelativeToScreen = 0.5
+
     private var listener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +31,7 @@ class DataCardFragment : Fragment() {
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_data_card, container, false)
-        view.BuildingDataCard.layoutParams = getRelativeLayoutParams(0.33)
+        view.BuildingDataCard.layoutParams = getRelativeLayoutParams(cardSizeRelativeToScreen)
         initReadMoreButton(view)
         initCloseCardByClick(view)
         initCloseCardButton(view)
@@ -37,11 +42,11 @@ class DataCardFragment : Fragment() {
     private fun initReadMoreButton(view: View) {
         view.ReadMore.setOnClickListener {
             if (view.MoreContent.visibility == View.GONE) {
-                view.BuildingDataCard.layoutParams = getRelativeLayoutParams(0.5)
+                view.BuildingDataCard.layoutParams = getRelativeLayoutParams(openedCardSizeRelativeToScreen)
                 view.MoreContent.visibility = View.VISIBLE
                 view.ReadMore.text = getString(R.string.readLessHebrew)
             } else {
-                view.BuildingDataCard.layoutParams = getRelativeLayoutParams(0.33)
+                view.BuildingDataCard.layoutParams = getRelativeLayoutParams(cardSizeRelativeToScreen)
                 view.MoreContent.visibility = View.GONE
                 view.ReadMore.text = getString(R.string.readMoreHebrew)
             }
@@ -50,13 +55,13 @@ class DataCardFragment : Fragment() {
 
     private fun initCloseCardByClick(view: View) {
         view.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
+            closeCard()
         }
     }
 
     private fun initCloseCardButton(view: View) {
         view.CloseButton?.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
+            closeCard()
         }
     }
 
@@ -64,9 +69,13 @@ class DataCardFragment : Fragment() {
         view.BuildingDataCard.setOnTouchListener(object : OnSwipeTouchListener(this@DataCardFragment.context!!) {
             override fun onSwipeRight() {
                 super.onSwipeRight()
-                activity?.supportFragmentManager?.beginTransaction()?.remove(this@DataCardFragment)?.commit()
+                closeCard()
             }
         })
+    }
+
+    private fun closeCard() {
+        activity?.supportFragmentManager?.beginTransaction()?.remove(this@DataCardFragment)?.commit()
     }
 
     private fun getRelativeLayoutParams(sizeRelativelyToScreen: Double): FrameLayout.LayoutParams {
