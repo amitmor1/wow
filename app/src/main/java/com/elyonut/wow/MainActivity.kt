@@ -30,8 +30,7 @@ import com.mapbox.mapboxsdk.offline.*
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
 import com.mapbox.mapboxsdk.style.layers.FillLayer
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionOpacity
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.json.JSONObject
 import timber.log.Timber
@@ -67,11 +66,13 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapboxMap.setStyle(getString(R.string.style_url)) { style ->
             mapboxMap.addOnMapClickListener(this)
             startLocationService(style)
-
             initOfflineMap(style)
             setBuildingFilter(style)
-            style.addSource(GeoJsonSource("selectedSrc"))
-            style.addLayer(FillLayer("selectedBuilding", "selectedSrc").withProperties(fillExtrusionOpacity(0.7f)))
+            style.addSource(GeoJsonSource(getString(R.string.selectedBuildingSourceId)))
+            style.addLayer(FillLayer(
+                getString(R.string.selectedBuildingLayerId),
+                getString(R.string.selectedBuildingSourceId)
+            ).withProperties(fillExtrusionOpacity(0.7f)))
         }
     }
 
@@ -87,15 +88,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         val features = map.queryRenderedFeatures(point, getString(R.string.buildings_layer))
 
         if (features.size > 0) {
-//            val s = GeoJsonSource("chosenSrc", FeatureCollection.fromFeatures(features))
-//            if (!loadedMapStyle.sources.map { s -> s.id }.contains("chosenSrc")) {
-//                loadedMapStyle.addSource(s)
-//                loadedMapStyle.addLayer(FillLayer("", "chosenSrc").withProperties(fillExtrusionOpacity(0.7f)))
-//            } else {
-//                if (loadedMapStyle.sources.map { s -> s. })
-//            }
-            val selectedBuildingSource = loadedMapStyle.getSourceAs<GeoJsonSource>("selectedSrc")
+            val selectedBuildingSource =
+                loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
             selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+
             val dataCardFragmentInstance = DataCardFragment.newInstance()
             if (supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
                 supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()

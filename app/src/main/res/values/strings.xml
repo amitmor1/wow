@@ -20,4 +20,6 @@
     <string name="buildings_layer">building</string>
     <string name="readMoreHebrew">קרא עוד</string>
     <string name="readLessHebrew">קרא פחות</string>
+    <string name="selectedBuildingSourceId">selectedBuildingSrc</string>
+    <string name="selectedBuildingLayerId">selectedBuildingLayer</string>
 </resources>
