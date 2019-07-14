@@ -68,11 +68,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             startLocationService(style)
             initOfflineMap(style)
             setBuildingFilter(style)
-            style.addSource(GeoJsonSource(getString(R.string.selectedBuildingSourceId)))
-            style.addLayer(FillLayer(
-                getString(R.string.selectedBuildingLayerId),
-                getString(R.string.selectedBuildingSourceId)
-            ).withProperties(fillExtrusionOpacity(0.7f)))
+            setSelectedBuildingLayer(style)
         }
     }
 
@@ -97,11 +93,12 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                 supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
 
         }
-        return false
+
+        return true
     }
 
-    private fun setBuildingFilter(style: Style) {
-        val buildingLayer = style.getLayer(getString(R.string.buildings_layer))
+    private fun setBuildingFilter(loadedMapStyle: Style) {
+        val buildingLayer = loadedMapStyle.getLayer(getString(R.string.buildings_layer))
         (buildingLayer as FillExtrusionLayer).withProperties(
             fillExtrusionColor(
                 step(
@@ -113,6 +110,16 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             ), fillExtrusionOpacity(0.5f)
         )
 
+    }
+
+    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
+        loadedMapStyle.addSource(GeoJsonSource(getString(R.string.selectedBuildingSourceId)))
+        loadedMapStyle.addLayer(
+            FillLayer(
+                getString(R.string.selectedBuildingLayerId),
+                getString(R.string.selectedBuildingSourceId)
+            ).withProperties(fillExtrusionOpacity(0.7f))
+        )
     }
 
     private fun initLocationButton() {
@@ -319,3 +326,14 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 }
+
+
+//            style.addSource(VectorSource("vector-source", "mapbox.mapbox-streets-v8"))
+//            val fillExtrusionLayer = FillExtrusionLayer("building3D", "vector-source").withProperties(
+//                fillExtrusionOpacity(0.5f))
+//            fillExtrusionLayer.withProperties(fillExtrusionColor(middleHeightColor), fillExtrusionHeight(1000f))
+//            style.addLayer(fillExtrusionLayer)
+//            val tmpLayer = FillLayer(
+//                getString(R.string.selectedBuildingLayerId),
+//                getString(R.string.selectedBuildingSourceId)
+//            ).withProperties(fillExtrusionOpacity(0.7f))
