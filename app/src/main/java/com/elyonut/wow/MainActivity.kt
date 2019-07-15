@@ -49,6 +49,8 @@ private const val LOW_HEIGHT_COLOR = Color.YELLOW
 private const val MIDDLE_HEIGHT_COLOR = Color.MAGENTA
 private const val HIGH_HEIGHT_COLOR = Color.RED
 private const val MY_RISK_RADIUS = 300.0
+private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
+private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -61,8 +63,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     // Variables needed to add the location engine
     private lateinit var locationEngine: LocationEngine
-    private var DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
-    private var DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
     // Variables needed to listen to location updates
     private var callback: MainActivityLocationCallback = MainActivityLocationCallback(this)
