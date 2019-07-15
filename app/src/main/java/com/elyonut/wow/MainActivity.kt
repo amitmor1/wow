@@ -1,8 +1,10 @@
 package com.elyonut.wow
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -13,6 +15,11 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import com.mapbox.android.core.location.LocationEngine
+import com.mapbox.android.core.location.LocationEngineProvider
+import com.mapbox.android.core.location.LocationEngineRequest
+import com.mapbox.android.core.location.LocationEngineResult
+import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.FeatureCollection
@@ -34,6 +41,14 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.InputStream
+import java.lang.ref.WeakReference
+
+// Constant values
+private const val DEFAULT_COLOR = Color.GRAY
+private const val LOW_HEIGHT_COLOR = Color.YELLOW
+private const val MIDDLE_HEIGHT_COLOR = Color.MAGENTA
+private const val HIGH_HEIGHT_COLOR = Color.RED
+private const val MY_RISK_RADIUS = 300.0
 
 class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -41,14 +56,16 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private lateinit var map: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
-    private var riskStatus = R.string.grey_status
+    private var riskStatus: String = R.string.grey_status.toString()
+    private var lastLocation: Location? = null
 
-    // Constant values
-    private val defaultColor = rgb(0,0,0)
-    private val lowHeightColor = rgb(242, 241, 45)
-    private val middleHeightColor = rgb(218, 156, 32)
-    private val highHeightColor = rgb(255,0,0)
-    private val myRiskRadius = 3000.0
+    // Variables needed to add the location engine
+    private lateinit var locationEngine: LocationEngine
+    private var DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
+    private var DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
+
+    // Variables needed to listen to location updates
+    private var callback: MainActivityLocationCallback = MainActivityLocationCallback(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +85,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             startLocationService(style)
             initOfflineMap(style)
             setBuildingFilter(style)
-            calcRiskStatus()
         }
     }
 
@@ -82,38 +98,35 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         return FeatureCollection.fromJson(jsonObj)
     }
 
-    private fun calcRiskStatus() {
+    private fun calcRiskStatus(location: Location) {
         val allFeatures = getFeatures()
-        var mylocation: Location = Location("")
-        mylocation.setLatitude(5.2)
-        mylocation.setLongitude(2.3)
-        var featureRiskRadius: Double
-        var featureCurrentLocation: LatLng
+        //var featureRiskRadius
+        var currentFeatureLocation : LatLng
 
-        allFeatures.features()?.forEach {
-            val currentLatitude = it.properties()?.get("latitude")
-            val currentLongitude = it.properties()?.get("longitude")
+        run loop@{
+            riskStatus = R.string.grey_status.toString()
 
-            if ((currentLatitude != null) && (currentLongitude != null)) {
-                featureCurrentLocation = LatLng(currentLatitude!!.asDouble, currentLongitude!!.asDouble)
-                featureRiskRadius = it.properties()?.get("radius")!!.asDouble
+            allFeatures.features()?.forEach { it ->
+                val currentLatitude = it.properties()?.get("latitude")
+                val currentLongitude = it.properties()?.get("longitude")
 
-                var distSq: Double = kotlin.math.sqrt(
-                    ((mylocation.longitude - featureCurrentLocation.longitude)
-                            * (mylocation.longitude - featureCurrentLocation.longitude))
-                            + ((mylocation.latitude - featureCurrentLocation.latitude)
-                            * (mylocation.latitude - featureCurrentLocation.latitude))
-                )
+                if ((currentLatitude != null) || (currentLongitude != null)) {
+                    currentFeatureLocation = LatLng(currentLatitude!!.asDouble, currentLongitude!!.asDouble)
+                    var featureRiskRadius = it.properties()?.get("radius").let { t-> t?.asDouble }
 
-                if (distSq + featureRiskRadius <= myRiskRadius) {
-                    riskStatus = R.string.red_status
-                    return@forEach
-                } else {
-                    riskStatus = R.string.orange_status
-                }
+                    var distSq: Double = kotlin.math.sqrt(
+                        ((location.longitude - currentFeatureLocation.longitude)
+                                * (location.longitude - currentFeatureLocation.longitude))
+                                + ((location.latitude - currentFeatureLocation.latitude)
+                                * (location.latitude - currentFeatureLocation.latitude))
+                    )
 
-                if (distSq > (featureRiskRadius + myRiskRadius) * (featureRiskRadius + myRiskRadius)) {
-                    riskStatus = R.string.grey_status
+                    if (distSq + MY_RISK_RADIUS <= featureRiskRadius!!) {
+                        riskStatus = R.string.red_status.toString()
+                        return@loop
+                    } else if ((kotlin.math.abs(MY_RISK_RADIUS - featureRiskRadius) <= distSq  && distSq <= (MY_RISK_RADIUS + featureRiskRadius))) {
+                        riskStatus = R.string.orange_status.toString()
+                    }
                 }
             }
         }
@@ -121,12 +134,16 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     }
 
     private fun setBuildingFilter(style: Style) {
-        val buildingLayer =  style.getLayer("building")
+        val buildingLayer = style.getLayer("building")
         (buildingLayer as FillExtrusionLayer).withProperties(
-            fillExtrusionColor(step((get("height")), defaultColor,
-                stop(3,lowHeightColor),
-                stop(10, middleHeightColor),
-                stop(100, highHeightColor)))
+            fillExtrusionColor(
+                step(
+                    (get("height")), color(DEFAULT_COLOR),
+                    stop(3, color(LOW_HEIGHT_COLOR)),
+                    stop(10, color(MIDDLE_HEIGHT_COLOR)),
+                    stop(100, color(HIGH_HEIGHT_COLOR))
+                )
+            )
         )
     }
 
@@ -256,6 +273,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                 renderMode = RenderMode.COMPASS
             }
 
+            initLocationEngine()
+
         } else {
             permissionsManager = PermissionsManager(this)
             permissionsManager.requestLocationPermissions(this)
@@ -291,6 +310,59 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
+    @SuppressLint("MissingPermission")
+    private fun initLocationEngine() {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(this)
+
+        var request: LocationEngineRequest = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+            .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+            .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
+
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper())
+        locationEngine.getLastLocation(callback)
+    }
+
+    private class MainActivityLocationCallback : LocationEngineCallback<LocationEngineResult> {
+        private var activityWeakReference: WeakReference<MainActivity>
+
+        constructor(activity: MainActivity) {
+            this.activityWeakReference = WeakReference(activity)
+        }
+
+        override fun onSuccess(result: LocationEngineResult?) {
+            var activity: MainActivity = activityWeakReference.get()!!
+
+            if (activity != null) {
+                var location: Location = result!!.getLastLocation()!!
+
+                if (location == null) {
+                    return
+                }
+
+                if (activity.lastLocation == null || ((activity.lastLocation)?.longitude != location.longitude || (activity.lastLocation)?.latitude != location.latitude)) {
+                    activity.calcRiskStatus(location)
+                }
+
+                // Pass the new location to the Maps SDK's LocationComponent
+                if (activity.map != null && result.getLastLocation() != null) {
+                    activity.map.getLocationComponent().forceLocationUpdate(result.getLastLocation())
+                    activity.lastLocation = location
+                }
+            }
+        }
+
+        override fun onFailure(exception: java.lang.Exception) {
+            //Log.d("LocationChangeActivity", exception.localizedMessage)
+            val activity = activityWeakReference.get()
+            if (activity != null) {
+                Toast.makeText(
+                    activity, exception.localizedMessage,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
     @SuppressWarnings("MissingPermission")
     override fun onStart() {
         super.onStart()
@@ -304,6 +376,10 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     override fun onDestroy() {
         super.onDestroy()
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback)
+        }
         mapView.onDestroy()
     }
 
