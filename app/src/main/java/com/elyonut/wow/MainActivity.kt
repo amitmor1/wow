@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
     private var riskStatus: String = R.string.grey_status.toString()
-    private var lastLocation: Location? = null
+    private var lastUpdatedLocation: Location? = null
 
     // Variables needed to add the location engine
     private lateinit var locationEngine: LocationEngine
@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         val buffer = ByteArray(size)
         stream.read(buffer)
         stream.close()
-        var jsonObj = String(buffer, charset("UTF-8"))
+        val jsonObj = String(buffer, charset("UTF-8"))
         return FeatureCollection.fromJson(jsonObj)
     }
 
@@ -112,9 +112,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
                 if ((currentLatitude != null) || (currentLongitude != null)) {
                     currentFeatureLocation = LatLng(currentLatitude!!.asDouble, currentLongitude!!.asDouble)
-                    var featureRiskRadius = it.properties()?.get("radius").let { t-> t?.asDouble }
+                    val featureRiskRadius = it.properties()?.get("radius").let { t-> t?.asDouble }
 
-                    var distSq: Double = kotlin.math.sqrt(
+                    val distSq: Double = kotlin.math.sqrt(
                         ((location.longitude - currentFeatureLocation.longitude)
                                 * (location.longitude - currentFeatureLocation.longitude))
                                 + ((location.latitude - currentFeatureLocation.latitude)
@@ -314,39 +314,31 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private fun initLocationEngine() {
         locationEngine = LocationEngineProvider.getBestLocationEngine(this)
 
-        var request: LocationEngineRequest = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+        val request: LocationEngineRequest = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
             .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
             .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
 
-        locationEngine.requestLocationUpdates(request, callback, getMainLooper())
+        locationEngine.requestLocationUpdates(request, callback, mainLooper)
         locationEngine.getLastLocation(callback)
     }
 
-    private class MainActivityLocationCallback : LocationEngineCallback<LocationEngineResult> {
-        private var activityWeakReference: WeakReference<MainActivity>
-
-        constructor(activity: MainActivity) {
-            this.activityWeakReference = WeakReference(activity)
-        }
+    private class MainActivityLocationCallback(activity: MainActivity) : LocationEngineCallback<LocationEngineResult> {
+        private var activityWeakReference: WeakReference<MainActivity> = WeakReference(activity)
 
         override fun onSuccess(result: LocationEngineResult?) {
-            var activity: MainActivity = activityWeakReference.get()!!
+            val activity: MainActivity? = activityWeakReference.get()
 
             if (activity != null) {
-                var location: Location = result!!.getLastLocation()!!
+                val location: Location = result?.lastLocation ?:  return
 
-                if (location == null) {
-                    return
-                }
-
-                if (activity.lastLocation == null || ((activity.lastLocation)?.longitude != location.longitude || (activity.lastLocation)?.latitude != location.latitude)) {
+                if (activity.lastUpdatedLocation == null || ((activity.lastUpdatedLocation)?.longitude != location.longitude || (activity.lastUpdatedLocation)?.latitude != location.latitude)) {
                     activity.calcRiskStatus(location)
                 }
 
                 // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.map != null && result.getLastLocation() != null) {
-                    activity.map.getLocationComponent().forceLocationUpdate(result.getLastLocation())
-                    activity.lastLocation = location
+                if (result.lastLocation != null) {
+                    activity.map.locationComponent.forceLocationUpdate(result.lastLocation)
+                    activity.lastUpdatedLocation = location
                 }
             }
         }
