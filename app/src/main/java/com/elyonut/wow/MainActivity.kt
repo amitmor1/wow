@@ -100,7 +100,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     private fun calcRiskStatus(location: Location) {
         val allFeatures = getFeatures()
-        //var featureRiskRadius
         var currentFeatureLocation : LatLng
 
         run loop@{
@@ -344,7 +343,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
 
         override fun onFailure(exception: java.lang.Exception) {
-            //Log.d("LocationChangeActivity", exception.localizedMessage)
             val activity = activityWeakReference.get()
             if (activity != null) {
                 Toast.makeText(
