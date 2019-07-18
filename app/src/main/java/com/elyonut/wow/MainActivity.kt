@@ -1,8 +1,11 @@
 package com.elyonut.wow
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -12,8 +15,14 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import com.mapbox.android.core.location.LocationEngine
+import com.mapbox.android.core.location.LocationEngineProvider
+import com.mapbox.android.core.location.LocationEngineRequest
+import com.mapbox.android.core.location.LocationEngineResult
+import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
@@ -28,27 +37,44 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.offline.*
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor
+import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.json.JSONObject
 import timber.log.Timber
+import java.io.InputStream
+import java.lang.ref.WeakReference
 
-class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
+// Constant values
+private const val DEFAULT_COLOR = Color.GRAY
+private const val LOW_HEIGHT_COLOR = Color.YELLOW
+private const val MIDDLE_HEIGHT_COLOR = Color.MAGENTA
+private const val HIGH_HEIGHT_COLOR = Color.RED
+private const val MY_RISK_RADIUS = 300.0
+private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
+private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
+
+class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback, MapboxMap.OnMapClickListener,
+    DataCardFragment.OnFragmentInteractionListener {
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private lateinit var locationManager: LocationManager
+    private var riskStatus: String = R.string.grey_status.toString()
+    private var lastUpdatedLocation: Location? = null
 
-    // Constant values
-    private var defaultColor = rgb(0,0,0)
-    private var lowHeightColor = rgb(242, 241, 45)
-    private var middleHeightColor = rgb(218, 156, 32)
-    private var highHeightColor = rgb(255,0,0)
+    // Variables needed to add the location engine
+    private lateinit var locationEngine: LocationEngine
+
+    // Variables needed to listen to location updates
+    private var callback: MainActivityLocationCallback = MainActivityLocationCallback(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(applicationContext, getString(R.string.MAPBOX_ACCESS_TOKEN))
         setContentView(R.layout.activity_main)
+        Timber.plant(Timber.DebugTree())
         Timber.i("started app")
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
@@ -60,19 +86,105 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         map = mapboxMap
 
         mapboxMap.setStyle(getString(R.string.style_url)) { style ->
+            mapboxMap.addOnMapClickListener(this)
             startLocationService(style)
             initOfflineMap(style)
             setBuildingFilter(style)
+            setSelectedBuildingLayer(style)
         }
     }
 
-    private fun setBuildingFilter(style: Style) {
-        val buildingLayer =  style.getLayer("building")
+    override fun onMapClick(latLng: LatLng): Boolean {
+
+        val loadedMapStyle = map.style
+
+        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+            return false
+        }
+
+        val point = map.projection.toScreenLocation(latLng)
+        val features = map.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+
+        if (features.size > 0) {
+            val selectedBuildingSource =
+                loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
+            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+
+            val dataCardFragmentInstance = DataCardFragment.newInstance()
+            if (supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
+                supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
+
+        }
+
+        return true
+    }
+
+    private fun getFeatures(): FeatureCollection {
+        val stream: InputStream = assets.open("features.geojson")
+        val size = stream.available()
+        val buffer = ByteArray(size)
+        stream.read(buffer)
+        stream.close()
+        val jsonObj = String(buffer, charset("UTF-8"))
+        return FeatureCollection.fromJson(jsonObj)
+    }
+
+    private fun calcRiskStatus(location: Location) {
+        val allFeatures = getFeatures()
+        var currentFeatureLocation : LatLng
+
+        run loop@{
+            riskStatus = R.string.grey_status.toString()
+
+            allFeatures.features()?.forEach { it ->
+                val currentLatitude = it.properties()?.get("latitude")
+                val currentLongitude = it.properties()?.get("longitude")
+
+                if ((currentLatitude != null) || (currentLongitude != null)) {
+                    currentFeatureLocation = LatLng(currentLatitude!!.asDouble, currentLongitude!!.asDouble)
+                    val featureRiskRadius = it.properties()?.get("radius").let { t-> t?.asDouble }
+
+                    val distSq: Double = kotlin.math.sqrt(
+                        ((location.longitude - currentFeatureLocation.longitude)
+                                * (location.longitude - currentFeatureLocation.longitude))
+                                + ((location.latitude - currentFeatureLocation.latitude)
+                                * (location.latitude - currentFeatureLocation.latitude))
+                    )
+
+                    if (distSq + MY_RISK_RADIUS <= featureRiskRadius!!) {
+                        riskStatus = R.string.red_status.toString()
+                        return@loop
+                    } else if ((kotlin.math.abs(MY_RISK_RADIUS - featureRiskRadius) <= distSq  && distSq <= (MY_RISK_RADIUS + featureRiskRadius))) {
+                        riskStatus = R.string.orange_status.toString()
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun setBuildingFilter(loadedMapStyle: Style) {
+        val buildingLayer = loadedMapStyle.getLayer(getString(R.string.buildings_layer))
         (buildingLayer as FillExtrusionLayer).withProperties(
-            fillExtrusionColor(step((get("height")), defaultColor,
-                stop(3,lowHeightColor),
-                stop(10, middleHeightColor),
-                stop(100, highHeightColor)))
+            fillExtrusionColor(
+                step(
+                    (get("height")), color(DEFAULT_COLOR),
+                    stop(3, color(LOW_HEIGHT_COLOR)),
+                    stop(10, color(MIDDLE_HEIGHT_COLOR)),
+                    stop(100, color(HIGH_HEIGHT_COLOR))
+                )
+            ), fillExtrusionOpacity(0.5f)
+        )
+
+    }
+
+    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
+        loadedMapStyle.addSource(GeoJsonSource(getString(R.string.selectedBuildingSourceId)))
+        loadedMapStyle.addLayer(
+            FillLayer(
+                getString(R.string.selectedBuildingLayerId),
+                getString(R.string.selectedBuildingSourceId)
+            ).withProperties(fillExtrusionOpacity(0.7f))
         )
     }
 
@@ -202,6 +314,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                 renderMode = RenderMode.COMPASS
             }
 
+            initLocationEngine()
+
         } else {
             permissionsManager = PermissionsManager(this)
             permissionsManager.requestLocationPermissions(this)
@@ -222,10 +336,6 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         }
     }
 
-    override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
-
-    }
-
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
             if (map.style != null) {
@@ -234,6 +344,57 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         } else {
             Toast.makeText(this, getString(R.string.permission_not_granted), Toast.LENGTH_LONG).show()
             finish()
+        }
+    }
+
+    override fun onFragmentInteraction() {
+    }
+
+    override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initLocationEngine() {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(this)
+
+        val request: LocationEngineRequest = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+            .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+            .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
+
+        locationEngine.requestLocationUpdates(request, callback, mainLooper)
+        locationEngine.getLastLocation(callback)
+    }
+
+    private class MainActivityLocationCallback(activity: MainActivity) : LocationEngineCallback<LocationEngineResult> {
+        private var activityWeakReference: WeakReference<MainActivity> = WeakReference(activity)
+
+        override fun onSuccess(result: LocationEngineResult?) {
+            val activity: MainActivity? = activityWeakReference.get()
+
+            if (activity != null) {
+                val location: Location = result?.lastLocation ?:  return
+
+                if (activity.lastUpdatedLocation == null || ((activity.lastUpdatedLocation)?.longitude != location.longitude || (activity.lastUpdatedLocation)?.latitude != location.latitude)) {
+                    activity.calcRiskStatus(location)
+                }
+
+                // Pass the new location to the Maps SDK's LocationComponent
+                if (result.lastLocation != null) {
+                    activity.map.locationComponent.forceLocationUpdate(result.lastLocation)
+                    activity.lastUpdatedLocation = location
+                }
+            }
+        }
+
+        override fun onFailure(exception: java.lang.Exception) {
+            val activity = activityWeakReference.get()
+            if (activity != null) {
+                Toast.makeText(
+                    activity, exception.localizedMessage,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -250,6 +411,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     override fun onDestroy() {
         super.onDestroy()
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback)
+        }
+        map.removeOnMapClickListener(this)
         mapView.onDestroy()
     }
 
