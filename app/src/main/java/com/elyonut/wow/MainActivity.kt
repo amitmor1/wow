@@ -1,6 +1,7 @@
 package com.elyonut.wow
 
 import android.annotation.SuppressLint
+import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -53,7 +54,9 @@ private const val MY_RISK_RADIUS = 300.0
 private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
 private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
-class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback, MapboxMap.OnMapClickListener,
+interface IActivity{}
+
+class MainActivity : AppCompatActivity(), IActivity, PermissionsListener, OnMapReadyCallback, MapboxMap.OnMapClickListener,
     DataCardFragment.OnFragmentInteractionListener {
 
     private lateinit var mapView: MapView
@@ -63,6 +66,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private var riskStatus: String = R.string.grey_status.toString()
     private var lastUpdatedLocation: Location? = null
     val logger: ILogger = TimberLogAdapter()
+    private lateinit var mapViewModel: MapViewModel
 
     // Variables needed to add the location engine
     private lateinit var locationEngine: LocationEngine
@@ -80,6 +84,11 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initLocationButton()
+
+        mapViewModel = MapViewModel(application)
+//        mapViewModel =
+//            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MapViewModel::class.java)
+
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -96,27 +105,29 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     override fun onMapClick(latLng: LatLng): Boolean {
 
-        val loadedMapStyle = map.style
+        return mapViewModel.onMapClick(map, latLng, supportFragmentManager)
 
-        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
-            return false
-        }
-
-        val point = map.projection.toScreenLocation(latLng)
-        val features = map.queryRenderedFeatures(point, getString(R.string.buildings_layer))
-
-        if (features.size > 0) {
-            val selectedBuildingSource =
-                loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
-            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
-
-            val dataCardFragmentInstance = DataCardFragment.newInstance()
-            if (supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
-                supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
-
-        }
-
-        return true
+//        val loadedMapStyle = map.style
+//
+//        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+//            return false
+//        }
+//
+//        val point = map.projection.toScreenLocation(latLng)
+//        val features = map.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+//
+//        if (features.size > 0) {
+//            val selectedBuildingSource =
+//                loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
+//            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+//
+//            val dataCardFragmentInstance = DataCardFragment.newInstance()
+//            if (supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
+//                supportFragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
+//
+//        }
+//
+//        return true
     }
 
     private fun getFeatures(): FeatureCollection {
@@ -338,9 +349,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
-//            if (map.style != null) {
-//                enableLocationComponent(map.style!!)
-//            }
+            if (map.style != null) {
+                enableLocationComponent(map.style!!)
+            }
         } else {
             Toast.makeText(this, getString(R.string.permission_not_granted), Toast.LENGTH_LONG).show()
             finish()
@@ -376,7 +387,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                 val location: Location = result?.lastLocation ?: return
 
                 if (activity.lastUpdatedLocation == null || ((activity.lastUpdatedLocation)?.longitude != location.longitude || (activity.lastUpdatedLocation)?.latitude != location.latitude)) {
-                    activity.calcRiskStatus(location)
+//                    activity.calcRiskStatus(location)
                 }
 
                 // Pass the new location to the Maps SDK's LocationComponent

@@ -1,20 +1,41 @@
 package com.elyonut.wow
 
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
+import android.support.v4.content.ContextCompat
+import android.widget.Toast
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 
-class PermissionsAdapter: IPermissions, PermissionsListener {
+class PermissionsAdapter(var context: Context) : IPermissions, PermissionsListener {
+    private var permissionsManager: PermissionsManager = PermissionsManager(this)
+    private var hasPermissions = false
+
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onPermissionResult(granted: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (granted) {
+            getLocationPermissions()
+        } else {
+//            Toast.makeText(context, R.string.permission_not_granted.toString(), Toast.LENGTH_LONG).show()
+        }
     }
 
-    private var permissionsManager: PermissionsManager = PermissionsManager(this)
+    override fun getLocationPermissions(): Boolean {
+        if ((PermissionsManager.areLocationPermissionsGranted(context))
+            && (ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
+            hasPermissions = true
+        } else {
+            permissionsManager = PermissionsManager(this)
+            permissionsManager.requestLocationPermissions(context as Activity?)
+        }
 
-    override fun getLocationPermissions() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return hasPermissions
     }
 }

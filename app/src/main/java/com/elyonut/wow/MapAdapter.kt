@@ -4,9 +4,19 @@ import android.content.Context
 import android.graphics.Color
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import java.util.*
 
-class MapAdapter : IMap {
+class MapAdapter : IMap, OnMapReadyCallback {
+    private lateinit var map: MapboxMap
+
+    override fun onMapReady(mapboxMap: MapboxMap) {
+        map = mapboxMap
+
+        mapboxMap.setStyle(R.string.style_url.toString()) {style ->  }
+    }
+
     override fun addLayer(layerId: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
