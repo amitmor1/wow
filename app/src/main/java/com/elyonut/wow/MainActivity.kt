@@ -41,7 +41,6 @@ import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.json.JSONObject
-import timber.log.Timber
 import java.io.InputStream
 import java.lang.ref.WeakReference
 
@@ -63,6 +62,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
     private lateinit var locationManager: LocationManager
     private var riskStatus: String = R.string.grey_status.toString()
     private var lastUpdatedLocation: Location? = null
+    val logger: ILogger = TimberLogAdapter()
 
     // Variables needed to add the location engine
     private lateinit var locationEngine: LocationEngine
@@ -74,8 +74,8 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(applicationContext, getString(R.string.MAPBOX_ACCESS_TOKEN))
         setContentView(R.layout.activity_main)
-        Timber.plant(Timber.DebugTree())
-        Timber.i("started app")
+        logger.initLogger()
+        logger.info("started app")
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     private fun calcRiskStatus(location: Location) {
         val allFeatures = getFeatures()
-        var currentFeatureLocation : LatLng
+        var currentFeatureLocation: LatLng
 
         run loop@{
             riskStatus = R.string.grey_status.toString()
@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
                 if ((currentLatitude != null) || (currentLongitude != null)) {
                     currentFeatureLocation = LatLng(currentLatitude!!.asDouble, currentLongitude!!.asDouble)
-                    val featureRiskRadius = it.properties()?.get("radius").let { t-> t?.asDouble }
+                    val featureRiskRadius = it.properties()?.get("radius").let { t -> t?.asDouble }
 
                     val distSq: Double = kotlin.math.sqrt(
                         ((location.longitude - currentFeatureLocation.longitude)
@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                     if (distSq + MY_RISK_RADIUS <= featureRiskRadius!!) {
                         riskStatus = R.string.red_status.toString()
                         return@loop
-                    } else if ((kotlin.math.abs(MY_RISK_RADIUS - featureRiskRadius) <= distSq  && distSq <= (MY_RISK_RADIUS + featureRiskRadius))) {
+                    } else if ((kotlin.math.abs(MY_RISK_RADIUS - featureRiskRadius) <= distSq && distSq <= (MY_RISK_RADIUS + featureRiskRadius))) {
                         riskStatus = R.string.orange_status.toString()
                     }
                 }
@@ -223,7 +223,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             }
 
             override fun onError(error: String?) {
-                Timber.e("Error: $error")
+                error?.let { logger.error(it) }
             }
 
         }
@@ -237,19 +237,19 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
                     100.0 * status.completedResourceCount / status.requiredResourceCount else 0.0
 
                 if (status.isComplete) {
-                    Timber.d("Region downloaded successfully.")
+                    logger.debug("Region downloaded successfully.")
                 } else if (status.isRequiredResourceCountPrecise) {
-                    Timber.d(percentage.toString())
+                    logger.debug(percentage.toString())
                 }
             }
 
             override fun onError(error: OfflineRegionError) {
-                Timber.e("onError reason: %s", error.reason)
-                Timber.e("onError message: %s", error.message)
+                logger.error("onError reason: " + error.reason)
+                logger.error("onError message: %s" + error.message)
             }
 
             override fun mapboxTileCountLimitExceeded(limit: Long) {
-                Timber.e("Mapbox tile count limit exceeded: $limit")
+                logger.error("Mapbox tile count limit exceeded: $limit")
             }
 
         }
@@ -280,7 +280,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             val json = jsonObject.toString()
             metadata = json.toByteArray(charset(getString(R.string.charset)))
         } catch (exception: Exception) {
-            Timber.e("Failed to encode metadata: %s", exception.message)
+            logger.error("Failed to encode metadata: " + exception.message)
         } finally {
             return metadata
         }
@@ -338,9 +338,9 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
-            if (map.style != null) {
-                enableLocationComponent(map.style!!)
-            }
+//            if (map.style != null) {
+//                enableLocationComponent(map.style!!)
+//            }
         } else {
             Toast.makeText(this, getString(R.string.permission_not_granted), Toast.LENGTH_LONG).show()
             finish()
@@ -373,7 +373,7 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             val activity: MainActivity? = activityWeakReference.get()
 
             if (activity != null) {
-                val location: Location = result?.lastLocation ?:  return
+                val location: Location = result?.lastLocation ?: return
 
                 if (activity.lastUpdatedLocation == null || ((activity.lastUpdatedLocation)?.longitude != location.longitude || (activity.lastUpdatedLocation)?.latitude != location.latitude)) {
                     activity.calcRiskStatus(location)
