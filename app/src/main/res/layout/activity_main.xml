@@ -7,47 +7,48 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!--<fragment-->
-    <!--android:id="@+id/fragment"-->
-    <!--android:name="com.elyonut.wow.DataCardFragment"-->
-    <!--android:layout_width="0dp"-->
-    <!--android:layout_height="150"-->
-    <!--android:layout_marginStart="8dp"-->
-    <!--android:layout_marginLeft="8dp"-->
-    <!--android:layout_marginTop="16dp"-->
-    <!--android:layout_marginEnd="8dp"-->
-    <!--android:layout_marginRight="8dp"-->
-    <!--android:layout_marginBottom="8dp"-->
-    <!--app:layout_constraintBottom_toBottomOf="@+id/mainMapView"-->
-    <!--app:layout_constraintEnd_toEndOf="parent"-->
-    <!--app:layout_constraintHorizontal_bias="0.0"-->
-    <!--app:layout_constraintStart_toStartOf="@+id/mainMapView"-->
-    <!--app:layout_constraintTop_toTopOf="@+id/mainMapView"-->
-    <!--app:layout_constraintVertical_bias="0.018" />-->
+    <Button
+            android:text="@string/status_text"
+            android:layout_width="203dp"
+            android:layout_height="42dp" android:id="@+id/status" android:layout_weight="1"
+            android:background="#ECEBEB"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/mainMapView"
+            android:layout_marginLeft="16dp" android:layout_marginStart="16dp" android:clickable="false"/>
 
-    <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mainMapView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        mapbox:mapbox_cameraTargetLat="32.078899"
-        mapbox:mapbox_cameraTargetLng="34.794590"
-        mapbox:mapbox_cameraZoom="12">
-
-        <android.support.design.widget.FloatingActionButton
+    <Button
+            android:layout_width="22dp"
+            android:layout_height="42dp"
+            app:layout_constraintStart_toEndOf="@id/status"
+            android:id="@+id/status-color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="16dp" android:background="#DF3838" android:clickable="false"/>
+    <android.support.design.widget.FloatingActionButton
             android:id="@+id/currentLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:src="@drawable/ic_my_location_black"
             app:backgroundTint="#4d79ff"
-            tools:backgroundTint="#4d79ff" />
+            tools:backgroundTint="#4d79ff"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView"
+            android:layout_marginRight="16dp"/>
+    <com.mapbox.mapboxsdk.maps.MapView android:layout_width="match_parent"
+                                       android:layout_height="match_parent"
+                                       android:id="@+id/mainMapView"
+                                       mapbox:mapbox_cameraZoom="12"
+                                       mapbox:mapbox_cameraTargetLat="32.078899"
+                                       mapbox:mapbox_cameraTargetLng="34.794590"
+                                       app:layout_constraintEnd_toEndOf="parent"
+                                       app:layout_constraintBottom_toBottomOf="parent"
+                                       app:layout_constraintStart_toStartOf="parent"
+                                       app:layout_constraintTop_toTopOf="parent"
+                                       app:layout_constraintHorizontal_bias="0.0"
+                                       app:layout_constraintVertical_bias="0.0">
 
         <LinearLayout
             android:id="@+id/fragmentParent"
