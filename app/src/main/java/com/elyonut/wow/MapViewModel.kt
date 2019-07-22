@@ -1,32 +1,114 @@
 package com.elyonut.wow
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.ViewModel
-import android.content.Context
-import android.content.res.Resources
+import android.arch.lifecycle.MutableLiveData
+import android.graphics.Color
 import android.support.v4.app.FragmentManager
+import android.support.v4.content.ContextCompat
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
+import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.expressions.Expression
+import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
+import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
-class MapViewModel(var application: Application) : ViewModel(), OnMapReadyCallback {
+// Constant values
+private const val DEFAULT_COLOR = Color.GRAY
+private const val LOW_HEIGHT_COLOR = Color.YELLOW
+private const val MIDDLE_HEIGHT_COLOR = Color.MAGENTA
+private const val HIGH_HEIGHT_COLOR = Color.RED
+//private const val MY_RISK_RADIUS = 300.0
+private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
+//private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
+
+class MapViewModel(application: Application) : AndroidViewModel(application) {
+    var selectedBuildingId = MutableLiveData<String>()
     private lateinit var map: MapboxMap
+    private val permissions: IPermissions = PermissionsAdapter(getApplication())
+    private lateinit var locationAdapter: LocationAdapter
 
-    private var mainActivity: IActivity = MainActivity()
+    init {
+        val adapter = MapAdapter()
 
-    override fun onMapReady(mapboxMap: MapboxMap) {
+//        val model = BLModel(adapter)
+    }
+
+    fun onMapReady(mapboxMap: MapboxMap) {
+//        model.onMapReady()
+
         map = mapboxMap
-
-        mapboxMap.setStyle(application.getString(R.string.style_url)) { style ->
-
+        map.setStyle(getString(R.string.style_url)) { style ->
+            locationSetUp(style)
+//            initOfflineMap(style)
+            setBuildingFilter(style)
+            setSelectedBuildingLayer(style)
         }
     }
 
+    @SuppressLint("MissingPermission")
+    fun locationSetUp(loadedMapStyle: Style) {
+        if (permissions.getLocationPermissions()) {
+
+            val myLocationComponentOptions = LocationComponentOptions.builder(getApplication())
+                .trackingGesturesManagement(true)
+                .accuracyColor(ContextCompat.getColor(getApplication(), R.color.myLocationColor)).build()
+
+            val locationComponentActivationOptions =
+                LocationComponentActivationOptions.builder(getApplication(), loadedMapStyle)
+                    .locationComponentOptions(myLocationComponentOptions).build()
+
+            map.locationComponent.apply {
+                activateLocationComponent(locationComponentActivationOptions)
+                isLocationComponentEnabled = true
+                cameraMode = CameraMode.TRACKING
+                renderMode = RenderMode.COMPASS
+            }
+
+            locationAdapter = LocationAdapter(getApplication(), map.locationComponent, permissions)
+            locationAdapter.startLocationService()
+        }
+    }
+
+    private fun setBuildingFilter(loadedMapStyle: Style) {
+        val buildingLayer = loadedMapStyle.getLayer(getString(R.string.buildings_layer))
+        (buildingLayer as FillExtrusionLayer).withProperties(
+            PropertyFactory.fillExtrusionColor(
+                Expression.step(
+                    (Expression.get("height")), Expression.color(DEFAULT_COLOR),
+                    Expression.stop(3, Expression.color(LOW_HEIGHT_COLOR)),
+                    Expression.stop(10, Expression.color(MIDDLE_HEIGHT_COLOR)),
+                    Expression.stop(100, Expression.color(HIGH_HEIGHT_COLOR))
+                )
+            ), PropertyFactory.fillExtrusionOpacity(0.5f)
+        )
+    }
+
+    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
+        loadedMapStyle.addSource(GeoJsonSource(getString(R.string.selectedBuildingSourceId)))
+        loadedMapStyle.addLayer(
+            FillLayer(
+                getString(R.string.selectedBuildingLayerId),
+                getString(R.string.selectedBuildingSourceId)
+            ).withProperties(PropertyFactory.fillExtrusionOpacity(0.7f))
+        )
+    }
+
+//    fun getBuildingInfo(){
+//        return transformToWowBuilding(loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
+//        selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features)))
+//    }
 
     fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng, fragmentManager: FragmentManager): Boolean {
+//        model.onMapClick()
         val loadedMapStyle = mapboxMap.style
 
         if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
@@ -34,21 +116,28 @@ class MapViewModel(var application: Application) : ViewModel(), OnMapReadyCallba
         }
 
         val point = mapboxMap.projection.toScreenLocation(latLng)
-        val features = mapboxMap.queryRenderedFeatures(point, application.getString(R.string.buildings_layer))
+        val features =
+            mapboxMap.queryRenderedFeatures(point, getString(R.string.buildings_layer))
 
         if (features.size > 0) {
+            selectedBuildingId.value = features.first().id()
             val selectedBuildingSource =
-                loadedMapStyle.getSourceAs<GeoJsonSource>(application.getString(R.string.selectedBuildingSourceId))
+                loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
             selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
-
-            val dataCardFragmentInstance = DataCardFragment.newInstance()
-            if (fragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
-                fragmentManager.beginTransaction().add(R.id.fragmentParent, dataCardFragmentInstance).commit()
-
         }
 
         return true
     }
 
+    fun focusOnMyLocation() {
+        map.locationComponent.apply {
+            cameraMode = CameraMode.TRACKING
+            renderMode = RenderMode.COMPASS
+        }
+    }
+
+    private fun getString(stringName: Int): String {
+        return getApplication<Application>().getString(stringName)
+    }
 }
 

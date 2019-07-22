@@ -1,5 +1,6 @@
 package com.elyonut.wow
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
@@ -18,14 +19,21 @@ import java.lang.ref.WeakReference
 private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
 private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
-class LocationAdapter(var context: Context, var locationComponent: LocationComponent): ILocationManager {
-    private val permissions: IPermissions = PermissionsAdapter(context)
+class LocationAdapter(
+    var context: Context,
+    private var locationComponent: LocationComponent,
+    private var permissions: IPermissions
+) : ILocationManager {
+    //    private val permissions: IPermissions = PermissionsAdapter(context)
     private lateinit var locationManager: LocationManager
     private lateinit var locationEngine: LocationEngine
+    private var callback = LocationUpdatesCallback(locationComponent)
+
 
     override fun startLocationService() {
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-//        enableLocationComponent(loadedMapStyle)
+        initLocationEngine(context)
+//        return enableLocationComponent()
 //        enableLocationService()
     }
 
@@ -33,67 +41,64 @@ class LocationAdapter(var context: Context, var locationComponent: LocationCompo
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun enableLocationComponent(loadedMapStyle: Style) {
+    private fun enableLocationComponent(): Boolean {
         if (permissions.getLocationPermissions()) {
 
-            val myLocationComponentOptions = LocationComponentOptions.builder(context)
-                .trackingGesturesManagement(true)
-                .accuracyColor(ContextCompat.getColor(context, R.color.myLocationColor)).build()
-
-            val locationComponentActivationOptions = LocationComponentActivationOptions.builder(context, loadedMapStyle)
-                .locationComponentOptions(myLocationComponentOptions).build()
-
-            locationComponent.apply {
-                activateLocationComponent(locationComponentActivationOptions)
+//            val myLocationComponentOptions = LocationComponentOptions.builder(context)
+//                .trackingGesturesManagement(true)
+//                .accuracyColor(ContextCompat.getColor(context, R.color.myLocationColor)).build()
+//
+//            val locationComponentActivationOptions = LocationComponentActivationOptions.builder(context, loadedMapStyle)
+//                .locationComponentOptions(myLocationComponentOptions).build()
+//
+//            locationComponent.apply {
+//                activateLocationComponent(locationComponentActivationOptions)
 //                isLocationComponentEnabled = true
-                cameraMode = CameraMode.TRACKING
-                renderMode = RenderMode.COMPASS
-            }
+//                cameraMode = CameraMode.TRACKING
+//                renderMode = RenderMode.COMPASS
+//            }
 
-//            initLocationEngine()
-
+            initLocationEngine(context)
+            return true
         }
+
+        return false
     }
 
-    private fun initLocationEngine() {
-//        locationEngine = LocationEngineProvider.getBestLocationEngine(this)
+    @SuppressLint("MissingPermission")
+    private fun initLocationEngine(context: Context) {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(context)
 
         val request: LocationEngineRequest = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
             .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
             .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
 
-//        locationEngine.requestLocationUpdates(request, callback, context.mainLooper)
-//        locationEngine.getLastLocation(callback)
+
+        locationEngine.requestLocationUpdates(request, callback, context.mainLooper)
+        locationEngine.getLastLocation(callback)
     }
 
-    private class MainActivityLocationCallback(activity: MainActivity) : LocationEngineCallback<LocationEngineResult> {
-        private var activityWeakReference: WeakReference<MainActivity> = WeakReference(activity)
+
+    private class LocationUpdatesCallback(locationComponent: LocationComponent) :
+        LocationEngineCallback<LocationEngineResult> {
+        private var locationComponentWeakReference: WeakReference<LocationComponent> = WeakReference(locationComponent)
 
         override fun onSuccess(result: LocationEngineResult?) {
-            val activity: MainActivity? = activityWeakReference.get()
 
-            if (activity != null) {
-                val location: Location = result?.lastLocation ?: return
+            val location: Location = result?.lastLocation ?: return
+            locationComponentWeakReference.get()?.forceLocationUpdate(location)
 
 //                if (activity.lastUpdatedLocation == null || ((activity.lastUpdatedLocation)?.longitude != location.longitude || (activity.lastUpdatedLocation)?.latitude != location.latitude)) {
 //                    activity.calcRiskStatus(location)
 //                }
 
-                // Pass the new location to the Maps SDK's LocationComponent
-                if (result.lastLocation != null) {
-//                    activity.map.locationComponent.forceLocationUpdate(result.lastLocation)
 //                    activity.lastUpdatedLocation = location
-                }
-            }
         }
 
         override fun onFailure(exception: java.lang.Exception) {
-            val activity = activityWeakReference.get()
-            if (activity != null) {
-                Toast.makeText(
-                    activity, exception.localizedMessage,
-                    Toast.LENGTH_SHORT
-                ).show()
+            val locationComponent = locationComponentWeakReference.get()
+            if (locationComponent != null) {
+                //log
             }
         }
     }

@@ -19,7 +19,7 @@ class PermissionsAdapter(var context: Context) : IPermissions, PermissionsListen
         if (granted) {
             getLocationPermissions()
         } else {
-//            Toast.makeText(context, R.string.permission_not_granted.toString(), Toast.LENGTH_LONG).show()
+            //log
         }
     }
 
