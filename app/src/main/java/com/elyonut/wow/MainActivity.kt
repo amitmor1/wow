@@ -52,11 +52,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initLocationButton()
-
-        //mapViewModel = MapViewModel(application)
-
-        //mapViewModel = ViewModelProviders.of(this)[MapViewModel::class.java]
         mapViewModel.selectedBuildingId.observe(this, Observer<String> { showDescriptionFragment() })
+        mapViewModel.locationAlertDialog.observe(this, Observer<AlertDialog.Builder> { it?.show() })
 
     }
 
@@ -65,17 +62,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         mapboxMap.addOnMapClickListener(this)
 
         mapViewModel.onMapReady(mapboxMap)
-//        map.setStyle(getString(R.string.style_url)) { style ->
-//            startLocationService(style)
-//            initOfflineMap(style)
-//            setBuildingFilter(style)
-//            setSelectedBuildingLayer(style)
-//        }
     }
 
     override fun onMapClick(latLng: LatLng): Boolean {
 
-        return mapViewModel.onMapClick(map, latLng, supportFragmentManager)
+        return mapViewModel.onMapClick(map, latLng)
     }
 
     private fun showDescriptionFragment() {
@@ -128,7 +119,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
     }
-
 
     private fun initLocationButton() {
         val currentLocationButton: View = findViewById(R.id.currentLocation)
@@ -255,9 +245,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onDestroy() {
         super.onDestroy()
         // Prevent leaks
-//        if (locationEngine != null) {
-//            locationEngine.removeLocationUpdates(callback)
-//        }
+        mapViewModel.clean()
         map.removeOnMapClickListener(this)
         mapView.onDestroy()
     }

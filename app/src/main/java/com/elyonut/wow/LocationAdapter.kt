@@ -2,9 +2,12 @@ package com.elyonut.wow
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
+import android.provider.Settings
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.widget.Toast
 import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
@@ -26,15 +29,24 @@ class LocationAdapter(
 ) : ILocationManager {
     //    private val permissions: IPermissions = PermissionsAdapter(context)
     private lateinit var locationManager: LocationManager
-    private lateinit var locationEngine: LocationEngine
+    private var locationEngine: LocationEngine = LocationEngineProvider.getBestLocationEngine(context)
     private var callback = LocationUpdatesCallback(locationComponent)
 
 
     override fun startLocationService() {
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        enableLocationService() // TODO FIX!!!!!!!
         initLocationEngine(context)
 //        return enableLocationComponent()
-//        enableLocationService()
+    }
+
+    fun enableLocationService(): Intent? {
+        val gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        return if (!gpsEnabled) {
+            Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+        } else {
+            null
+        }
     }
 
     override fun startLocationUpdates() {
@@ -67,8 +79,6 @@ class LocationAdapter(
 
     @SuppressLint("MissingPermission")
     private fun initLocationEngine(context: Context) {
-        locationEngine = LocationEngineProvider.getBestLocationEngine(context)
-
         val request: LocationEngineRequest = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
             .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
             .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
@@ -78,6 +88,9 @@ class LocationAdapter(
         locationEngine.getLastLocation(callback)
     }
 
+    fun cleanLocation() {
+        locationEngine.removeLocationUpdates(callback)
+    }
 
     private class LocationUpdatesCallback(locationComponent: LocationComponent) :
         LocationEngineCallback<LocationEngineResult> {
@@ -102,5 +115,4 @@ class LocationAdapter(
             }
         }
     }
-
 }

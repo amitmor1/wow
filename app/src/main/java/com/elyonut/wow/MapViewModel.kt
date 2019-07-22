@@ -4,9 +4,12 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
+import android.content.Intent
 import android.graphics.Color
+import android.provider.Settings
 import android.support.v4.app.FragmentManager
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -26,15 +29,13 @@ private const val DEFAULT_COLOR = Color.GRAY
 private const val LOW_HEIGHT_COLOR = Color.YELLOW
 private const val MIDDLE_HEIGHT_COLOR = Color.MAGENTA
 private const val HIGH_HEIGHT_COLOR = Color.RED
-//private const val MY_RISK_RADIUS = 300.0
-private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
-//private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
-    var selectedBuildingId = MutableLiveData<String>()
     private lateinit var map: MapboxMap
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
     private lateinit var locationAdapter: LocationAdapter
+    var selectedBuildingId = MutableLiveData<String>()
+    var locationAlertDialog = MutableLiveData<AlertDialog.Builder>()
 
     init {
         val adapter = MapAdapter()
@@ -74,8 +75,24 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             locationAdapter = LocationAdapter(getApplication(), map.locationComponent, permissions)
+            val locationSettingIntent = locationAdapter.enableLocationService()
+
+            if (locationSettingIntent != null) {
+                locationAlertDialog.value = buildAlertDialog(locationSettingIntent)
+            }
+
             locationAdapter.startLocationService()
         }
+    }
+
+    fun buildAlertDialog(locationSettingIntent: Intent): AlertDialog.Builder? {
+        return AlertDialog.Builder(getApplication()).setTitle(getString(R.string.turn_on_location_title))
+            .setMessage(getString(R.string.turn_on_location))
+            .setPositiveButton(getString(R.string.yes_hebrew)) { dialog, id ->
+                getApplication<Application>().startActivity(locationSettingIntent)
+            }.setNegativeButton(getString(R.string.no_thanks_hebrew)) { dialog, id ->
+                dialog.cancel()
+            }
     }
 
     private fun setBuildingFilter(loadedMapStyle: Style) {
@@ -107,7 +124,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //        selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features)))
 //    }
 
-    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng, fragmentManager: FragmentManager): Boolean {
+    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
 //        model.onMapClick()
         val loadedMapStyle = mapboxMap.style
 
@@ -138,6 +155,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun getString(stringName: Int): String {
         return getApplication<Application>().getString(stringName)
+    }
+
+    fun clean() {
+        locationAdapter.cleanLocation()
     }
 }
 
