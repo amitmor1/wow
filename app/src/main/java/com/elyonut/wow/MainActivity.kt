@@ -36,6 +36,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.offline.*
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
@@ -187,6 +188,19 @@ class MainActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallbac
             ).withProperties(fillExtrusionOpacity(0.7f))
         )
     }
+
+//    private fun setRiskRadiusLayer(loadedMapStyle: Style) {
+//        loadedMapStyle.addSource(GeoJsonSource(getString(R.string.riskRadiusSourceId)))
+//
+//        var circles = CircleLayer(getString(R.string.selectedBuildingLayerId),
+//            getString(R.string.selectedBuildingSourceId))
+//
+//        circles.setProperties(
+//            circleColor(HIGH_HEIGHT_COLOR)
+//
+//        )
+//
+//    }
 
     private fun initLocationButton() {
         val currentLocationButton: View = findViewById(R.id.currentLocation)
