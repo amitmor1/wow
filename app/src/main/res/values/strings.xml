@@ -25,4 +25,5 @@
     <string name="grey_status">אפור</string>
     <string name="orange_status">כתום</string>
     <string name="red_status">אדום</string>
+    <string name="status_text">This is red</string>
 </resources>
