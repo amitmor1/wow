@@ -4,12 +4,10 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
-import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
-import android.provider.Settings
-import android.support.v4.app.FragmentManager
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
+import android.widget.Toast
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -29,16 +27,20 @@ private const val DEFAULT_COLOR = Color.GRAY
 private const val LOW_HEIGHT_COLOR = Color.YELLOW
 private const val MIDDLE_HEIGHT_COLOR = Color.MAGENTA
 private const val HIGH_HEIGHT_COLOR = Color.RED
+private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
+
     private lateinit var map: MapboxMap
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
     private lateinit var locationAdapter: LocationAdapter
     var selectedBuildingId = MutableLiveData<String>()
-    var locationAlertDialog = MutableLiveData<AlertDialog.Builder>()
+    var isPermissionRequestNeeded = MutableLiveData<Boolean>()
+    var isAlertVisible = MutableLiveData<Boolean>()
+    var noPermissionsToast = MutableLiveData<Toast>()
 
     init {
-        val adapter = MapAdapter()
+//        val adapter = MapAdapter()
 
 //        val model = BLModel(adapter)
     }
@@ -55,44 +57,55 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    @SuppressLint("MissingPermission")
-    fun locationSetUp(loadedMapStyle: Style) {
-        if (permissions.getLocationPermissions()) {
-
-            val myLocationComponentOptions = LocationComponentOptions.builder(getApplication())
-                .trackingGesturesManagement(true)
-                .accuracyColor(ContextCompat.getColor(getApplication(), R.color.myLocationColor)).build()
-
-            val locationComponentActivationOptions =
-                LocationComponentActivationOptions.builder(getApplication(), loadedMapStyle)
-                    .locationComponentOptions(myLocationComponentOptions).build()
-
-            map.locationComponent.apply {
-                activateLocationComponent(locationComponentActivationOptions)
-                isLocationComponentEnabled = true
-                cameraMode = CameraMode.TRACKING
-                renderMode = RenderMode.COMPASS
-            }
-
-            locationAdapter = LocationAdapter(getApplication(), map.locationComponent, permissions)
-            val locationSettingIntent = locationAdapter.enableLocationService()
-
-            if (locationSettingIntent != null) {
-                locationAlertDialog.value = buildAlertDialog(locationSettingIntent)
-            }
-
-            locationAdapter.startLocationService()
+    private fun locationSetUp(loadedMapStyle: Style) {
+        if (permissions.checkLocationPermissions()) {
+            startLocationService(loadedMapStyle)
+        } else {
+            isPermissionRequestNeeded.value = true
         }
     }
 
-    fun buildAlertDialog(locationSettingIntent: Intent): AlertDialog.Builder? {
-        return AlertDialog.Builder(getApplication()).setTitle(getString(R.string.turn_on_location_title))
-            .setMessage(getString(R.string.turn_on_location))
-            .setPositiveButton(getString(R.string.yes_hebrew)) { dialog, id ->
-                getApplication<Application>().startActivity(locationSettingIntent)
-            }.setNegativeButton(getString(R.string.no_thanks_hebrew)) { dialog, id ->
-                dialog.cancel()
+    @SuppressLint("MissingPermission")
+    fun startLocationService(loadedMapStyle: Style) {
+        val myLocationComponentOptions = LocationComponentOptions.builder(getApplication())
+            .trackingGesturesManagement(true)
+            .accuracyColor(ContextCompat.getColor(getApplication(), R.color.myLocationColor)).build()
+
+        val locationComponentActivationOptions =
+            LocationComponentActivationOptions.builder(getApplication(), loadedMapStyle)
+                .locationComponentOptions(myLocationComponentOptions).build()
+
+        map.locationComponent.apply {
+            activateLocationComponent(locationComponentActivationOptions)
+            isLocationComponentEnabled = true
+            cameraMode = CameraMode.TRACKING
+            renderMode = RenderMode.COMPASS
+        }
+
+        locationAdapter = LocationAdapter(getApplication(), map.locationComponent)
+
+        if (!locationAdapter.isGpsEnabled()) {
+            isAlertVisible.value = true
+        }
+
+        locationAdapter.startLocationService()
+    }
+
+    @SuppressLint("ShowToast")
+    fun onRequestPermissionsResult(
+        requestCode: Int,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            RECORD_REQUEST_CODE -> {
+
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    noPermissionsToast.value = Toast.makeText(getApplication(), R.string.permission_not_granted, Toast.LENGTH_LONG)
+                } else {
+                    startLocationService((map.style!!))
+                }
             }
+        }
     }
 
     private fun setBuildingFilter(loadedMapStyle: Style) {
