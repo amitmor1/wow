@@ -41,7 +41,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
 //        val adapter = MapAdapter()
-
 //        val model = BLModel(adapter)
     }
 
