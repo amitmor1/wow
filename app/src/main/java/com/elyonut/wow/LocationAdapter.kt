@@ -21,7 +21,7 @@ class LocationAdapter(
     private var callback = LocationUpdatesCallback(locationComponent)
 
 
-    fun isGpsEnabled(): Boolean {
+    override fun isGpsEnabled(): Boolean {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
@@ -40,7 +40,7 @@ class LocationAdapter(
         locationEngine.getLastLocation(callback)
     }
 
-    fun cleanLocation() {
+    override fun cleanLocation() {
         locationEngine.removeLocationUpdates(callback)
     }
 

@@ -33,7 +33,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private lateinit var map: MapboxMap
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
-    private lateinit var locationAdapter: LocationAdapter
+    private lateinit var locationAdapter: ILocationManager
     var selectedBuildingId = MutableLiveData<String>()
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
@@ -99,7 +99,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             RECORD_REQUEST_CODE -> {
 
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    noPermissionsToast.value = Toast.makeText(getApplication(), R.string.permission_not_granted, Toast.LENGTH_LONG)
+                    noPermissionsToast.value =
+                        Toast.makeText(getApplication(), R.string.permission_not_granted, Toast.LENGTH_LONG)
                 } else {
                     startLocationService((map.style!!))
                 }
