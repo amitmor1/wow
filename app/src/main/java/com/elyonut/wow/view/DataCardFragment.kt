@@ -3,13 +3,11 @@ package com.elyonut.wow.view
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
-import android.content.res.Resources
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import com.elyonut.wow.OnSwipeTouchListener
 import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.DataCardViewModel
@@ -28,10 +26,10 @@ class DataCardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val view = inflater.inflate(R.layout.fragment_data_card, container, false)
         dataCardViewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
                 .create(DataCardViewModel::class.java)
-        val view = inflater.inflate(R.layout.fragment_data_card, container, false)
         view.buildingDataCard.layoutParams = dataCardViewModel.getRelativeLayoutParams(CARD_SIZE_RELATION_TO_SCREEN)
         initObservers(view)
         initReadMoreButton(view)
@@ -45,15 +43,10 @@ class DataCardFragment : Fragment() {
         dataCardViewModel.shouldCloseButton.observe(viewLifecycleOwner, Observer<Boolean> { closeCard() })
     }
 
-    private fun initReadMoreButton(view: View) {
-        view.readMore.setOnClickListener {
-            dataCardViewModel.readMoreButtonClicked(view.moreContent)
-        }
-    }
-
     private fun updateView(view: View) {
         if (dataCardViewModel.isReadMoreButtonClicked.value!!) {
-            view.buildingDataCard.layoutParams = dataCardViewModel.getRelativeLayoutParams(EXPENDED_CARD_SIZE_RELATION_TO_SCREEN)
+            view.buildingDataCard.layoutParams =
+                dataCardViewModel.getRelativeLayoutParams(EXPENDED_CARD_SIZE_RELATION_TO_SCREEN)
             view.moreContent.visibility = View.VISIBLE
             view.readMore.text = getString(R.string.readLessHebrew)
         } else {
@@ -63,13 +56,23 @@ class DataCardFragment : Fragment() {
         }
     }
 
+    private fun closeCard() {
+        activity?.supportFragmentManager?.beginTransaction()?.remove(this@DataCardFragment)?.commit()
+    }
+
+    private fun initReadMoreButton(view: View) {
+        view.readMore.setOnClickListener {
+            dataCardViewModel.readMoreButtonClicked(view.moreContent)
+        }
+    }
+
     private fun initClosingCard(view: View) {
-        initCloseCardByClick(view)
+        initCloseCardByClickOnMap(view)
         initCloseCardButton(view)
         initFlingCloseListener(view)
     }
 
-    private fun initCloseCardByClick(view: View) {
+    private fun initCloseCardByClickOnMap(view: View) {
         view.setOnClickListener {
             dataCardViewModel.closeButtonClicked()
         }
@@ -90,25 +93,6 @@ class DataCardFragment : Fragment() {
         })
     }
 
-    private fun closeCard() {
-        activity?.supportFragmentManager?.beginTransaction()?.remove(this@DataCardFragment)?.commit()
-    }
-
-    private fun getRelativeLayoutParams(sizeRelativelyToScreen: Double): FrameLayout.LayoutParams {
-        return FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            (getDeviceHeight() * sizeRelativelyToScreen).toInt()
-        )
-    }
-
-    private fun getDeviceHeight(): Int {
-        return Resources.getSystem().displayMetrics.heightPixels
-    }
-
-    fun onButtonPressed() {
-        listener?.onFragmentInteraction()
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
@@ -124,7 +108,6 @@ class DataCardFragment : Fragment() {
     }
 
     interface OnFragmentInteractionListener {
-
         fun onFragmentInteraction()
 
     }

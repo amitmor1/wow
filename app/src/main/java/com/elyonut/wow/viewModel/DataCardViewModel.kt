@@ -12,8 +12,8 @@ class DataCardViewModel(application: Application) : AndroidViewModel(application
     var isReadMoreButtonClicked = MutableLiveData<Boolean>()
     var shouldCloseButton = MutableLiveData<Boolean>()
 
-    fun readMoreButtonClicked(moreContentview: View) {
-        isReadMoreButtonClicked.value = moreContentview.visibility == View.GONE
+    fun readMoreButtonClicked(moreContentView: View) {
+        isReadMoreButtonClicked.value = moreContentView.visibility == View.GONE
     }
 
     fun closeButtonClicked() {
@@ -27,7 +27,7 @@ class DataCardViewModel(application: Application) : AndroidViewModel(application
         )
     }
 
-    fun getDeviceHeight(): Int {
+    private fun getDeviceHeight(): Int {
         return Resources.getSystem().displayMetrics.heightPixels
     }
 }
