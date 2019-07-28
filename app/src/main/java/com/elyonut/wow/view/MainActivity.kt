@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.view
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
@@ -11,6 +11,8 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import com.elyonut.wow.*
+import com.elyonut.wow.viewModel.MapViewModel
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
