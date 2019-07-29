@@ -62,4 +62,5 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
             }
         }
     }
+
 }

@@ -2,42 +2,42 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ParentLayout"
+    android:id="@+id/parentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusable="true"
-    tools:context=".DataCardFragment">
+    tools:context=".view.DataCardFragment">
 
     <android.support.v7.widget.CardView
-        android:id="@+id/BuildingDataCard"
+        android:id="@+id/buildingDataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <android.support.constraint.ConstraintLayout
-            android:id="@+id/CardConstraint"
+            android:id="@+id/cardConstraint"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ScrollView
-                android:id="@+id/DataDescriptionContainer"
+                android:id="@+id/dataDescriptionContainer"
                 android:layout_width="0dp"
                 android:layout_height="130dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="@+id/DataType"
+                app:layout_constraintEnd_toEndOf="@+id/dataType"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/DataType">
+                app:layout_constraintTop_toBottomOf="@+id/dataType">
 
                 <LinearLayout
-                    android:id="@+id/ContentLayout"
+                    android:id="@+id/contentLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/DataSecondTitle"
+                        android:id="@+id/dataSecondTitle"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:lines="2"
@@ -46,48 +46,48 @@
                         android:text="@string/data__second_title"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/DataTypeImage"
-                        app:layout_constraintTop_toBottomOf="@+id/DataType" />
+                        app:layout_constraintStart_toEndOf="@+id/dataTypeImage"
+                        app:layout_constraintTop_toBottomOf="@+id/dataType" />
 
                     <TextView
-                        android:id="@+id/MoreContent"
+                        android:id="@+id/moreContent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n\n ועוד מלא"
                         android:visibility="gone"
-                        app:layout_constraintEnd_toEndOf="@+id/DataDescriptionContainer"
-                        app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
-                        app:layout_constraintTop_toBottomOf="@+id/DataDescriptionContainer"
+                        app:layout_constraintEnd_toEndOf="@+id/dataDescriptionContainer"
+                        app:layout_constraintStart_toStartOf="@+id/dataDescriptionContainer"
+                        app:layout_constraintTop_toBottomOf="@+id/dataDescriptionContainer"
                         tools:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n ועוד מלא"
                         tools:visibility="visible" />
                 </LinearLayout>
             </ScrollView>
 
             <TextView
-                android:id="@+id/DataType"
+                android:id="@+id/dataType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:text="@string/data_type"
                 android:textSize="22sp"
-                app:layout_constraintEnd_toStartOf="@+id/DataTypeImage"
-                app:layout_constraintTop_toTopOf="@+id/DataTypeImage" />
+                app:layout_constraintEnd_toStartOf="@+id/dataTypeImage"
+                app:layout_constraintTop_toTopOf="@+id/dataTypeImage" />
 
             <ImageView
-                android:id="@+id/DataTypeImage"
+                android:id="@+id/dataTypeImage"
                 android:layout_width="128dp"
                 android:layout_height="128dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:contentDescription="@string/image_desctiption"
-                app:layout_constraintEnd_toStartOf="@+id/BuildingStateColor"
-                app:layout_constraintTop_toTopOf="@+id/BuildingStateColor"
+                app:layout_constraintEnd_toStartOf="@+id/buildingStateColor"
+                app:layout_constraintTop_toTopOf="@+id/buildingStateColor"
                 app:srcCompat="@drawable/sunflower" />
 
             <ImageView
-                android:id="@+id/BuildingStateColor"
+                android:id="@+id/buildingStateColor"
                 android:layout_width="50dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="8dp"
@@ -102,33 +102,33 @@
                 app:layout_constraintVertical_bias="1.0" />
 
             <Button
-                android:id="@+id/CloseButton"
+                android:id="@+id/closeButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
                 android:background="@android:drawable/presence_offline"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/BuildingStateColor" />
+                app:layout_constraintTop_toTopOf="@+id/buildingStateColor" />
 
 
             <Button
-                android:id="@+id/ReadMore"
+                android:id="@+id/readMore"
                 android:layout_width="75dp"
                 android:layout_height="37dp"
                 android:text="@string/readMoreHebrew"
                 android:textSize="12sp"
-                app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
-                app:layout_constraintTop_toBottomOf="@+id/DataDescriptionContainer" />
+                app:layout_constraintStart_toStartOf="@+id/dataDescriptionContainer"
+                app:layout_constraintTop_toBottomOf="@+id/dataDescriptionContainer" />
 
             <TextView
-                android:id="@+id/TimePassed"
+                android:id="@+id/timePassed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/time_passed"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/DataDescriptionContainer"
-                app:layout_constraintTop_toBottomOf="@+id/ReadMore" />
+                app:layout_constraintStart_toStartOf="@+id/dataDescriptionContainer"
+                app:layout_constraintTop_toBottomOf="@+id/readMore" />
 
         </android.support.constraint.ConstraintLayout>
 

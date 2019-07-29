@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.viewModel
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -8,7 +8,8 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.widget.Toast
-import com.mapbox.geojson.*
+import com.elyonut.wow.*
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
@@ -145,7 +146,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //        selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features)))
 //    }
 
-
     private fun addRadiusLayer(loadedStyle: Style) {
         createRadiusSource(loadedStyle)
         createRadiusLayer(loadedStyle)
@@ -187,6 +187,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+
 
     fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
 //        model.onMapClick()

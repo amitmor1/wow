@@ -1,6 +1,6 @@
 package com.elyonut.wow
 
- import android.content.Context
+import android.content.Context
 import android.content.pm.PackageManager
 import android.support.v4.content.ContextCompat
 import com.mapbox.android.core.permissions.PermissionsManager
