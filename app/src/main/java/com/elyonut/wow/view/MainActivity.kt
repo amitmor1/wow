@@ -1,16 +1,16 @@
 package com.elyonut.wow.view
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.Settings
-import android.support.v4.app.ActivityCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.elyonut.wow.*
 import com.elyonut.wow.viewModel.MapViewModel
 import com.mapbox.mapboxsdk.Mapbox
@@ -42,8 +42,7 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
         logger.initLogger()
         logger.info("started app")
-        mapViewModel =
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MapViewModel::class.java)
+        mapViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MapViewModel::class.java)
 
         initObservers()
 

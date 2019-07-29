@@ -1,11 +1,11 @@
 package com.elyonut.wow.viewModel
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
 import android.content.res.Resources
 import android.view.View
 import android.widget.FrameLayout
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 
 class DataCardViewModel(application: Application) : AndroidViewModel(application) {
 
