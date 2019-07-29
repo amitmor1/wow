@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.widget.Toast
-import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
@@ -19,7 +19,10 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
 import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.mapboxsdk.style.layers.Property.NONE
+import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
 // Constant values
@@ -32,12 +35,16 @@ private const val RECORD_REQUEST_CODE = 101
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private lateinit var map: MapboxMap
+    private val tempDB = TempDB(application)
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
     private lateinit var locationAdapter: ILocationManager
+    private val calculation:ICalculation = CalculationManager(tempDB)
+    private val mapAdapter:MapAdapter = MapAdapter(tempDB)
     var selectedBuildingId = MutableLiveData<String>()
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
     var noPermissionsToast = MutableLiveData<Toast>()
+    var threatStatus = MutableLiveData<String>()
 
     init {
 //        val adapter = MapAdapter()
@@ -53,6 +60,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //            initOfflineMap(style)
             setBuildingFilter(style)
             setSelectedBuildingLayer(style)
+            addRadiusLayer(style)
         }
     }
 
@@ -81,7 +89,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             renderMode = RenderMode.COMPASS
         }
 
-        locationAdapter = LocationAdapter(getApplication(), map.locationComponent)
+        locationAdapter = LocationAdapter(getApplication(), map.locationComponent, calculation, threatStatus)
 
         if (!locationAdapter.isGpsEnabled()) {
             isAlertVisible.value = true
@@ -123,11 +131,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
-        loadedMapStyle.addSource(GeoJsonSource(getString(R.string.selectedBuildingSourceId)))
+        loadedMapStyle.addSource(GeoJsonSource(Constants.selectedBuildingSourceId))
         loadedMapStyle.addLayer(
             FillLayer(
-                getString(R.string.selectedBuildingLayerId),
-                getString(R.string.selectedBuildingSourceId)
+                Constants.selectedBuildingLayerId,
+                Constants.selectedBuildingSourceId
             ).withProperties(PropertyFactory.fillExtrusionOpacity(0.7f))
         )
     }
@@ -136,6 +144,49 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //        return transformToWowBuilding(loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
 //        selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features)))
 //    }
+
+
+    private fun addRadiusLayer(loadedStyle: Style) {
+        createRadiusSource(loadedStyle)
+        createRadiusLayer(loadedStyle)
+    }
+
+    private fun createRadiusSource(loadedStyle: Style) {
+        val circleGeoJsonSource = GeoJsonSource(Constants.threatRadiusSourceId, mapAdapter.createThreatRadiusSource())
+        loadedStyle.addSource(circleGeoJsonSource)
+    }
+
+    private fun createRadiusLayer(loadedStyle: Style) {
+        val fillLayer = FillLayer(Constants.threatRadiusLayerId,
+            Constants.threatRadiusSourceId)
+        fillLayer.setProperties(
+            PropertyFactory.fillColor(Expression.step(
+                (Expression.get(Constants.threatProperty)), Expression.color(DEFAULT_COLOR),
+                Expression.stop(0.3, Expression.color(LOW_HEIGHT_COLOR)),
+                Expression.stop(0.6, Expression.color(MIDDLE_HEIGHT_COLOR)),
+                Expression.stop(1, Expression.color(HIGH_HEIGHT_COLOR))
+            )),
+            PropertyFactory.fillOpacity(.4f),
+            visibility(NONE)
+        )
+
+        loadedStyle.addLayerBelow(fillLayer, getString(R.string.buildings_layer))
+    }
+
+    fun showRadiusLayerButtonClicked(layerId: String) {
+        changeLayerVisibility(layerId)
+    }
+
+    private fun changeLayerVisibility(layerId: String) {
+        val layer = map.style?.getLayer(layerId)
+        if (layer != null) {
+            if (layer.visibility.getValue() == VISIBLE) {
+                layer.setProperties(visibility(NONE))
+            } else {
+                layer.setProperties(visibility(VISIBLE))
+            }
+        }
+    }
 
     fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
 //        model.onMapClick()
@@ -152,7 +203,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         if (features.size > 0) {
             selectedBuildingId.value = features.first().id()
             val selectedBuildingSource =
-                loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
+                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
             selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
         }
 

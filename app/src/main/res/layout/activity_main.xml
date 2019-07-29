@@ -18,7 +18,6 @@
         android:layout_weight="1"
         android:background="#ECEBEB"
         android:clickable="false"
-        android:text="@string/status_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/mainMapView" />
 
@@ -45,6 +44,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/mainMapView"
         tools:backgroundTint="#4d79ff" />
+
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/radiusLayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/ic_layers_black"
+            app:backgroundTint="#4d79ff"
+            app:layout_constraintBottom_toTopOf="@+id/currentLocation"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView"
+            tools:backgroundTint="#4d79ff" />
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mainMapView"
