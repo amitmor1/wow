@@ -39,8 +39,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val tempDB = TempDB(application)
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
     private lateinit var locationAdapter: ILocationManager
-    private val calculation:ICalculation = CalculationManager(tempDB)
-    private val mapAdapter:MapAdapter = MapAdapter(tempDB)
+    private val calculation: ICalculation = CalculationManager(tempDB)
+    private val mapAdapter: MapAdapter = MapAdapter(tempDB)
     var selectedBuildingId = MutableLiveData<String>()
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
@@ -157,38 +157,25 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun createRadiusLayer(loadedStyle: Style) {
-        val fillLayer = FillLayer(Constants.threatRadiusLayerId,
-            Constants.threatRadiusSourceId)
+        val fillLayer = FillLayer(
+            Constants.threatRadiusLayerId,
+            Constants.threatRadiusSourceId
+        )
         fillLayer.setProperties(
-            PropertyFactory.fillColor(Expression.step(
-                (Expression.get(Constants.threatProperty)), Expression.color(DEFAULT_COLOR),
-                Expression.stop(0.3, Expression.color(LOW_HEIGHT_COLOR)),
-                Expression.stop(0.6, Expression.color(MIDDLE_HEIGHT_COLOR)),
-                Expression.stop(1, Expression.color(HIGH_HEIGHT_COLOR))
-            )),
+            PropertyFactory.fillColor(
+                Expression.step(
+                    (Expression.get(Constants.threatProperty)), Expression.color(DEFAULT_COLOR),
+                    Expression.stop(0.3, Expression.color(LOW_HEIGHT_COLOR)),
+                    Expression.stop(0.6, Expression.color(MIDDLE_HEIGHT_COLOR)),
+                    Expression.stop(1, Expression.color(HIGH_HEIGHT_COLOR))
+                )
+            ),
             PropertyFactory.fillOpacity(.4f),
             visibility(NONE)
         )
 
         loadedStyle.addLayerBelow(fillLayer, getString(R.string.buildings_layer))
     }
-
-    fun showRadiusLayerButtonClicked(layerId: String) {
-        changeLayerVisibility(layerId)
-    }
-
-    private fun changeLayerVisibility(layerId: String) {
-        val layer = map.style?.getLayer(layerId)
-        if (layer != null) {
-            if (layer.visibility.getValue() == VISIBLE) {
-                layer.setProperties(visibility(NONE))
-            } else {
-                layer.setProperties(visibility(VISIBLE))
-            }
-        }
-    }
-
-
 
     fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
 //        model.onMapClick()
@@ -212,7 +199,22 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         return true
     }
 
-    fun focusOnMyLocation() {
+    fun showRadiusLayerButtonClicked(layerId: String) {
+        changeLayerVisibility(layerId)
+    }
+
+    private fun changeLayerVisibility(layerId: String) {
+        val layer = map.style?.getLayer(layerId)
+        if (layer != null) {
+            if (layer.visibility.getValue() == VISIBLE) {
+                layer.setProperties(visibility(NONE))
+            } else {
+                layer.setProperties(visibility(VISIBLE))
+            }
+        }
+    }
+
+    fun focusOnMyLocationClicked() {
         map.locationComponent.apply {
             cameraMode = CameraMode.TRACKING
             renderMode = RenderMode.COMPASS

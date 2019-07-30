@@ -46,7 +46,8 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
         logger.initLogger()
         logger.info("started app")
-        mapViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MapViewModel::class.java)
+        mapViewModel =
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MapViewModel::class.java)
 
         initObservers()
         threatStatus = findViewById(R.id.status)
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity(),
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        initFocusOnLocationButton()
+        initFocusOnMyLocationButton()
         initShowRadiusLayerButton()
     }
 
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun changeStatus(status: String?) {
-        (threatStatus as Button).text =  status
+        (threatStatus as Button).text = status
     }
 
     private fun showDescriptionFragment() {
@@ -122,10 +123,10 @@ class MainActivity : AppCompatActivity(),
         mapViewModel.onMapReady(mapboxMap)
     }
 
-    private fun initFocusOnLocationButton() {
+    private fun initFocusOnMyLocationButton() {
         val currentLocationButton: View = findViewById(R.id.currentLocation)
         currentLocationButton.setOnClickListener {
-            mapViewModel.focusOnMyLocation()
+            mapViewModel.focusOnMyLocationClicked()
         }
     }
 
