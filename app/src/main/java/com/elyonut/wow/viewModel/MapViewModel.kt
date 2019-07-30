@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.widget.Toast
 import com.elyonut.wow.*
+import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -39,8 +40,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val tempDB = TempDB(application)
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
     private lateinit var locationAdapter: ILocationManager
-    private val calculation:ICalculation = CalculationManager(tempDB)
-    private val mapAdapter:MapAdapter = MapAdapter(tempDB)
+    private val calculation: ICalculation = CalculationManager(tempDB)
+    private val mapAdapter: MapAdapter = MapAdapter(tempDB)
     var selectedBuildingId = MutableLiveData<String>()
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
@@ -152,20 +153,34 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun createRadiusSource(loadedStyle: Style) {
-        val circleGeoJsonSource = GeoJsonSource(Constants.threatRadiusSourceId, mapAdapter.createThreatRadiusSource())
+        val circleGeoJsonSource =
+            GeoJsonSource(Constants.threatRadiusSourceId, getThreatRadiuses())
         loadedStyle.addSource(circleGeoJsonSource)
     }
 
+    private fun getThreatRadiuses(): FeatureCollection {
+        val threatRadiuses = mutableListOf<Feature>()
+        mapAdapter.createThreatRadiusSource().forEach {
+            threatRadiuses.add(mapAdapter.transfromFeatureModelToMapboxFeature(it))
+        }
+
+        return FeatureCollection.fromFeatures(threatRadiuses)
+    }
+
     private fun createRadiusLayer(loadedStyle: Style) {
-        val fillLayer = FillLayer(Constants.threatRadiusLayerId,
-            Constants.threatRadiusSourceId)
+        val fillLayer = FillLayer(
+            Constants.threatRadiusLayerId,
+            Constants.threatRadiusSourceId
+        )
         fillLayer.setProperties(
-            PropertyFactory.fillColor(Expression.step(
-                (Expression.get(Constants.threatProperty)), Expression.color(DEFAULT_COLOR),
-                Expression.stop(0.3, Expression.color(LOW_HEIGHT_COLOR)),
-                Expression.stop(0.6, Expression.color(MIDDLE_HEIGHT_COLOR)),
-                Expression.stop(1, Expression.color(HIGH_HEIGHT_COLOR))
-            )),
+            PropertyFactory.fillColor(
+                Expression.step(
+                    (Expression.get(Constants.threatProperty)), Expression.color(DEFAULT_COLOR),
+                    Expression.stop(0.3, Expression.color(LOW_HEIGHT_COLOR)),
+                    Expression.stop(0.6, Expression.color(MIDDLE_HEIGHT_COLOR)),
+                    Expression.stop(1, Expression.color(HIGH_HEIGHT_COLOR))
+                )
+            ),
             PropertyFactory.fillOpacity(.4f),
             visibility(NONE)
         )
@@ -187,7 +202,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
 
 
     fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {

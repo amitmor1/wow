@@ -1,15 +1,15 @@
 package com.elyonut.wow
 
 import android.content.Context
-import java.io.InputStream
+import com.elyonut.wow.model.FeatureModel
+import com.google.gson.GsonBuilder
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class TempDB(var context: Context) {
-     fun getFeatures(): String {
-        val stream: InputStream = context.assets.open("features.geojson")
-        val size = stream.available()
-        val buffer = ByteArray(size)
-        stream.read(buffer)
-        stream.close()
-        return String(buffer, charset("UTF-8"))
+    fun getFeatures(): Array<FeatureModel> {
+        val gson = GsonBuilder().create()
+        val buffer = BufferedReader(InputStreamReader(context.assets.open("featurescopy2.geojson")))
+        return gson.fromJson(buffer, Array<FeatureModel>::class.java)
     }
 }

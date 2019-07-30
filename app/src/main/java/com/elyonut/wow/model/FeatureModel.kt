@@ -1,4 +1,6 @@
 package com.elyonut.wow.model
 
-data class FeatureModel(val featureId: Int, val risk: Int, val radius: Int, val latitude: Double, val longitude: Double)
+import com.google.gson.JsonObject
+
+data class FeatureModel(val id: String?, var properties: JsonObject?, var geometry: GeometryModel, var type: String)
 

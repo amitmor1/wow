@@ -51,8 +51,8 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
             val location: Location = result?.lastLocation ?: return
 //            locationComponentWeakReference.get()?.forceLocationUpdate(location)
             locationAdapterWeakReference.get()?.locationComponent?.forceLocationUpdate(location)
-            locationAdapterWeakReference.get()?.riskStatus?.value = locationAdapterWeakReference.get()?.context!!.
-                getString(locationAdapterWeakReference.get()?.calculator?.calcThreatStatus(result.lastLocation!!)!!)
+//            locationAdapterWeakReference.get()?.riskStatus?.value = locationAdapterWeakReference.get()?.context!!.
+//                getString(locationAdapterWeakReference.get()?.calculator?.calcThreatStatus(result.lastLocation!!)!!)
         }
 
         override fun onFailure(exception: java.lang.Exception) {
