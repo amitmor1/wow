@@ -76,7 +76,6 @@ class MapAdapter(var tempDB: TempDB) : IMap {
                 points.add(it.longitude())
             }
         }
-
         return GeometryModel(listOf(listOf(points)), polygon.type())
     }
 
