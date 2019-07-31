@@ -1,10 +1,10 @@
 package com.elyonut.wow
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
+import androidx.lifecycle.MutableLiveData
 import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
 import java.lang.ref.WeakReference

@@ -165,9 +165,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             PropertyFactory.fillColor(
                 Expression.step(
                     (Expression.get(Constants.threatProperty)), Expression.color(DEFAULT_COLOR),
-                    Expression.stop(0.3, Expression.color(LOW_HEIGHT_COLOR)),
-                    Expression.stop(0.6, Expression.color(MIDDLE_HEIGHT_COLOR)),
-                    Expression.stop(1, Expression.color(HIGH_HEIGHT_COLOR))
+                    Expression.stop(0, Expression.color(LOW_HEIGHT_COLOR)),
+                    Expression.stop(0.4, Expression.color(MIDDLE_HEIGHT_COLOR)),
+                    Expression.stop(0.7, Expression.color(HIGH_HEIGHT_COLOR))
                 )
             ),
             PropertyFactory.fillOpacity(.4f),

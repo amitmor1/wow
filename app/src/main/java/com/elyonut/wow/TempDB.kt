@@ -5,7 +5,7 @@ import java.io.InputStream
 
 class TempDB(var context: Context) {
      fun getFeatures(): String {
-        val stream: InputStream = context.assets.open("features.geojson")
+        val stream: InputStream = context.assets.open("check.geojson")
         val size = stream.available()
         val buffer = ByteArray(size)
         stream.read(buffer)
