@@ -3,7 +3,7 @@
       {
         "type": "Feature",
         "properties": {
-          "@id": "way/179417080",
+          "@id": "the red one",
           "building": "yes",
           "risk": 0.8,
           "radius": 0.2,
@@ -43,7 +43,7 @@
           {
             "type": "Feature",
             "properties": {
-              "@id": "way/149962226",
+              "@id": "the yellow one",
               "building": "yes",
               "risk": 0.3,
               "radius": 0.3,
@@ -83,7 +83,7 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "@id": "way/179417067",
+                  "@id": "the pink one",
                   "building": "yes",
                   "risk": 0.4,
                   "radius": 0.2,

@@ -13,32 +13,30 @@ enum class StatusEnum(val value: Int) {
 private const val MY_RISK_RADIUS = 0.3
 class CalculationManager(private val bl: TempDB): ICalculation {
 
-    override fun calcThreatStatus(location: Location): Int {
+     override fun calcThreatStatus(location: Location): Int {
         val allFeatures = FeatureCollection.fromJson(bl.getFeatures())
-        var currentFeatureLocation: LatLng
+        var threatLocation: LatLng
         var riskStatus =  StatusEnum.LOW_RISK
 
         run loop@{
             allFeatures.features()?.forEach { it ->
-                val currentLatitude = it.properties()?.get("latitude")
-                val currentLongitude = it.properties()?.get("longitude")
+                val threatLat = it.properties()?.get("latitude")
+                val threatLng = it.properties()?.get("longitude")
 
-                if ((currentLatitude != null) || (currentLongitude != null)) {
-                    currentFeatureLocation = LatLng(currentLatitude!!.asDouble, currentLongitude!!.asDouble)
-                    val featureRiskRadius = it.properties()?.get("radius").let { t -> t?.asDouble }
+                if (threatLat != null && threatLng != null) {
+                    threatLocation = LatLng(threatLat.asDouble, threatLng.asDouble)
+                    val threatRiskRadius = it.properties()?.get("radius").let { t -> t?.asDouble }
+                    val  userLocation = LatLng(location.latitude, location.longitude)
 
-                    val distSq: Double = kotlin.math.sqrt(
-                        ((location.longitude - currentFeatureLocation.longitude)
-                                * (location.longitude - currentFeatureLocation.longitude))
-                                + ((location.latitude - currentFeatureLocation.latitude)
-                                * (location.latitude - currentFeatureLocation.latitude))
-                    )
+                    val distInKilometers = threatLocation.distanceTo(userLocation) / 1000
 
-                    if (distSq + MY_RISK_RADIUS <= featureRiskRadius!!) {
-                        riskStatus = StatusEnum.HIGH_RISK
-                        return@loop
-                    } else if ((kotlin.math.abs(MY_RISK_RADIUS - featureRiskRadius) <= distSq && distSq <= (MY_RISK_RADIUS + featureRiskRadius))) {
-                        riskStatus = StatusEnum.MEDIUM_RISK
+                    if(distInKilometers < (MY_RISK_RADIUS + threatRiskRadius!!)){
+                        riskStatus =  StatusEnum.MEDIUM_RISK
+
+                        if(distInKilometers < threatRiskRadius){
+                            riskStatus = StatusEnum.HIGH_RISK
+                            return@loop
+                        }
                     }
                 }
             }
