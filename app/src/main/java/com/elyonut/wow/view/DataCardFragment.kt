@@ -1,13 +1,13 @@
 package com.elyonut.wow.view
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.elyonut.wow.OnSwipeTouchListener
 import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.DataCardViewModel

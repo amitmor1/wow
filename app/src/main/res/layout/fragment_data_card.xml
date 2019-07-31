@@ -9,12 +9,12 @@
     android:focusable="true"
     tools:context=".view.DataCardFragment">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/buildingDataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cardConstraint"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -24,7 +24,6 @@
                 android:layout_width="0dp"
                 android:layout_height="130dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="@+id/dataType"
                 app:layout_constraintStart_toStartOf="parent"
@@ -44,6 +43,7 @@
                         android:maxLines="2"
                         android:singleLine="false"
                         android:text="@string/data__second_title"
+                        android:textColor="@android:color/secondary_text_light"
                         android:textSize="14sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/dataTypeImage"
@@ -54,6 +54,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n\n ועוד מלא"
+                        android:textColor="@android:color/secondary_text_light"
                         android:visibility="gone"
                         app:layout_constraintEnd_toEndOf="@+id/dataDescriptionContainer"
                         app:layout_constraintStart_toStartOf="@+id/dataDescriptionContainer"
@@ -68,8 +69,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
                 android:text="@string/data_type"
+                android:textColor="@android:color/secondary_text_light"
                 android:textSize="22sp"
                 app:layout_constraintEnd_toStartOf="@+id/dataTypeImage"
                 app:layout_constraintTop_toTopOf="@+id/dataTypeImage" />
@@ -80,7 +81,6 @@
                 android:layout_height="128dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
                 android:contentDescription="@string/image_desctiption"
                 app:layout_constraintEnd_toStartOf="@+id/buildingStateColor"
                 app:layout_constraintTop_toTopOf="@+id/buildingStateColor"
@@ -92,7 +92,6 @@
                 android:layout_height="0dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
                 android:layout_marginBottom="8dp"
                 android:background="@color/sunflowerYellow"
                 android:contentDescription="@string/status_color"
@@ -101,22 +100,22 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="1.0" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/closeButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:background="@android:drawable/presence_offline"
+                android:background="@drawable/cancel_material"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/buildingStateColor" />
 
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/readMore"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="75dp"
                 android:layout_height="37dp"
                 android:text="@string/readMoreHebrew"
+                android:textColor="@android:color/secondary_text_light"
                 android:textSize="12sp"
                 app:layout_constraintStart_toStartOf="@+id/dataDescriptionContainer"
                 app:layout_constraintTop_toBottomOf="@+id/dataDescriptionContainer" />
@@ -126,11 +125,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/time_passed"
+                android:textColor="@android:color/secondary_text_light"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/dataDescriptionContainer"
                 app:layout_constraintTop_toBottomOf="@+id/readMore" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </FrameLayout>

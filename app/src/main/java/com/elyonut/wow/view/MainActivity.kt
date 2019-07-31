@@ -1,16 +1,16 @@
 package com.elyonut.wow.view
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.Settings
-import android.support.v4.app.ActivityCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.elyonut.wow.*
 import com.elyonut.wow.viewModel.MapViewModel
 import com.mapbox.mapboxsdk.Mapbox
@@ -18,6 +18,10 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
+
+
+import android.widget.Button
+
 
 // Constant values
 //private const val MY_RISK_RADIUS = 300.0
@@ -31,14 +35,14 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
-    //    private var riskStatus: String = R.string.grey_status.toString()
     //    private var lastUpdatedLocation: Location? = null
     private val logger: ILogger = TimberLogAdapter()
     private lateinit var mapViewModel: MapViewModel
+    private lateinit var threatStatus: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Mapbox.getInstance(applicationContext, getString(R.string.MAPBOX_ACCESS_TOKEN))
+        Mapbox.getInstance(applicationContext, Constants.MAPBOX_ACCESS_TOKEN)
         setContentView(R.layout.activity_main)
         logger.initLogger()
         logger.info("started app")
@@ -46,12 +50,13 @@ class MainActivity : AppCompatActivity(),
             ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MapViewModel::class.java)
 
         initObservers()
-
+        threatStatus = findViewById(R.id.status)
         mapView = findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        initLocationButton()
+        initFocusOnMyLocationButton()
+        initShowRadiusLayerButton()
     }
 
     private fun initObservers() {
@@ -63,6 +68,11 @@ class MainActivity : AppCompatActivity(),
         })
         mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
+        mapViewModel.threatStatus.observe(this, Observer<String> { changeStatus(it) })
+    }
+
+    private fun changeStatus(status: String?) {
+        (threatStatus as Button).text = status
     }
 
     private fun showDescriptionFragment() {
@@ -113,10 +123,17 @@ class MainActivity : AppCompatActivity(),
         mapViewModel.onMapReady(mapboxMap)
     }
 
-    private fun initLocationButton() {
+    private fun initFocusOnMyLocationButton() {
         val currentLocationButton: View = findViewById(R.id.currentLocation)
         currentLocationButton.setOnClickListener {
-            mapViewModel.focusOnMyLocation()
+            mapViewModel.focusOnMyLocationClicked()
+        }
+    }
+
+    private fun initShowRadiusLayerButton() {
+        val radiusLayerButton: View = findViewById(R.id.radiusLayer)
+        radiusLayerButton.setOnClickListener {
+            mapViewModel.showRadiusLayerButtonClicked(Constants.threatRadiusLayerId)
         }
     }
 
@@ -124,50 +141,6 @@ class MainActivity : AppCompatActivity(),
 
         return mapViewModel.onMapClick(map, latLng)
     }
-
-//    private fun calcRiskStatus(location: Location) {
-//        val allFeatures = getFeatures()
-//        var currentFeatureLocation: LatLng
-//
-//        run loop@{
-//            riskStatus = R.string.grey_status.toString()
-//
-//            allFeatures.features()?.forEach { it ->
-//                val currentLatitude = it.properties()?.get("latitude")
-//                val currentLongitude = it.properties()?.get("longitude")
-//
-//                if ((currentLatitude != null) || (currentLongitude != null)) {
-//                    currentFeatureLocation = LatLng(currentLatitude!!.asDouble, currentLongitude!!.asDouble)
-//                    val featureRiskRadius = it.properties()?.get("radius").let { t -> t?.asDouble }
-//
-//                    val distSq: Double = kotlin.math.sqrt(
-//                        ((location.longitude - currentFeatureLocation.longitude)
-//                                * (location.longitude - currentFeatureLocation.longitude))
-//                                + ((location.latitude - currentFeatureLocation.latitude)
-//                                * (location.latitude - currentFeatureLocation.latitude))
-//                    )
-//
-//                    if (distSq + MY_RISK_RADIUS <= featureRiskRadius!!) {
-//                        riskStatus = R.string.red_status.toString()
-//                        return@loop
-//                    } else if ((kotlin.math.abs(MY_RISK_RADIUS - featureRiskRadius) <= distSq && distSq <= (MY_RISK_RADIUS + featureRiskRadius))) {
-//                        riskStatus = R.string.orange_status.toString()
-//                    }
-//                }
-//            }
-//        }
-//
-//    }
-
-//    private fun getFeatures(): FeatureCollection {
-//        val stream: InputStream = assets.open("features.geojson")
-//        val size = stream.available()
-//        val buffer = ByteArray(size)
-//        stream.read(buffer)
-//        stream.close()
-//        val jsonObj = String(buffer, charset("UTF-8"))
-//        return FeatureCollection.fromJson(jsonObj)
-//    }
 
 //    private fun initOfflineMap(loadedMapStyle: Style) {
 //

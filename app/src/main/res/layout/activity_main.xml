@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,43 +8,53 @@
     android:layout_height="match_parent"
     tools:context=".view.MainActivity">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/status"
         android:layout_width="203dp"
         android:layout_height="42dp"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginBottom="16dp"
         android:layout_weight="1"
-        android:background="#ECEBEB"
+        android:backgroundTint="#ECEBEB"
         android:clickable="false"
-        android:text="@string/status_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/mainMapView" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/status-color"
         android:layout_width="22dp"
         android:layout_height="42dp"
         android:layout_marginBottom="16dp"
-        android:background="#DF3838"
+        android:backgroundTint="#DF3838"
         android:clickable="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/status" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/currentLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
         android:src="@drawable/ic_my_location_black"
-        app:backgroundTint="#4d79ff"
+        app:backgroundTint="@color/color_gray"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/mainMapView"
-        tools:backgroundTint="#4d79ff" />
+        app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/radiusLayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/ic_layers_black"
+            app:backgroundTint="#4d79ff"
+            app:layout_constraintBottom_toTopOf="@+id/currentLocation"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView"
+            tools:backgroundTint="#4d79ff" />
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mainMapView"
@@ -67,5 +77,4 @@
             android:orientation="vertical" />
 
     </com.mapbox.mapboxsdk.maps.MapView>
-
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

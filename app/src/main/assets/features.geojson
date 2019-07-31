@@ -6,7 +6,7 @@
         "@id": "way/203949629",
         "building": "yes",
         "risk": 0.6,
-        "radius": 890,
+        "radius": 0.89,
         "extrude": "true",
 	"latitude": 32.06597,
 	"longitude": 34.776623
@@ -46,7 +46,7 @@
         "@id": "way/203502467",
         "building": "yes",
         "risk": 1,
-        "radius": 1200,
+        "radius": 1.2,
         "extrude": "true",
 	"latitude": 32.065587,
 	"longitude": 34.777253
@@ -94,7 +94,7 @@
         "@id": "way/149962458",
         "building": "yes",
         "risk": 0.6,
-        "radius": 8000,
+        "radius": 1,
         "extrude": "true",
 	"latitude": 32.069969,
 	"longitude": 34.773868
@@ -135,7 +135,7 @@
         "building:height": "110",
         "building": "yes",
         "risk": 0.8,
-        "radius": 1500,
+        "radius": 1.5,
         "extrude": "true",
 	"latitude": 32.069015,
 	"longitude":  34.777749
@@ -175,7 +175,7 @@
         "@id": "way/149963856",
         "building": "yes",
         "risk": 0.5,
-        "radius": 6000,
+        "radius": 0.8,
         "extrude": "true",
 	"latitude": 32.069032,
 	"longitude":  34.773678
@@ -427,7 +427,7 @@
         "building:architecture": "9",
         "building:levels": "2",
         "risk": 0.6,
-        "radius": 400,
+        "radius": 0.4,
         "extrude": "true",
 	"latitude": 32.066056,
 	"longitude":  34.77425
@@ -864,7 +864,7 @@
         "@id": "way/149962590",
         "building": "yes",
         "risk": 0.5,
-        "radius": 5000,
+        "radius": 0.1,
         "extrude": "true",
 	"latitude": 32.069874,
 	"longitude":  34.777004
@@ -1158,7 +1158,7 @@
         "@id": "way/179417080",
         "building": "yes",
         "risk": 0.8,
-        "radius": 12000,
+        "radius": 0.1,
         "extrude": "true",
 	"latitude": 32.070107,
 	"longitude":  34.781417
@@ -1544,7 +1544,7 @@
         "@id": "way/149962226",
         "building": "yes",
         "risk": 0,
-        "radius": 50,
+        "radius": 0.05,
         "extrude": "true"
       },
       "geometry": {
@@ -1746,7 +1746,7 @@
         "@id": "way/179417067",
         "building": "yes",
         "risk": 0.4,
-        "radius": 20,
+        "radius": 0.02,
         "extrude": "true",
 	"latitude": 32.069159,
 	"longitude":  34.780223
@@ -2921,7 +2921,7 @@
         "@id": "way/179417008",
         "building": "yes",
         "risk": 0.5,
-        "radius": 70,
+        "radius": 0.07,
         "extrude": "true",
 	"latitude": 32.068941,
 	"longitude": 34.780261
@@ -3315,7 +3315,7 @@
         "building:levels": "3",
         "name:en": "Fashion mall TLV",
         "@id": "way/506941259",
-        "radius": 10000,
+        "radius": 1,
         "extrude": "true",
 	"latitude": 32.069097,
 	"longitude": 34.78452
@@ -3804,7 +3804,7 @@
         "@id": "way/495802422",
         "building": "yes",
         "risk": 0.3,
-        "radius": 5000,
+        "radius": 0.2,
         "extrude": "true",
 	"latitude": 32.065434,
 	"longitude": 34.77791
@@ -4563,7 +4563,7 @@
         "@id": "way/149962543",
         "building": "yes",
         "risk": 0.7,
-        "radius": 500,
+        "radius": 0.5,
         "extrude": "true",
 	"latitude": 32.069546,
 	"longitude": 34.776151
@@ -4708,7 +4708,7 @@
         "@id": "way/179417089",
         "building": "yes",
         "risk": 0.1,
-        "radius": 500,
+        "radius": 0.5,
         "extrude": "true",
 	"latitude": 32.068972,
 	"longitude": 34.780171
@@ -4987,7 +4987,7 @@
         "building": "yes",
         "building:levels": "6",
         "risk": 0.8,
-        "radius": 6000,
+        "radius": 0.3,
         "extrude": "true",
 	"latitude": 32.069152,
 	"longitude": 34.783199
@@ -5183,7 +5183,7 @@
         "@id": "way/179417094",
         "building": "yes",
         "risk": 0,
-        "radius": 10,
+        "radius": 0.01,
         "extrude": "true",
 	"latitude": 32.070228,
 	"longitude": 34.779163
@@ -5223,7 +5223,7 @@
         "@id": "way/179417106",
         "building": "yes",
         "risk": 1,
-        "radius": 1000,
+        "radius": 1,
         "extrude": "true",
 	"latitude": 32.06881,
 	"longitude": 34.7794
@@ -5373,7 +5373,7 @@
         "@id": "way/149963440",
         "building": "yes",
         "risk": 0.1,
-        "radius": 100,
+        "radius": 0.1,
         "extrude": "true",
 	"latitude": 32.068077,
 	"longitude": 34.776115
@@ -5900,7 +5900,7 @@
         "@id": "way/149962472",
         "building": "yes",
         "risk": 0.3,
-        "radius": 1200,
+        "radius": 1.2,
         "extrude": "true",
 	"latitude": 32.070053,
 	"longitude": 34.77532
@@ -8767,7 +8767,7 @@
         "@id": "way/149962280",
         "building": "yes",
         "risk": 0.7,
-        "radius": 5000,
+        "radius": 0.2,
         "extrude": "true"
       },
       "geometry": {
@@ -8888,7 +8888,7 @@
         "addr:housenumber": "101",
         "building": "yes",
         "risk": 0.1,
-        "radius": 10000,
+        "radius": 0.6,
         "extrude": "true",
 	"latitude": 32.068523,
 	"longitude": 34.777631
@@ -9368,7 +9368,7 @@
         "@id": "way/149963862",
         "building": "yes",
         "risk": 1,
-        "radius": 900,
+        "radius": 0.9,
         "extrude": "true"
       },
       "geometry": {
@@ -9694,7 +9694,7 @@
         "@id": "way/149963368",
         "building": "yes",
         "risk": 0.3,
-        "radius": 50,
+        "radius": 0.05,
         "extrude": "true"
       },
       "geometry": {
@@ -10066,7 +10066,7 @@
         "@id": "way/179417031",
         "building": "yes",
         "risk": 0.9,
-        "radius": 800,
+        "radius": 0.8,
         "extrude": "true"
       },
       "geometry": {
@@ -10651,7 +10651,7 @@
         "@id": "way/149962523",
         "building": "yes",
         "risk": 0.3,
-        "radius": 10000,
+        "radius": 0.2,
         "extrude": "true"
       },
       "geometry": {
@@ -11368,7 +11368,7 @@
         "@id": "way/149962345",
         "building": "yes",
         "risk": 0,
-        "radius": 1100,
+        "radius": 1.1,
         "extrude": "true"
       },
       "geometry": {
@@ -11935,7 +11935,7 @@
         "@id": "way/149962331",
         "building": "yes",
         "risk": 0.9,
-        "radius": 2000,
+        "radius": 2,
         "extrude": "true"
       },
       "geometry": {
@@ -12261,7 +12261,7 @@
         "@id": "way/149962356",
         "building": "yes",
         "risk": 0.1,
-        "radius": 100,
+        "radius": 0.1,
         "extrude": "true"
       },
       "geometry": {
@@ -12490,7 +12490,7 @@
         "@id": "way/149962149",
         "building": "yes",
         "risk": 0,
-        "radius": 900,
+        "radius": 0.9,
         "extrude": "true"
       },
       "geometry": {
@@ -13047,7 +13047,7 @@
         "@id": "way/179417064",
         "building": "yes",
         "risk": 0.8,
-        "radius": 700,
+        "radius": 0.7,
         "extrude": "true"
       },
       "geometry": {
@@ -13500,7 +13500,7 @@
         "@id": "way/149963366",
         "building": "yes",
         "risk": 1,
-        "radius": 50,
+        "radius": 0.05,
         "extrude": "true"
       },
       "geometry": {
@@ -13726,7 +13726,7 @@
         "@id": "way/200596805",
         "building": "yes",
         "risk": 0.2,
-        "radius": 20,
+        "radius": 0.02,
         "extrude": "true"
       },
       "geometry": {
@@ -14130,7 +14130,7 @@
         "@id": "way/203949293",
         "building": "yes",
         "risk": 0.9,
-        "radius": 100,
+        "radius": 0.1,
         "extrude": "true"
       },
       "geometry": {
@@ -14741,7 +14741,7 @@
         "@id": "way/200997635",
         "building": "yes",
         "risk": 0.8,
-        "radius": 10000,
+        "radius": 0.3,
         "extrude": "true"
       },
       "geometry": {
@@ -14987,7 +14987,7 @@
         "@id": "way/179417006",
         "building": "yes",
         "risk": 0.4,
-        "radius": 300,
+        "radius": 0.3,
         "extrude": "true"
       },
       "geometry": {
@@ -15289,7 +15289,7 @@
         "@id": "way/200596804",
         "building": "yes",
         "risk": 1,
-        "radius": 1500,
+        "radius": 1.5,
         "extrude": "true"
       },
       "geometry": {
@@ -15945,7 +15945,7 @@
         "@id": "way/149962115",
         "building": "yes",
         "risk": 0.6,
-        "radius": 7000,
+        "radius": 0.7,
         "extrude": "true"
       },
       "geometry": {
@@ -16288,7 +16288,7 @@
         "building:architecture": "bauhaus",
         "building:levels": "3",
         "risk": 0.5,
-        "radius": 200,
+        "radius": 0.2,
         "extrude": "true"
       },
       "geometry": {
@@ -16369,7 +16369,7 @@
         "@id": "way/149963409",
         "building": "yes",
         "risk": 0.4,
-        "radius": 830,
+        "radius": 0.83,
         "extrude": "true"
       },
       "geometry": {
@@ -16711,7 +16711,7 @@
         "@id": "way/149963830",
         "building": "yes",
         "risk": 0.9,
-        "radius": 10000,
+        "radius": 0.02,
         "extrude": "true"
       },
       "geometry": {
@@ -16913,7 +16913,7 @@
         "@id": "way/149962434",
         "building": "yes",
         "risk": 0,
-        "radius": 9000,
+        "radius": 0.9,
         "extrude": "true"
       },
       "geometry": {
@@ -17292,7 +17292,7 @@
         "building": "yes",
         "building:levels": "3",
         "risk": 0.7,
-        "radius": 500,
+        "radius": 0.5,
         "extrude": "true"
       },
       "geometry": {
@@ -17999,7 +17999,7 @@
         "building": "yes",
         "building:levels": "3",
         "risk": 0.6,
-        "radius": 720,
+        "radius": 0.72,
         "extrude": "true"
       },
       "geometry": {
@@ -18150,7 +18150,7 @@
         "@id": "way/179417032",
         "building": "yes",
         "risk": 0.3,
-        "radius": 30,
+        "radius": 0.03,
         "extrude": "true"
       },
       "geometry": {
@@ -19466,7 +19466,7 @@
         "@id": "way/203949637",
         "building": "yes",
         "risk": 0.2,
-        "radius": 3000,
+        "radius": 3,
         "extrude": "true"
       },
       "geometry": {
@@ -19803,7 +19803,7 @@
         "@id": "way/149963377",
         "building": "yes",
         "risk": 0.6,
-        "radius": 100,
+        "radius": 0.1,
         "extrude": "true"
       },
       "geometry": {
@@ -20009,7 +20009,7 @@
         "@id": "way/200997551",
         "building": "yes",
         "risk": 0.95,
-        "radius": 15000,
+        "radius": 0.2,
         "extrude": "true"
       },
       "geometry": {
@@ -20052,7 +20052,7 @@
         "name": "בית בי.אס.",
         "name:he": "בית בי.אס.",
         "risk": 0.7,
-        "radius": 8000,
+        "radius": 0.1,
         "extrude": "true"
       },
       "geometry": {
@@ -20154,7 +20154,7 @@
         "@id": "way/203502487",
         "building": "yes",
         "risk": 0.5,
-        "radius": 50,
+        "radius": 0.05,
         "extrude": "true"
       },
       "geometry": {
@@ -20442,7 +20442,7 @@
         "@id": "way/200997656",
         "building": "yes",
         "risk": 0.8,
-        "radius": 1000,
+        "radius": 1,
         "extrude": "true"
       },
       "geometry": {
@@ -20801,7 +20801,7 @@
         "@id": "way/149962361",
         "building": "yes",
         "risk": 1,
-        "radius": 20000,
+        "radius": 0.9,
         "extrude": "true"
       },
       "geometry": {
@@ -21769,7 +21769,7 @@
         "@id": "way/203949620",
         "building": "yes",
         "risk": 0.4,
-        "radius": 560,
+        "radius": 0.56,
         "extrude": "true"
       },
       "geometry": {
@@ -21920,7 +21920,7 @@
         "@id": "way/149963433",
         "building": "yes",
         "risk": 0.2,
-        "radius": 3000,
+        "radius": 3,
         "extrude": "true"
       },
       "geometry": {
@@ -23382,7 +23382,7 @@
         "building": "yes",
         "building:levels": "5",
         "risk": 0.8,
-        "radius": 700,
+        "radius": 0.7,
         "extrude": "true"
       },
       "geometry": {
@@ -23842,7 +23842,7 @@
         "@id": "way/149963388",
         "building": "yes",
         "risk": 0.4,
-        "radius": 6000,
+        "radius": 0.6,
         "extrude": "true"
       },
       "geometry": {
@@ -24232,7 +24232,7 @@
         "@id": "way/179417036",
         "building": "yes",
         "risk": 0.7,
-        "radius": 9000,
+        "radius": 0.7,
         "extrude": "true"
       },
       "geometry": {
@@ -24524,7 +24524,7 @@
         "@id": "way/203949813",
         "building:height": "yes",
         "risk": 0.4,
-        "radius": 10,
+        "radius": 0.01,
         "extrude": "true"
       },
       "geometry": {
