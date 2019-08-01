@@ -1,3 +1,3 @@
 package com.elyonut.wow.model
 
-class WowLatLng(var latitude: Double, var longitude: Double)
+class LatLngModel(var latitude: Double, var longitude: Double)

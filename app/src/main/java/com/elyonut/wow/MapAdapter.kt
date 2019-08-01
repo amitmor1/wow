@@ -3,7 +3,7 @@ package com.elyonut.wow
 import android.graphics.Color
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.GeometryModel
-import com.elyonut.wow.model.WowLatLng
+import com.elyonut.wow.model.LatLngModel
 import com.google.gson.JsonObject
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -35,12 +35,12 @@ class MapAdapter(var tempDB: TempDB) : IMap {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    fun transfromLatLngToWowLatLng(latLng: LatLng): WowLatLng {
-        return WowLatLng(latLng.latitude, latLng.longitude)
+    fun transfromLatLngToWowLatLng(latLng: LatLng): LatLngModel {
+        return LatLngModel(latLng.latitude, latLng.longitude)
     }
 
-    fun transfromLatLngToMapboxLatLng(latLng: WowLatLng): LatLng {
-        return LatLng(latLng.latitude, latLng.longitude)
+    fun transfromLatLngToMapboxLatLng(latLngModel: LatLngModel): LatLng {
+        return LatLng(latLngModel.latitude, latLngModel.longitude)
     }
 
     fun transfromFeatureModelToMapboxFeature(featureModel: FeatureModel): Feature {
@@ -68,15 +68,16 @@ class MapAdapter(var tempDB: TempDB) : IMap {
     }
 
     private fun transformMapboxGeometryToGeometryModel(polygon: Polygon): GeometryModel {
-        val points = arrayListOf<Double>()
+        val points = ArrayList<List<List<Double>>>()
 
         polygon.coordinates().forEach { it ->
+            val coordinatesList = ArrayList<List<Double>>()
             it.forEach {
-                points.add(it.latitude())
-                points.add(it.longitude())
+                coordinatesList.add(it.coordinates())
             }
+            points.add(coordinatesList)
         }
-        return GeometryModel(listOf(listOf(points)), polygon.type())
+        return GeometryModel(points, polygon.type())
     }
 
     override fun createThreatRadiusSource(): ArrayList<FeatureModel> {
@@ -85,6 +86,7 @@ class MapAdapter(var tempDB: TempDB) : IMap {
         allFeatures.forEach {
             val polygonArea = createPolygonArea(it)
             val properties = createThreatProperties(it)
+
             if (polygonArea != null) {
                 val feature = transfromMapboxFeatureToFeatureModel(
                     Feature.fromGeometry(
