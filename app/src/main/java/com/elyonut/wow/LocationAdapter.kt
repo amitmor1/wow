@@ -16,7 +16,7 @@ private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 class LocationAdapter(private var context: Context, var locationComponent: LocationComponent, var calculator: IAnalyze, var riskStatus: MutableLiveData<String>) : ILocationManager {
     private var locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var locationEngine: LocationEngine = LocationEngineProvider.getBestLocationEngine(context)
-    private var callback = LocationUpdatesCallback(locationComponent, this)
+    private var callback = LocationUpdatesCallback(this)
 
     override fun isGpsEnabled(): Boolean {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -40,7 +40,7 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
         locationEngine.removeLocationUpdates(callback)
     }
 
-    private class LocationUpdatesCallback(locationComponent: LocationComponent, locationAdapter: LocationAdapter) :
+    private class LocationUpdatesCallback(locationAdapter: LocationAdapter) :
         LocationEngineCallback<LocationEngineResult> {
         private var locationAdapterWeakReference: WeakReference<LocationAdapter> = WeakReference(locationAdapter)
 
