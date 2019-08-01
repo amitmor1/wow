@@ -32,7 +32,6 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
             .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
             .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
 
-
         locationEngine.requestLocationUpdates(request, callback, context.mainLooper)
         locationEngine.getLastLocation(callback)
     }
