@@ -2,5 +2,5 @@ package com.elyonut.wow
 
 interface IPermissions {
 
-    fun checkLocationPermissions(): Boolean
+    fun isLocationPermitted(): Boolean
 }

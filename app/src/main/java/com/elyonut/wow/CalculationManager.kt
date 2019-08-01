@@ -3,7 +3,7 @@ package com.elyonut.wow
 import android.location.Location
 import com.elyonut.wow.model.LatLngModel
 
-enum class StatusEnum(val value: Int) {
+enum class StatusTypes(val value: Int) {
     LOW_RISK(R.string.grey_status),
     MEDIUM_RISK(R.string.orange_status),
     HIGH_RISK(R.string.red_status)
@@ -15,7 +15,7 @@ class CalculationManager(private val tempDB: TempDB): ICalculation {
     override fun calcThreatStatus(location: Location): Int {
         val allFeatures = (tempDB.getFeatures())
         var currentFeatureLocation: LatLngModel
-        var riskStatus =  StatusEnum.LOW_RISK
+        var riskStatus =  StatusTypes.LOW_RISK
 
         run loop@{
             allFeatures.forEach {
@@ -34,10 +34,10 @@ class CalculationManager(private val tempDB: TempDB): ICalculation {
                     )
 
                     if (distSq + MY_RISK_RADIUS <= featureRiskRadius!!) {
-                        riskStatus = StatusEnum.HIGH_RISK
+                        riskStatus = StatusTypes.HIGH_RISK
                         return@loop
                     } else if ((kotlin.math.abs(MY_RISK_RADIUS - featureRiskRadius) <= distSq && distSq <= (MY_RISK_RADIUS + featureRiskRadius))) {
-                        riskStatus = StatusEnum.MEDIUM_RISK
+                        riskStatus = StatusTypes.MEDIUM_RISK
                     }
                 }
             }

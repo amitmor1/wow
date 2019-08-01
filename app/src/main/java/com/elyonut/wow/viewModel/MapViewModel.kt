@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.widget.Toast
 import com.elyonut.wow.*
+import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -67,7 +68,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun locationSetUp(loadedMapStyle: Style) {
-        if (permissions.checkLocationPermissions()) {
+        if (permissions.isLocationPermitted()) {
             startLocationService(loadedMapStyle)
         } else {
             isPermissionRequestNeeded.value = true
@@ -156,7 +157,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private fun getThreatRadiuses(): FeatureCollection {
         val threatRadiuses = mutableListOf<Feature>()
         mapAdapter.createThreatRadiusSource().forEach {
-            threatRadiuses.add(mapAdapter.transfromFeatureModelToMapboxFeature(it))
+            threatRadiuses.add(MapboxTransformer.transfromFeatureModelToMapboxFeature(it))
         }
 
         return FeatureCollection.fromFeatures(threatRadiuses)
