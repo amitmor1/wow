@@ -9,6 +9,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
+import com.elyonut.wow.transformer.MapboxTransformer
+import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -66,7 +68,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun locationSetUp(loadedMapStyle: Style) {
-        if (permissions.checkLocationPermissions()) {
+        if (permissions.isLocationPermitted()) {
             startLocationService(loadedMapStyle)
         } else {
             isPermissionRequestNeeded.value = true
@@ -141,19 +143,24 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-//    fun getBuildingInfo(){
-//        return transformToWowBuilding(loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
-//        selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features)))
-//    }
-
     private fun addRadiusLayer(loadedStyle: Style) {
         createRadiusSource(loadedStyle)
         createRadiusLayer(loadedStyle)
     }
 
     private fun createRadiusSource(loadedStyle: Style) {
-        val circleGeoJsonSource = GeoJsonSource(Constants.threatRadiusSourceId, mapAdapter.createThreatRadiusSource())
+        val circleGeoJsonSource =
+            GeoJsonSource(Constants.threatRadiusSourceId, getThreatRadiuses())
         loadedStyle.addSource(circleGeoJsonSource)
+    }
+
+    private fun getThreatRadiuses(): FeatureCollection {
+        val threatRadiuses = mutableListOf<Feature>()
+        mapAdapter.createThreatRadiusSource().forEach {
+            threatRadiuses.add(MapboxTransformer.transfromFeatureModelToMapboxFeature(it))
+        }
+
+        return FeatureCollection.fromFeatures(threatRadiuses)
     }
 
     private fun createRadiusLayer(loadedStyle: Style) {
@@ -177,6 +184,22 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         loadedStyle.addLayerBelow(fillLayer, getString(R.string.buildings_layer))
     }
 
+    fun showRadiusLayerButtonClicked(layerId: String) {
+        changeLayerVisibility(layerId)
+    }
+
+    private fun changeLayerVisibility(layerId: String) {
+        val layer = map.style?.getLayer(layerId)
+        if (layer != null) {
+            if (layer.visibility.getValue() == VISIBLE) {
+                layer.setProperties(visibility(NONE))
+            } else {
+                layer.setProperties(visibility(VISIBLE))
+            }
+        }
+    }
+
+
     fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
 //        model.onMapClick()
         val loadedMapStyle = mapboxMap.style
@@ -197,21 +220,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         return true
-    }
-
-    fun showRadiusLayerButtonClicked(layerId: String) {
-        changeLayerVisibility(layerId)
-    }
-
-    private fun changeLayerVisibility(layerId: String) {
-        val layer = map.style?.getLayer(layerId)
-        if (layer != null) {
-            if (layer.visibility.getValue() == VISIBLE) {
-                layer.setProperties(visibility(NONE))
-            } else {
-                layer.setProperties(visibility(VISIBLE))
-            }
-        }
     }
 
     fun focusOnMyLocationClicked() {
