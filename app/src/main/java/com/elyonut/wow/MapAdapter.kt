@@ -33,57 +33,18 @@ class MapAdapter(var tempDB: TempDB) : IMap {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-
-
-//    fun transfromFeatureModelToMapboxFeature(featureModel: FeatureModel): Feature {
-//        return Feature.fromGeometry(
-//            transformGeometryToMapboxGeometry(featureModel.geometry),
-//            featureModel.properties,
-//            featureModel.id
-//        )
-//    }
-//
-//    fun transfromMapboxFeatureToFeatureModel(feature: Feature): FeatureModel {
-//        return FeatureModel(
-//            feature.id(),
-//            feature.properties(),
-//            transformMapboxGeometryToGeometryModel(feature.geometry() as Polygon),
-//            feature.type()
-//        )
-//    }
-//
-//    private fun transformGeometryToMapboxGeometry(geometryModel: GeometryModel): Geometry {
-//        val points = ArrayList<Point>()
-//        geometryModel.coordinates.forEach { it -> it.forEach { points.add(Point.fromLngLat(it[0], it[1])) } }
-//        val pointsList = arrayListOf(points.toList()).toList()
-//        return Polygon.fromLngLats(pointsList)
-//    }
-//
-//    private fun transformMapboxGeometryToGeometryModel(polygon: Polygon): GeometryModel {
-//        val points = ArrayList<List<List<Double>>>()
-//
-//        polygon.coordinates().forEach { it ->
-//            val coordinatesList = ArrayList<List<Double>>()
-//            it.forEach {
-//                coordinatesList.add(it.coordinates())
-//            }
-//            points.add(coordinatesList)
-//        }
-//        return GeometryModel(points, polygon.type())
-//    }
-
     override fun createThreatRadiusSource(): ArrayList<FeatureModel> {
         val circleLayerFeatureList = ArrayList<FeatureModel>()
         val allFeatures = (tempDB.getFeatures())
         allFeatures.forEach {
-            val polygonArea = createCirclePolygonArea(it)
+            val circlePolygonArea = createCirclePolygonArea(it)
             val properties = createThreatProperties(it)
 
-            if (polygonArea != null) {
+            if (circlePolygonArea != null) {
                 val feature = MapboxTransformer.transfromMapboxFeatureToFeatureModel(
                     Feature.fromGeometry(
                         Polygon.fromOuterInner(
-                            LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false))
+                            LineString.fromLngLats(TurfMeta.coordAll(circlePolygonArea, false))
                         ), properties
                     )
                 )

@@ -41,7 +41,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val tempDB = TempDB(application)
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
     private lateinit var locationAdapter: ILocationManager
-    private val calculation: ICalculation = CalculationManager(tempDB)
+    private val calculation: IAnalyze = AnalyzeManager(tempDB)
     private val mapAdapter: MapAdapter = MapAdapter(tempDB)
     var selectedBuildingId = MutableLiveData<String>()
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()

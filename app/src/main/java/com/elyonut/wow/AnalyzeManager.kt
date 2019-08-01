@@ -1,7 +1,7 @@
 package com.elyonut.wow
 
 import android.location.Location
-import com.elyonut.wow.model.LatLngModel
+import com.mapbox.mapboxsdk.geometry.LatLng
 
 enum class StatusTypes(val value: Int) {
     LOW_RISK(R.string.grey_status),
@@ -10,7 +10,7 @@ enum class StatusTypes(val value: Int) {
 }
 
 private const val MY_RISK_RADIUS = 0.3
-class CalculationManager(private val tempDB: TempDB): ICalculation {
+class AnalyzeManager(private val tempDB: TempDB): IAnalyze {
 
     override fun calcThreatStatus(location: Location): Int {
         val allFeatures = (tempDB.getFeatures())
@@ -18,7 +18,7 @@ class CalculationManager(private val tempDB: TempDB): ICalculation {
         var riskStatus =  StatusTypes.LOW_RISK
 
         run loop@{
-            allFeatures.features()?.forEach { it ->
+            allFeatures.forEach {
                 val threatLat = it.properties?.get("latitude")
                 val threatLng = it.properties?.get("longitude")
 

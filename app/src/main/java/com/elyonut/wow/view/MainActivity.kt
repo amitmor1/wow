@@ -22,10 +22,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 
 import android.widget.Button
 
-
 // Constant values
-//private const val MY_RISK_RADIUS = 300.0
-//private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
 private const val RECORD_REQUEST_CODE = 101
 
 class MainActivity : AppCompatActivity(),

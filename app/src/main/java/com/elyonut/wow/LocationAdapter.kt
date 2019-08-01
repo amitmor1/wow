@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference
 private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
 private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
-class LocationAdapter(private var context: Context, var locationComponent: LocationComponent, var calculator: ICalculation, var riskStatus: MutableLiveData<String>) : ILocationManager {
+class LocationAdapter(private var context: Context, var locationComponent: LocationComponent, var calculator: IAnalyze, var riskStatus: MutableLiveData<String>) : ILocationManager {
     private var locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var locationEngine: LocationEngine = LocationEngineProvider.getBestLocationEngine(context)
     private var callback = LocationUpdatesCallback(locationComponent, this)
@@ -42,13 +42,11 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
 
     private class LocationUpdatesCallback(locationComponent: LocationComponent, locationAdapter: LocationAdapter) :
         LocationEngineCallback<LocationEngineResult> {
-        private var locationComponentWeakReference: WeakReference<LocationComponent> = WeakReference(locationComponent)
         private var locationAdapterWeakReference: WeakReference<LocationAdapter> = WeakReference(locationAdapter)
 
         override fun onSuccess(result: LocationEngineResult?) {
 
             val location: Location = result?.lastLocation ?: return
-//            locationComponentWeakReference.get()?.forceLocationUpdate(location)
             locationAdapterWeakReference.get()?.locationComponent?.forceLocationUpdate(location)
             locationAdapterWeakReference.get()?.riskStatus?.value = locationAdapterWeakReference.get()?.context!!.
                 getString(locationAdapterWeakReference.get()?.calculator?.calcThreatStatus(result.lastLocation!!)!!)
