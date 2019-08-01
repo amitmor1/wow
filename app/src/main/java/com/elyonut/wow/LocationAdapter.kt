@@ -1,10 +1,10 @@
 package com.elyonut.wow
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
+import androidx.lifecycle.MutableLiveData
 import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
 import java.lang.ref.WeakReference
@@ -31,7 +31,6 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
         val request: LocationEngineRequest = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
             .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
             .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
-
 
         locationEngine.requestLocationUpdates(request, callback, context.mainLooper)
         locationEngine.getLastLocation(callback)
