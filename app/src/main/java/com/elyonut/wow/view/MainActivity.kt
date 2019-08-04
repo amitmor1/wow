@@ -1,6 +1,7 @@
 package com.elyonut.wow.view
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.Settings
@@ -21,7 +22,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 
 
 import android.widget.Button
-
+import androidx.navigation.findNavController
 
 // Constant values
 //private const val MY_RISK_RADIUS = 300.0
@@ -31,7 +32,8 @@ private const val RECORD_REQUEST_CODE = 101
 class MainActivity : AppCompatActivity(),
     OnMapReadyCallback,
     MapboxMap.OnMapClickListener,
-    DataCardFragment.OnFragmentInteractionListener {
+    DataCardFragment.OnFragmentInteractionListener,
+    MainFragment.OnFragmentInteractionListener {
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
@@ -228,6 +230,9 @@ class MainActivity : AppCompatActivity(),
 //            return metadata
 //        }
 //    }
+
+    override fun onMainFragmentInteraction() {
+    }
 
     override fun onFragmentInteraction() {
     }
