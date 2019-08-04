@@ -6,7 +6,7 @@
     android:id="@+id/parentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.MainFragment">
+    tools:context=".view.MainMapFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainMapLayout"

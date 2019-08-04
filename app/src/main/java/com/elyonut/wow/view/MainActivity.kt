@@ -1,17 +1,16 @@
 package com.elyonut.wow.view
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.Settings
+import android.view.Menu
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.elyonut.wow.*
 import com.elyonut.wow.viewModel.MapViewModel
 import com.mapbox.mapboxsdk.Mapbox
@@ -19,10 +18,12 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
-
-
 import android.widget.Button
+import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 
 // Constant values
 //private const val MY_RISK_RADIUS = 300.0
@@ -31,16 +32,21 @@ private const val RECORD_REQUEST_CODE = 101
 
 class MainActivity : AppCompatActivity(),
     OnMapReadyCallback,
-    MapboxMap.OnMapClickListener,
+//    MapboxMap.OnMapClickListener,
     DataCardFragment.OnFragmentInteractionListener,
-    MainFragment.OnFragmentInteractionListener {
+    MainMapFragment.OnFragmentInteractionListener {
 
-    private lateinit var mapView: MapView
-    private lateinit var map: MapboxMap
+    private var mapView: MapView? = null
+    //    private lateinit var map: MapboxMap
     //    private var lastUpdatedLocation: Location? = null
     private val logger: ILogger = TimberLogAdapter()
     private lateinit var mapViewModel: MapViewModel
-    private lateinit var threatStatus: View
+    private var threatStatus: View? = null
+
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menuInflater.inflate(R.menu.navigation_items, menu)
+//        return super.onCreateOptionsMenu(menu)
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,17 +54,22 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
         logger.initLogger()
         logger.info("started app")
+//        mapView = findViewById(R.id.mainMapView)
+        val navController = findNavController(R.id.nav_host_fragment)
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        findViewById<Toolbar>(R.id.appToolbar).setupWithNavController(navController, appBarConfiguration)
+
         mapViewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MapViewModel::class.java)
-
-        initObservers()
-        threatStatus = findViewById(R.id.status)
-        mapView = findViewById(R.id.mainMapView)
-        mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync(this)
-
-        initFocusOnMyLocationButton()
-        initShowRadiusLayerButton()
+//
+//        initObservers()
+//        threatStatus = findViewById(R.id.status)
+//        mapView = findViewById(R.id.mainMapView)
+//        mapView.onCreate(savedInstanceState)
+//        mapView.getMapAsync(this)
+//
+//        initFocusOnMyLocationButton()
+//        initShowRadiusLayerButton()
     }
 
     private fun initObservers() {
@@ -119,8 +130,8 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
-        map = mapboxMap
-        mapboxMap.addOnMapClickListener(this)
+//        map = mapboxMap
+//        mapboxMap.addOnMapClickListener(this)
 
         mapViewModel.onMapReady(mapboxMap)
     }
@@ -139,10 +150,10 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onMapClick(latLng: LatLng): Boolean {
+//    override fun onMapClick(latLng: LatLng): Boolean {
 
-        return mapViewModel.onMapClick(map, latLng)
-    }
+//        return mapViewModel.onMapClick(map, latLng)
+//    }
 
 //    private fun initOfflineMap(loadedMapStyle: Style) {
 //
@@ -240,42 +251,42 @@ class MainActivity : AppCompatActivity(),
     @SuppressWarnings("MissingPermission")
     override fun onStart() {
         super.onStart()
-        mapView.onStart()
+        mapView?.onStart()
     }
 
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        mapView?.onResume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         // Prevent leaks
         mapViewModel.clean()
-        map.removeOnMapClickListener(this)
-        mapView.onDestroy()
+//        map.removeOnMapClickListener(this)
+        mapView?.onDestroy()
     }
 
     override fun onStop() {
         super.onStop()
-        mapView.onStop()
+        mapView?.onStop()
     }
 
     override fun onPause() {
         super.onPause()
-        mapView.onPause()
+        mapView?.onPause()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView.onLowMemory()
+        mapView?.onLowMemory()
     }
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
         super.onSaveInstanceState(outState, outPersistentState)
 
         if (outState != null) {
-            mapView.onSaveInstanceState(outState)
+            mapView?.onSaveInstanceState(outState)
         }
     }
 }

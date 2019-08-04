@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_graph"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/mainMapFragment">
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="com.elyonut.wow.view.MainFragment"
+        android:id="@+id/mainMapFragment"
+        android:name="com.elyonut.wow.view.MainMapFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
