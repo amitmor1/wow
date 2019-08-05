@@ -11,12 +11,16 @@ import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.Feature
+import com.elyonut.wow.analysis.ThreatAnalyzer
+import com.elyonut.wow.analysis.TopographyService
+import com.elyonut.wow.model.Threat
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
+import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
@@ -37,6 +41,8 @@ private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
+
+    var selectLocationManual: Boolean = false
     private lateinit var map: MapboxMap
     private val tempDB = TempDB(application)
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
@@ -48,6 +54,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var isAlertVisible = MutableLiveData<Boolean>()
     var noPermissionsToast = MutableLiveData<Toast>()
     var threatStatus = MutableLiveData<String>()
+    var threats = MutableLiveData<ArrayList<Threat>>()
+    var threatFeatures = MutableLiveData<List<Feature>>()
 
     init {
 //        val adapter = MapAdapter()
@@ -143,6 +151,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+//    fun getBuildingInfo(){
+//        return transformToWowBuilding(loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
+//        selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features)))
+//    }
+
     private fun addRadiusLayer(loadedStyle: Style) {
         createRadiusSource(loadedStyle)
         createRadiusLayer(loadedStyle)
@@ -235,6 +248,36 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clean() {
         locationAdapter.cleanLocation()
+    }
+
+    fun updateThreats(mapView: MapView) {
+        val ta = ThreatAnalyzer(mapView, map)
+        val location = locationAdapter.getCurrentLocation()
+        val currentLocation = LatLng(location!!.latitude, location!!.longitude)
+        threats.value = ta.getThreats(currentLocation)
+    }
+
+    fun updateThreatFeatures(mapView: MapView){
+        val ta = ThreatAnalyzer(mapView, map)
+        val location = locationAdapter.getCurrentLocation()
+        val currentLocation = LatLng(location!!.latitude, location!!.longitude)
+        threatFeatures.value = ta.getThreatFeatures(currentLocation)
+    }
+
+    fun updateThreatFeatures(mapView: MapView, latLng: LatLng){
+        val ta = ThreatAnalyzer(mapView, map)
+        threatFeatures.value = ta.getThreatFeatures(latLng)
+    }
+
+    fun buildingThreatToCurrentLocation(mapView: MapView, building: Feature): Threat {
+        val location = locationAdapter.getCurrentLocation()
+        val currentLocation = LatLng(location!!.latitude, location.longitude)
+        val topographyService = TopographyService(map)
+        val isLOS = topographyService.isLOS(currentLocation, building)
+
+        val ta = ThreatAnalyzer(mapView, map)
+
+        return ta.featureToThreat(building, currentLocation, isLOS)
     }
 }
 
