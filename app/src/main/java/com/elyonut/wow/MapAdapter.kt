@@ -5,6 +5,7 @@ import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.google.gson.JsonObject
 import com.mapbox.geojson.*
+import com.mapbox.mapboxsdk.style.layers.Layer
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeta
 import com.mapbox.turf.TurfTransformation
@@ -15,7 +16,7 @@ import kotlin.collections.ArrayList
 private const val circleUnit = TurfConstants.UNIT_KILOMETERS
 private const val circleSteps = 180
 
-class MapAdapter(var tempDB: TempDB) : IMap {
+class MapAdapter(var layerManager: LayerManager) : IMap {
 
     override fun addLayer(layerId: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -35,8 +36,8 @@ class MapAdapter(var tempDB: TempDB) : IMap {
 
     override fun createThreatRadiusSource(): ArrayList<FeatureModel> {
         val circleLayerFeatureList = ArrayList<FeatureModel>()
-        val allFeatures = (tempDB.getFeatures())
-        allFeatures.forEach {
+        val allFeatures = (layerManager.getLayer("threat"))
+        allFeatures?.forEach {
             val circlePolygonArea = createCirclePolygonArea(it)
             val properties = createThreatProperties(it)
 
