@@ -41,8 +41,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val tempDB = TempDB(application)
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
     private lateinit var locationAdapter: ILocationManager
-    private val calculation: IAnalyze = AnalyzeManager(tempDB)
-    private val mapAdapter: MapAdapter = MapAdapter(tempDB)
+    private val layerManager = LayerManager(tempDB)
+    private val analyzer: IAnalyze = AnalyzeManager(layerManager)
+    private val mapAdapter: MapAdapter = MapAdapter(layerManager)
     var selectedBuildingId = MutableLiveData<String>()
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
@@ -92,7 +93,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             renderMode = RenderMode.COMPASS
         }
 
-        locationAdapter = LocationAdapter(getApplication(), map.locationComponent, calculation, threatStatus)
+        locationAdapter = LocationAdapter(getApplication(), map.locationComponent, analyzer, threatStatus)
 
         if (!locationAdapter.isGpsEnabled()) {
             isAlertVisible.value = true

@@ -10,15 +10,15 @@ enum class StatusTypes(val value: Int) {
 }
 
 private const val MY_RISK_RADIUS = 0.3
-class AnalyzeManager(private val tempDB: TempDB): IAnalyze {
+class AnalyzeManager(private val layerManager: LayerManager): IAnalyze {
 
     override fun calcThreatStatus(location: Location): Int {
-        val allFeatures = (tempDB.getFeatures())
+        val allFeatures = layerManager.getLayer("threat")
         var threatLocation: LatLng
         var riskStatus =  StatusTypes.LOW_RISK
 
         run loop@{
-            allFeatures.forEach {
+            allFeatures?.forEach {
                 val threatLat = it.properties?.get("latitude")
                 val threatLng = it.properties?.get("longitude")
 
