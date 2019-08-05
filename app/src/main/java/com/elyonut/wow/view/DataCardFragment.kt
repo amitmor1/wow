@@ -1,6 +1,7 @@
 package com.elyonut.wow.view
 
 import android.content.Context
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.elyonut.wow.OnSwipeTouchListener
 import com.elyonut.wow.R
+import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.DataCardViewModel
 import kotlinx.android.synthetic.main.fragment_data_card.view.*
 
@@ -35,7 +37,22 @@ class DataCardFragment : Fragment() {
         initReadMoreButton(view)
         initClosingCard(view)
 
+        val threat: Threat = arguments!!.getParcelable("threat")
+        initThreatInfo(view, threat)
+
         return view
+    }
+
+    private fun initThreatInfo(view: View, threat: Threat){
+        view.dataType.text = "איום"
+        view.dataSecondTitle.text = threat.name
+        val builder = StringBuilder()
+        builder.append(String.format("מרחק (מטרים): %.3f\n", threat.distanceMeters))
+        builder.append(String.format("אזימוט: %.3f\n", threat.azimuth))
+        builder.append(String.format("האם בקו ראיה: %s", if (threat.isLos) "כן" else "לא"))
+        view.moreContent.text = builder.toString()
+        view.moreContent.visibility = View.VISIBLE
+        view.buildingStateColor.background.setColorFilter(Threat.color(threat), PorterDuff.Mode.MULTIPLY)
     }
 
     private fun initObservers(view: View) {
