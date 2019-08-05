@@ -20,10 +20,12 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import android.widget.Button
 import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.navigation.NavigationView
 
 // Constant values
 //private const val MY_RISK_RADIUS = 300.0
@@ -56,7 +58,9 @@ class MainActivity : AppCompatActivity(),
         logger.info("started app")
 //        mapView = findViewById(R.id.mainMapView)
         val navController = findNavController(R.id.nav_host_fragment)
-        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        val drawerLayout = findViewById<DrawerLayout>(R.id.parentLayout)
+        val appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
+        findViewById<NavigationView>(R.id.navigationView).setupWithNavController(navController)
         findViewById<Toolbar>(R.id.appToolbar).setupWithNavController(navController, appBarConfiguration)
 
         mapViewModel =
