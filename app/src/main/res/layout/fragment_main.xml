@@ -6,13 +6,15 @@
     android:id="@+id/parentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.MainMapFragment">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".view.MainMapFragment"
+    tools:showIn="@layout/app_bar_main">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainMapLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.MainActivity">
+        tools:context=".view.MainMapFragment">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/status"

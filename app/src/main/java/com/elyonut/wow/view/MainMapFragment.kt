@@ -2,10 +2,8 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +11,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -26,8 +25,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 
 private const val RECORD_REQUEST_CODE = 101
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener {
     private lateinit var map: MapboxMap
@@ -76,7 +73,14 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     }
 
     private fun showDescriptionFragment() {
-        this.findNavController().navigate(R.id.dataCardFragment)
+        val dataCardFragmentInstance = DataCardFragment.newInstance()
+
+        if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
+            activity!!.supportFragmentManager.beginTransaction().add(
+                R.id.fragmentParent,
+                dataCardFragmentInstance
+            ).commit()
+//        this.findNavController().navigate(R.id.dataCardFragment)
     }
 
     private fun requestPermissions() {

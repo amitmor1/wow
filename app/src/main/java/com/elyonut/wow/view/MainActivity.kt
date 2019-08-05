@@ -4,28 +4,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.provider.Settings
-import android.view.Menu
 import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Observer
-import com.elyonut.wow.*
-import com.elyonut.wow.viewModel.MapViewModel
-import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapView
-import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
-import android.widget.Button
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import com.elyonut.wow.Constants
+import com.elyonut.wow.ILogger
+import com.elyonut.wow.R
+import com.elyonut.wow.TimberLogAdapter
+import com.elyonut.wow.viewModel.MapViewModel
 import com.google.android.material.navigation.NavigationView
+import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 
 // Constant values
 //private const val MY_RISK_RADIUS = 300.0
@@ -46,7 +47,7 @@ class MainActivity : AppCompatActivity(),
     private var threatStatus: View? = null
 
 //    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.navigation_items, menu)
+//        menuInflater.inflate(R.menu.main_drawer_menu, menu)
 //        return super.onCreateOptionsMenu(menu)
 //    }
 
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity(),
         val drawerLayout = findViewById<DrawerLayout>(R.id.parentLayout)
         val appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         findViewById<NavigationView>(R.id.navigationView).setupWithNavController(navController)
-        findViewById<Toolbar>(R.id.appToolbar).setupWithNavController(navController, appBarConfiguration)
+        findViewById<Toolbar>(R.id.toolbar).setupWithNavController(navController, appBarConfiguration)
 
         mapViewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MapViewModel::class.java)

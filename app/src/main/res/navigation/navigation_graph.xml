@@ -10,7 +10,7 @@
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
-            android:id="@+id/action_mainFragment_to_dataCardFragment"
+            android:id="@+id/action_mainMapFragment_to_dataCardFragment2"
             app:destination="@id/dataCardFragment" />
     </fragment>
     <fragment
