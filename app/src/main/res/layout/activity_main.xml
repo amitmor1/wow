@@ -19,15 +19,16 @@
 
         <com.google.android.material.button.MaterialButton
                 android:id="@+id/status"
-                android:layout_width="203dp"
-                android:layout_height="42dp"
+                android:layout_width="171dp"
+                android:layout_height="43dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginBottom="16dp"
                 android:layout_weight="1"
                 android:backgroundTint="#ECEBEB"
                 android:clickable="false"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/menu_button"/>
+                app:layout_constraintStart_toEndOf="@+id/menu_button"
+                android:textColor="@android:color/background_dark"/>
 
         <com.google.android.material.button.MaterialButton
                 android:id="@+id/status-color"
@@ -37,7 +38,8 @@
                 android:backgroundTint="#DF3838"
                 android:clickable="false"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/status"/>
+                app:layout_constraintStart_toEndOf="@id/status" android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/currentLocation" android:textColor="#00000000"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/currentLocation"
