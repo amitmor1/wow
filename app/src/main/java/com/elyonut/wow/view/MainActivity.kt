@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity(),
         val navController = findNavController(R.id.nav_host_fragment)
         val drawerLayout = findViewById<DrawerLayout>(R.id.parentLayout)
         val appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
+
         findViewById<NavigationView>(R.id.navigationView).setupWithNavController(navController)
         findViewById<Toolbar>(R.id.toolbar).setupWithNavController(navController, appBarConfiguration)
 
