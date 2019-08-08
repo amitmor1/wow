@@ -38,7 +38,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var map: MapboxMap
     private val tempDB = TempDB(application)
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
-    private lateinit var locationAdapter: ILocationManager
+    private var locationAdapter: ILocationManager? = null
     private val calculation: ICalculation = CalculationManager(tempDB)
     private val mapAdapter: MapAdapter = MapAdapter(tempDB)
     var selectedBuildingId = MutableLiveData<String>()
@@ -92,11 +92,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
         locationAdapter = LocationAdapter(getApplication(), map.locationComponent, calculation, threatStatus)
 
-        if (!locationAdapter.isGpsEnabled()) {
+        if (!locationAdapter!!.isGpsEnabled()) {
             isAlertVisible.value = true
         }
 
-        locationAdapter.startLocationService()
+        locationAdapter!!.startLocationService()
     }
 
     @SuppressLint("ShowToast")
@@ -226,7 +226,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun clean() {
-        locationAdapter.cleanLocation()
+        locationAdapter?.cleanLocation()
     }
 }
 

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/parentLayout"
+    android:id="@+id/mapFragmentParentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -14,6 +14,7 @@
         android:id="@+id/mainMapLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+
         tools:context=".view.MainMapFragment">
 
         <com.google.android.material.button.MaterialButton
@@ -57,7 +58,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="8dp"
             android:src="@drawable/ic_layers_black"
             app:backgroundTint="#4d79ff"
@@ -73,19 +73,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
             app:layout_constraintVertical_bias="0.0"
             mapbox:mapbox_cameraTargetLat="32.078899"
             mapbox:mapbox_cameraTargetLng="34.794590"
-            mapbox:mapbox_cameraZoom="12">
+            mapbox:mapbox_cameraZoom="12" />
 
-            <LinearLayout
-                android:id="@+id/fragmentParent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical" />
+        <LinearLayout
+            android:id="@+id/fragmentParent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="parent" />
 
-        </com.mapbox.mapboxsdk.maps.MapView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

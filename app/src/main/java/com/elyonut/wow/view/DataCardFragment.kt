@@ -58,7 +58,6 @@ class DataCardFragment : Fragment() {
     }
 
     private fun closeCard() {
-        this.findNavController().navigateUp()
         activity?.supportFragmentManager?.beginTransaction()?.remove(this@DataCardFragment)?.commit()
     }
 
