@@ -76,9 +76,9 @@
             android:layout_margin="16dp"
             android:src="@drawable/ic_bars_solid"
             app:backgroundTint="#DDF0EF"
-            tools:backgroundTint="#DDF0EF" android:onClick="onMenuClick" tools:layout_editor_absoluteY="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            tools:backgroundTint="#DDF0EF" />
 
         <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/mainMapView"
@@ -104,8 +104,9 @@
         <FrameLayout
             android:id="@+id/threat_list_fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

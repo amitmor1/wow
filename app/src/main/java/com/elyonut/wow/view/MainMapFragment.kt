@@ -4,7 +4,6 @@ package com.elyonut.wow.view
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
@@ -30,8 +29,6 @@ import android.widget.PopupMenu
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
-import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
@@ -39,8 +36,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 
@@ -74,6 +69,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
+        initMenuButton(view)
         return view
     }
 
@@ -231,11 +227,22 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         return true
     }
 
-    fun onMenuClick(view: View) {
-        PopupMenu(listener as Context, view).apply {
-            setOnMenuItemClickListener(this@MainMapFragment)
-            inflate(R.menu.menu)
-            show()
+//    fun onMenuClick(view: View) {
+//        PopupMenu(listener as Context, view).apply {
+//            setOnMenuItemClickListener(this@MainMapFragment)
+//            inflate(R.menu.menu)
+//            show()
+//        }
+//    }
+
+    private fun initMenuButton(view: View) {
+        val menuButton: View = view.findViewById(R.id.menu_button)
+        menuButton.setOnClickListener {
+            PopupMenu(listener as Context, view).apply {
+                setOnMenuItemClickListener(this@MainMapFragment)
+                inflate(R.menu.menu)
+                show()
+            }
         }
     }
 
