@@ -2,9 +2,11 @@ package com.elyonut.wow.view
 
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.view.Gravity
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -33,9 +35,8 @@ class MainActivity : AppCompatActivity(),
         val navController = findNavController(R.id.nav_host_fragment)
         val drawerLayout = findViewById<DrawerLayout>(R.id.parentLayout)
         val appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
-//        setSupportActionBar(toolbar)
-        findViewById<Toolbar>(R.id.toolbar).setupWithNavController(navController, appBarConfiguration)
-
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        toolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
     override fun onMainFragmentInteraction() {

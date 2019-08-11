@@ -7,7 +7,6 @@
     <fragment
         android:id="@+id/map_fragment"
         android:name="com.elyonut.wow.view.MainMapFragment"
-        android:label="fragment_main"
         tools:layout="@layout/fragment_map" >
     </fragment>
 </navigation>
