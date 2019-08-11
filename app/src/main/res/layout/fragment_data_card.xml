@@ -2,22 +2,24 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/parentLayout"
+    android:id="@+id/dataCardParentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusable="true"
-    tools:context=".view.DataCardFragment">
+    app:layout_constraintTop_toBottomOf="parent">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/buildingDataCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cardConstraint"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toBottomOf="parent">
 
             <ScrollView
                 android:id="@+id/dataDescriptionContainer"

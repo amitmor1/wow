@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.elyonut.wow.OnSwipeTouchListener
 import com.elyonut.wow.R
 import com.elyonut.wow.model.Threat
