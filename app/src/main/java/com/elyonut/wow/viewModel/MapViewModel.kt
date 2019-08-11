@@ -253,15 +253,15 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateThreats(mapView: MapView) {
         val ta = ThreatAnalyzer(mapView, map)
-        val location = locationAdapter.getCurrentLocation()
-        val currentLocation = LatLng(location!!.latitude, location!!.longitude)
+        val location = locationAdapter?.getCurrentLocation()
+        val currentLocation = LatLng(location!!.latitude, location.longitude)
         threats.value = ta.getThreats(currentLocation)
     }
 
     fun updateThreatFeatures(mapView: MapView){
         val ta = ThreatAnalyzer(mapView, map)
-        val location = locationAdapter.getCurrentLocation()
-        val currentLocation = LatLng(location!!.latitude, location!!.longitude)
+        val location = locationAdapter?.getCurrentLocation()
+        val currentLocation = LatLng(location!!.latitude, location.longitude)
         threatFeatures.value = ta.getThreatFeatures(currentLocation)
     }
 
@@ -271,7 +271,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun buildingThreatToCurrentLocation(mapView: MapView, building: Feature): Threat {
-        val location = locationAdapter.getCurrentLocation()
+        val location = locationAdapter?.getCurrentLocation()
         val currentLocation = LatLng(location!!.latitude, location.longitude)
         val topographyService = TopographyService(map)
         val isLOS = topographyService.isLOS(currentLocation, building)

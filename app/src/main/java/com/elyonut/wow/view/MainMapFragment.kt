@@ -1,5 +1,6 @@
 package com.elyonut.wow.view
 
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -14,24 +15,46 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.elyonut.wow.Constants
-import com.elyonut.wow.R
+//import com.elyonut.wow.Constants
+//import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.MapViewModel
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
+import android.widget.PopupMenu
+//import com.elyonut.wow.analysis.ThreatAnalyzer
+//import com.elyonut.wow.analysis.TopographyService
+//import com.elyonut.wow.model.Threat
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
+import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import com.elyonut.wow.*
+import com.elyonut.wow.model.Threat
 
 private const val RECORD_REQUEST_CODE = 101
 
-class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener {
+class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener, PopupMenu.OnMenuItemClickListener,
+    ThreatFragment.OnListFragmentInteractionListener {
+    private lateinit var mapView: MapView
+
     private lateinit var map: MapboxMap
     private lateinit var mapViewModel: MapViewModel
     private lateinit var threatStatus: View
-    private lateinit var mapView: MapView
-
     private var listener: OnFragmentInteractionListener? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -136,7 +159,187 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onMapClick(latLng: LatLng): Boolean {
 
-        return mapViewModel.onMapClick(map, latLng)
+        // return mapViewModel.onMapClick(map, latLng)
+
+        val loadedMapStyle = map.style
+
+        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+            return false
+        }
+
+        loadedMapStyle.removeLayer("threat-source-layer")
+        loadedMapStyle.removeSource("threat-source")
+
+        loadedMapStyle.removeLayer("layer-selected-location")
+        loadedMapStyle.removeSource("source-marker-click")
+        loadedMapStyle.removeImage("marker-icon-id")
+
+        if (mapViewModel.selectLocationManual) {
+
+            // Add the marker image to map
+            loadedMapStyle.addImage(
+                "marker-icon-id",
+                BitmapFactory.decodeResource(
+                    App.resourses, R.drawable.mapbox_marker_icon_default
+                )
+            )
+
+            val geoJsonSource = GeoJsonSource(
+                "source-marker-click",
+                Feature.fromGeometry(Point.fromLngLat(latLng.longitude, latLng.latitude))
+            )
+
+            loadedMapStyle.addSource(geoJsonSource)
+
+            val symbolLayer = SymbolLayer("layer-selected-location", "source-marker-click")
+            symbolLayer.withProperties(
+                PropertyFactory.iconImage("marker-icon-id")
+            )
+            loadedMapStyle.addLayer(symbolLayer)
+
+            mapViewModel.updateThreatFeatures(mapView, latLng)
+            mapViewModel.threatFeatures.value?.let { visualizeThreats(it) }
+            mapViewModel.selectLocationManual = false
+
+        } else {
+
+            val point = map.projection.toScreenLocation(latLng)
+            val features = map.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+
+            if (features.size > 0) {
+                val selectedBuildingSource =
+                    loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+                selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+
+                val threat = mapViewModel.buildingThreatToCurrentLocation(mapView, features[0])
+
+                val bundle = Bundle()
+                bundle.putParcelable("threat", threat)
+
+                // take to function!
+                val dataCardFragmentInstance = DataCardFragment.newInstance()
+                dataCardFragmentInstance.arguments = bundle
+                if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
+                    activity!!.supportFragmentManager.beginTransaction().replace(
+                        R.id.fragmentParent,
+                        dataCardFragmentInstance
+                    ).commit()
+
+            }
+        }
+
+        return true
+    }
+
+    fun onMenuClick(view: View) {
+        PopupMenu(listener as Context, view).apply {
+            setOnMenuItemClickListener(this@MainMapFragment)
+            inflate(R.menu.menu)
+            show()
+        }
+    }
+
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.threat_list_menu_item -> {
+
+                mapViewModel.updateThreats(mapView)
+
+                mapViewModel.threats.value?.let {
+                    val bundle = Bundle()
+                    bundle.putParcelableArrayList("threats", it)
+
+                    val transaction = activity!!.supportFragmentManager.beginTransaction()
+                    val fragment = ThreatFragment()
+                    fragment.arguments = bundle
+                    transaction.replace(R.id.threat_list_fragment_container, fragment)
+                    transaction.commit()
+                }
+                true
+            }
+            R.id.threats_on_map -> {
+                mapViewModel.updateThreatFeatures(mapView)
+                mapViewModel.threatFeatures.value?.let { visualizeThreats(it) }
+                true
+            }
+            R.id.threat_select_location -> {
+                mapViewModel.selectLocationManual = true
+                Toast.makeText(listener as Context, "Select Location", Toast.LENGTH_LONG).show()
+                true
+            }
+            else -> false
+        }
+    }
+
+    override fun onListFragmentInteraction(item: Threat?) {
+        if (item != null) {
+
+            val feature = item.feature
+
+            val featureCollection = FeatureCollection.fromFeatures(
+                arrayOf(feature)
+            )
+
+            val geoJsonSource = GeoJsonSource("threat-source", featureCollection)
+
+            val loadedMapStyle = map.style
+
+            if (loadedMapStyle != null && loadedMapStyle.isFullyLoaded) {
+                loadedMapStyle.removeLayer("threat-source-layer")
+                loadedMapStyle.removeSource("threat-source")
+
+                // colorize the feature
+                loadedMapStyle.addSource(geoJsonSource)
+                val fillLayer = FillLayer("threat-source-layer", "threat-source")
+                fillLayer.setProperties(
+                    PropertyFactory.fillExtrusionColor(Color.RED),
+                    PropertyFactory.fillColor(Color.RED)
+                )
+                loadedMapStyle.addLayer(fillLayer)
+
+                /*          // focus camera to include both threat and current location
+                          val location = item.location.coordinates[0]
+                          val currentLocation = LatLng(this.lastUpdatedLocation!!.latitude, this.lastUpdatedLocation!!.longitude)
+                          val latLngBounds = LatLngBounds.Builder()
+                              .include(LatLng(location.latitude, location.longitude))
+                              .include(currentLocation)
+                              .build()
+                          map.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 30))*/
+
+                // open card fragment and pass the threat as an argument
+                val bundle = Bundle()
+                bundle.putParcelable("threat", item)
+                val dataCardFragmentInstance = DataCardFragment.newInstance()
+                dataCardFragmentInstance.arguments = bundle
+                if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
+                    activity!!.supportFragmentManager.beginTransaction().replace(
+                        R.id.fragmentParent,
+                        dataCardFragmentInstance
+                    ).commit()
+            }
+        }
+
+        val fragment = activity!!.supportFragmentManager.findFragmentById(R.id.threat_list_fragment_container)
+        if (fragment != null) {
+            activity!!.supportFragmentManager.beginTransaction()
+                .remove(fragment).commit()
+        }
+    }
+
+    private fun visualizeThreats(features: List<Feature>) {
+
+        val loadedMapStyle = map.style
+
+        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+            return
+        }
+
+        loadedMapStyle.removeLayer("threat-source-layer")
+        loadedMapStyle.removeSource("threat-source")
+
+        val selectedBuildingSource =
+            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+        selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
     }
 
     fun onButtonPressed() {
