@@ -1,13 +1,11 @@
 package com.elyonut.wow.view
 
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.view.Gravity
-import android.view.View
+import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -15,15 +13,15 @@ import com.elyonut.wow.Constants
 import com.elyonut.wow.ILogger
 import com.elyonut.wow.R
 import com.elyonut.wow.TimberLogAdapter
+import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.google.android.material.navigation.NavigationView
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.maps.MapView
-import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
     MainMapFragment.OnFragmentInteractionListener {
 
+    private lateinit var viewModel: MainActivityViewModel
     private val logger: ILogger = TimberLogAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +30,24 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
         logger.initLogger()
         logger.info("started app")
+        viewModel =
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
+        initToolbar()
+
+        val navigationView = findViewById<NavigationView>(R.id.navigationView)
+        initMenu(navigationView)
+
+    }
+
+    private fun initMenu(navigationView: NavigationView) {
+//        val menu = navigationView.menu
+//        val subMenu = menu.addSubMenu(R.id.layers_group, Menu.NONE, 1, R.string.layers_item)
+//        subMenu.clear()
+//        navigationView.invalidate()
+        viewModel.buildMenu(navigationView)
+    }
+
+    private fun initToolbar() {
         val navController = findNavController(R.id.nav_host_fragment)
         val drawerLayout = findViewById<DrawerLayout>(R.id.parentLayout)
         val appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
