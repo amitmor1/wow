@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.Constants
 import com.elyonut.wow.ILogger
 import com.elyonut.wow.R
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity(),
     MainMapFragment.OnFragmentInteractionListener {
 
     private lateinit var viewModel: MainActivityViewModel
+
     private val logger: ILogger = TimberLogAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,14 +32,17 @@ class MainActivity : AppCompatActivity(),
         Mapbox.getInstance(applicationContext, Constants.MAPBOX_ACCESS_TOKEN)
         setContentView(R.layout.activity_main)
         logger.initLogger()
-        logger.info("started app")
+        val navigationView = findViewById<NavigationView>(R.id.navigationView)
         viewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
+
         initToolbar()
+        initRecyclerView()
+//        initMenu(navigationView)
+    }
 
-        val navigationView = findViewById<NavigationView>(R.id.navigationView)
-        initMenu(navigationView)
-
+    private fun initRecyclerView() {
+        viewModel.initRecyclerView(findViewById<RecyclerView>(R.id.layersRecyclerView))
     }
 
     private fun initMenu(navigationView: NavigationView) {
