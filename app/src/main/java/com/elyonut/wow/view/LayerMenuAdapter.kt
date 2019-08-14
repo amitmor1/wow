@@ -15,6 +15,14 @@ class LayerMenuAdapter(private val layersDataSet: Array<LayerModel>) :
 
     class LayerViewHolder(checkBoxView: View) : RecyclerView.ViewHolder(checkBoxView) {
         val checkBox: CheckBox = checkBoxView.findViewById(R.id.layerCheckbox)
+
+        init {
+            checkBox.setOnClickListener {
+                if (checkBox.isChecked) {
+
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LayerViewHolder {
@@ -28,6 +36,5 @@ class LayerMenuAdapter(private val layersDataSet: Array<LayerModel>) :
     }
 
     override fun getItemCount() = layersDataSet.size
-
 
 }

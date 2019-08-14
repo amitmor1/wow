@@ -32,25 +32,12 @@ class MainActivity : AppCompatActivity(),
         Mapbox.getInstance(applicationContext, Constants.MAPBOX_ACCESS_TOKEN)
         setContentView(R.layout.activity_main)
         logger.initLogger()
-        val navigationView = findViewById<NavigationView>(R.id.navigationView)
+
         viewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
 
         initToolbar()
         initRecyclerView()
-//        initMenu(navigationView)
-    }
-
-    private fun initRecyclerView() {
-        viewModel.initRecyclerView(findViewById<RecyclerView>(R.id.layersRecyclerView))
-    }
-
-    private fun initMenu(navigationView: NavigationView) {
-//        val menu = navigationView.menu
-//        val subMenu = menu.addSubMenu(R.id.layers_group, Menu.NONE, 1, R.string.layers_item)
-//        subMenu.clear()
-//        navigationView.invalidate()
-        viewModel.buildMenu(navigationView)
     }
 
     private fun initToolbar() {
@@ -59,6 +46,10 @@ class MainActivity : AppCompatActivity(),
         val appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.setupWithNavController(navController, appBarConfiguration)
+    }
+
+    private fun initRecyclerView() {
+        viewModel.initRecyclerView(findViewById(R.id.layersRecyclerView))
     }
 
     override fun onMainFragmentInteraction() {
