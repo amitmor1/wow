@@ -1,22 +1,20 @@
 package com.elyonut.wow.view
 
 import android.os.Bundle
-import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.Constants
 import com.elyonut.wow.ILogger
 import com.elyonut.wow.R
 import com.elyonut.wow.TimberLogAdapter
 import com.elyonut.wow.viewModel.MainActivityViewModel
-import com.google.android.material.navigation.NavigationView
+import com.elyonut.wow.viewModel.SharedViewModel
 import com.mapbox.mapboxsdk.Mapbox
 
 class MainActivity : AppCompatActivity(),
@@ -24,6 +22,7 @@ class MainActivity : AppCompatActivity(),
     MainMapFragment.OnFragmentInteractionListener {
 
     private lateinit var viewModel: MainActivityViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
     private val logger: ILogger = TimberLogAdapter()
 
@@ -35,6 +34,14 @@ class MainActivity : AppCompatActivity(),
 
         viewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
+        sharedViewModel =
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(SharedViewModel::class.java)
+
+        viewModel.chosenLayerId.observe(this, Observer<String> {
+            viewModel.chosenLayerId.value?.let { it ->
+                sharedViewModel.select(it)
+            }
+        })
 
         initToolbar()
         initRecyclerView()

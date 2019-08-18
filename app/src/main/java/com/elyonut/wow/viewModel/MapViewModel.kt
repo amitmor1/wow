@@ -202,6 +202,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         changeLayerVisibility(layerId)
     }
 
+    fun layerSelected(layerId: String) {
+        changeLayerVisibility(layerId)
+    }
+
     private fun changeLayerVisibility(layerId: String) {
         val layer = map.style?.getLayer(layerId)
         if (layer != null) {
@@ -258,14 +262,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         threats.value = ta.getThreats(currentLocation)
     }
 
-    fun updateThreatFeatures(mapView: MapView){
+    fun updateThreatFeatures(mapView: MapView) {
         val ta = ThreatAnalyzer(mapView, map)
         val location = locationAdapter?.getCurrentLocation()
         val currentLocation = LatLng(location!!.latitude, location.longitude)
         threatFeatures.value = ta.getThreatFeatures(currentLocation)
     }
 
-    fun updateThreatFeatures(mapView: MapView, latLng: LatLng){
+    fun updateThreatFeatures(mapView: MapView, latLng: LatLng) {
         val ta = ThreatAnalyzer(mapView, map)
         threatFeatures.value = ta.getThreatFeatures(latLng)
     }

@@ -38,6 +38,7 @@ import android.graphics.Color
 import android.view.MenuItem
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.viewModel.SharedViewModel
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -47,6 +48,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private lateinit var map: MapboxMap
     private lateinit var mapViewModel: MapViewModel
+    private lateinit var sharedViewModel: SharedViewModel
     private lateinit var threatStatus: View
     private var listener: OnFragmentInteractionListener? = null
 
@@ -60,6 +62,9 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapViewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
                 .create(MapViewModel::class.java)
+        sharedViewModel =
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
+                .create(SharedViewModel::class.java)
 
         initObservers()
         threatStatus = view.findViewById(R.id.status)
@@ -83,6 +88,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
         mapViewModel.threatStatus.observe(this, Observer<String> { changeStatus(it) })
+
+        sharedViewModel.selectedLayerId.observe(this, Observer<String> {
+            sharedViewModel.selectedLayerId.value?.let { it -> mapViewModel.layerSelected(it) }
+        })
     }
 
     private fun changeStatus(status: String?) {
