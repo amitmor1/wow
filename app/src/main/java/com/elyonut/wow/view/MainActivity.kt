@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -35,10 +36,10 @@ class MainActivity : AppCompatActivity(),
         viewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
         sharedViewModel =
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(SharedViewModel::class.java)
+            ViewModelProviders.of(this)[SharedViewModel::class.java]
 
         viewModel.chosenLayerId.observe(this, Observer<String> {
-            viewModel.chosenLayerId.value?.let { it ->
+            viewModel.chosenLayerId.value?.let {
                 sharedViewModel.select(it)
             }
         })

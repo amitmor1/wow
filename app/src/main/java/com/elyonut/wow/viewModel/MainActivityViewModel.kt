@@ -1,10 +1,7 @@
 package com.elyonut.wow.viewModel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.LayerManager
@@ -27,12 +24,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 adapter = viewAdapter
             }
 
-            chosenLayerId = Transformations.map(viewAdapter.layerSelected) { l -> l.id } as MutableLiveData<String>
-//            viewAdapter.layerSelected.observe()
-
+            viewAdapter.layerSelected.observeForever { layer -> chosenLayerId.postValue(layer.id) }
         }
-
-
     }
+
+//    fun clean() {
+//        if (viewAdapter.layerSelected.hasActiveObservers())
+//            viewAdapter.layerSelected.removeObserver {  }
+//    }
 }
 

@@ -32,9 +32,6 @@ class LayerMenuAdapter(private val layersDataSet: Array<LayerModel>) :
     }
 
     override fun onBindViewHolder(layerViewHolder: LayerViewHolder, position: Int) {
-//        if (idMap.)
-//        idMap.append(position, layersDataSet[position].id)
-
         layerViewHolder.checkBox.text = layersDataSet[position].name
         layerViewHolder.checkBox.tag = position
         layerViewHolder.checkBox.setOnClickListener { view -> checkboxClicked(view) }
@@ -42,12 +39,9 @@ class LayerMenuAdapter(private val layersDataSet: Array<LayerModel>) :
 
     private fun checkboxClicked(checkBox: View) {
         checkBox as CheckBox
-        if (checkBox.isChecked) {
-            val position: Int = checkBox.tag as Int
-            layerSelected.value = layersDataSet[position]
-        }
+        val position= checkBox.tag as Int
+        layerSelected.value = layersDataSet[position]
     }
 
     override fun getItemCount() = layersDataSet.size
-
 }

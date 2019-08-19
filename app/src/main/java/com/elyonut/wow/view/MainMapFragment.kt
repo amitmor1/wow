@@ -36,6 +36,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.view.MenuItem
+import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -63,8 +64,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
                 .create(MapViewModel::class.java)
         sharedViewModel =
-            ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-                .create(SharedViewModel::class.java)
+            activity?.run { ViewModelProviders.of(this)[SharedViewModel::class.java] }!!
 
         initObservers()
         threatStatus = view.findViewById(R.id.status)
@@ -90,7 +90,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapViewModel.threatStatus.observe(this, Observer<String> { changeStatus(it) })
 
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
-            sharedViewModel.selectedLayerId.value?.let { it -> mapViewModel.layerSelected(it) }
+            sharedViewModel.selectedLayerId.value?.let { mapViewModel.layerSelected(it) }
         })
     }
 

@@ -42,4 +42,5 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.mapbox.mapboxsdk:mapbox-sdk-turf:4.8.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 }
