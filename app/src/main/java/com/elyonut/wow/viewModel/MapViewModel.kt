@@ -152,11 +152,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-//    fun getBuildingInfo(){
-//        return transformToWowBuilding(loadedMapStyle.getSourceAs<GeoJsonSource>(getString(R.string.selectedBuildingSourceId))
-//        selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features)))
-//    }
-
     private fun addRadiusLayer(loadedStyle: Style) {
         createRadiusSource(loadedStyle)
         createRadiusLayer(loadedStyle)

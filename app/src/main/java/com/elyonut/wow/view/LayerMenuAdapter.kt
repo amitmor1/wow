@@ -1,6 +1,6 @@
 package com.elyonut.wow.view
 
-import android.util.SparseArray
+//import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +12,7 @@ import com.elyonut.wow.model.LayerModel
 
 class LayerMenuAdapter(private val layersDataSet: Array<LayerModel>) :
     RecyclerView.Adapter<LayerMenuAdapter.LayerViewHolder>() {
-    private val idMap = SparseArray<String>()
+    //    private val idMap = SparseArray<String>()
     val layerSelected = MutableLiveData<LayerModel>()
 
     class LayerViewHolder(checkBoxView: View) : RecyclerView.ViewHolder(checkBoxView) {
@@ -39,7 +39,7 @@ class LayerMenuAdapter(private val layersDataSet: Array<LayerModel>) :
 
     private fun checkboxClicked(checkBox: View) {
         checkBox as CheckBox
-        val position= checkBox.tag as Int
+        val position = checkBox.tag as Int
         layerSelected.value = layersDataSet[position]
     }
 

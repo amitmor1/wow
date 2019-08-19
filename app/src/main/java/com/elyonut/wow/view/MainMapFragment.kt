@@ -236,14 +236,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         return true
     }
 
-//    fun onMenuClick(view: View) {
-//        PopupMenu(listener as Context, view).apply {
-//            setOnMenuItemClickListener(this@MainMapFragment)
-//            inflate(R.menu.menu)
-//            show()
-//        }
-//    }
-
     private fun initMenuButton(view: View) {
         val menuButton: View = view.findViewById(R.id.menu_button)
         menuButton.setOnClickListener {
