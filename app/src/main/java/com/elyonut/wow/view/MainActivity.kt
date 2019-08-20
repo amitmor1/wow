@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
     MainMapFragment.OnFragmentInteractionListener {
 
-    private lateinit var viewModel: MainActivityViewModel
+    private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
 
     private val logger: ILogger = TimberLogAdapter()
@@ -33,13 +33,13 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
         logger.initLogger()
 
-        viewModel =
+        mainViewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
         sharedViewModel =
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
-        viewModel.chosenLayerId.observe(this, Observer<String> {
-            viewModel.chosenLayerId.value?.let {
+        mainViewModel.chosenLayerId.observe(this, Observer<String> {
+            mainViewModel.chosenLayerId.value?.let {
                 sharedViewModel.select(it)
             }
         })
@@ -57,13 +57,13 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initRecyclerView() {
-        viewModel.initRecyclerView(findViewById(R.id.layersRecyclerView))
+        mainViewModel.initRecyclerView(findViewById(R.id.layersRecyclerView))
     }
 
     override fun onMainFragmentInteraction() {
     }
 
-    override fun onFragmentInteraction() {
+    override fun onDataCardFragmentInteraction() {
     }
 
     @SuppressWarnings("MissingPermission")

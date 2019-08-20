@@ -126,7 +126,7 @@ class DataCardFragment : Fragment() {
     }
 
     interface OnFragmentInteractionListener {
-        fun onFragmentInteraction()
+        fun onDataCardFragmentInteraction()
 
     }
 
