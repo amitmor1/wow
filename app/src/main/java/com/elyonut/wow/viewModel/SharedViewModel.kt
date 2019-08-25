@@ -2,7 +2,6 @@ package com.elyonut.wow.viewModel
 
 import android.app.Application
 import android.view.MenuItem
-import android.widget.CheckBox
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.R
@@ -20,8 +19,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     fun onNavigationItemSelected(item: MenuItem) {
         if (item.groupId == R.id.nav_layers) {
-            val checkbox = item.actionView as CheckBox
-            checkbox.isChecked = true
             val layerModel = item.actionView.tag as LayerModel
             this.select(layerModel.id)
         } else if (item.groupId == R.id.nav_experiments) {

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:title="Layers">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/layers_item">
         <menu>
-            <group android:id="@+id/nav_layers" android:checkableBehavior="all">
+            <group
+                android:id="@+id/nav_layers"
+                android:checkableBehavior="all">
 
             </group>
         </menu>
@@ -13,14 +14,14 @@
         <menu>
             <group android:id="@+id/nav_experiments">
                 <item
-                        android:id="@+id/threat_list_menu_item"
-                        android:title="@string/threat_list" />
+                    android:id="@+id/threat_list_menu_item"
+                    android:title="@string/threat_list" />
                 <item
-                        android:id="@+id/threats_on_map"
-                        android:title="@string/threats_on_map" />
+                    android:id="@+id/threats_on_map"
+                    android:title="@string/threats_on_map" />
                 <item
-                        android:id="@+id/threat_select_location"
-                        android:title="@string/threats_on_map_with_location" />
+                    android:id="@+id/threat_select_location"
+                    android:title="@string/threats_on_map_with_location" />
             </group>
 
         </menu>

@@ -15,23 +15,8 @@ import com.google.android.material.navigation.NavigationView
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var viewManager: RecyclerView.LayoutManager
-    private lateinit var viewAdapter: LayerMenuAdapter
     private val layerManager = LayerManager(TempDB((application)))
     var chosenLayerId = MutableLiveData<String>()
-
-    fun initRecyclerView(recyclerView: RecyclerView) {
-        viewManager = LinearLayoutManager(getApplication())
-        if (layerManager.layerList != null) {
-            viewAdapter = LayerMenuAdapter(layerManager.layerList!!.toTypedArray())
-            recyclerView.apply {
-                layoutManager = viewManager
-                adapter = viewAdapter
-            }
-
-            viewAdapter.layerSelected.observeForever { layer -> chosenLayerId.postValue(layer.id) }
-        }
-    }
 
     fun initNavigationMenu(
         navigationView: NavigationView,
@@ -50,20 +35,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 menuItem.isCheckable = true
                 checkBoxView.setOnCheckedChangeListener { _, isChecked ->
                     menuItem.isChecked = isChecked
-                    if (isChecked) {
-                        navigationView.setCheckedItem(menuItem.itemId)
-                        selectedListener(menuItem)
-                    }
+                    navigationView.setCheckedItem(menuItem.itemId)
+                    selectedListener(menuItem)
                 }
             }
 
         }
 
     }
-
-//    fun clean() {
-//        if (viewAdapter.layerSelected.hasActiveObservers())
-//            viewAdapter.layerSelected.removeObserver {  }
-//    }
 }
 

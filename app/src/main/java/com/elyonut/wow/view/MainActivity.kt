@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
-
     private val logger: ILogger = TimberLogAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +50,6 @@ class MainActivity : AppCompatActivity(),
         })
 
         initToolbar()
-        initRecyclerView()
         initNavigationMenu()
     }
 
@@ -74,14 +72,10 @@ class MainActivity : AppCompatActivity(),
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         sharedViewModel.onNavigationItemSelected(item)
 
-        // close Drawer...
+//         close Drawer...
         val drawer = findViewById<DrawerLayout>(R.id.parentLayout)
         drawer.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    private fun initRecyclerView() {
-//        mainViewModel.initRecyclerView(findViewById(R.id.layersRecyclerView))
     }
 
     override fun onMainFragmentInteraction() {
