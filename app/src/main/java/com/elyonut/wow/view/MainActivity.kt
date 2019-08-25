@@ -1,8 +1,10 @@
 package com.elyonut.wow.view
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,12 +16,16 @@ import com.elyonut.wow.Constants
 import com.elyonut.wow.ILogger
 import com.elyonut.wow.R
 import com.elyonut.wow.TimberLogAdapter
+import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
+import com.google.android.material.navigation.NavigationView
 import com.mapbox.mapboxsdk.Mapbox
 
 class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
+    NavigationView.OnNavigationItemSelectedListener,
+    ThreatFragment.OnListFragmentInteractionListener,
     MainMapFragment.OnFragmentInteractionListener {
 
     private lateinit var mainViewModel: MainActivityViewModel
@@ -46,6 +52,7 @@ class MainActivity : AppCompatActivity(),
 
         initToolbar()
         initRecyclerView()
+        initNavigationMenu()
     }
 
     private fun initToolbar() {
@@ -56,14 +63,35 @@ class MainActivity : AppCompatActivity(),
         toolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
+
+    private fun initNavigationMenu() {
+        val navigationView = findViewById<NavigationView>(R.id.navigationView)
+        val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null)
+        navigationView.setNavigationItemSelectedListener(this)
+        mainViewModel.initNavigationMenu(navigationView, checkBoxView, ::onNavigationItemSelected)
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        sharedViewModel.onNavigationItemSelected(item)
+
+        // close Drawer...
+        val drawer = findViewById<DrawerLayout>(R.id.parentLayout)
+        drawer.closeDrawer(GravityCompat.START)
+        return true
+    }
+
     private fun initRecyclerView() {
-        mainViewModel.initRecyclerView(findViewById(R.id.layersRecyclerView))
+//        mainViewModel.initRecyclerView(findViewById(R.id.layersRecyclerView))
     }
 
     override fun onMainFragmentInteraction() {
     }
 
     override fun onDataCardFragmentInteraction() {
+    }
+
+    override fun onListFragmentInteraction(item: Threat?) {
+        sharedViewModel.selectedThreatItem.value = item
     }
 
     @SuppressWarnings("MissingPermission")

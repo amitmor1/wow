@@ -65,18 +65,6 @@
             app:layout_constraintEnd_toEndOf="@+id/mainMapView"
             tools:backgroundTint="#4d79ff" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/menu_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|start"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_bars_solid"
-            app:backgroundTint="#DDF0EF"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:backgroundTint="#DDF0EF" />
-
         <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/mainMapView"
             android:layout_width="match_parent"

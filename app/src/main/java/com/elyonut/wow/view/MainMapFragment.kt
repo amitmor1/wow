@@ -43,8 +43,8 @@ import com.elyonut.wow.viewModel.SharedViewModel
 
 private const val RECORD_REQUEST_CODE = 101
 
-class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener, PopupMenu.OnMenuItemClickListener,
-    ThreatFragment.OnListFragmentInteractionListener {
+class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener,
+    PopupMenu.OnMenuItemClickListener {
     private lateinit var mapView: MapView
 
     private lateinit var map: MapboxMap
@@ -74,7 +74,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
-        initMenuButton(view)
         return view
     }
 
@@ -92,6 +91,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             sharedViewModel.selectedLayerId.value?.let { mapViewModel.layerSelected(it) }
         })
+        sharedViewModel.selectedExperimentalOption.observe(this, Observer<Int> { applyExperimentalOption(it) })
+        sharedViewModel.selectedThreatItem.observe(this, Observer<Threat> { onListFragmentInteraction(it) })
     }
 
     private fun changeStatus(status: String?) {
@@ -236,13 +237,30 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         return true
     }
 
-    private fun initMenuButton(view: View) {
-        val menuButton: View = view.findViewById(R.id.menu_button)
-        menuButton.setOnClickListener {
-            PopupMenu(listener as Context, view).apply {
-                setOnMenuItemClickListener(this@MainMapFragment)
-                inflate(R.menu.menu)
-                show()
+    private fun applyExperimentalOption(id: Int) {
+        when (id) {
+            R.id.threat_list_menu_item -> {
+
+                mapViewModel.updateThreats(mapView)
+
+                mapViewModel.threats.value?.let {
+                    val bundle = Bundle()
+                    bundle.putParcelableArrayList("threats", it)
+
+                    val transaction = activity!!.supportFragmentManager.beginTransaction()
+                    val fragment = ThreatFragment()
+                    fragment.arguments = bundle
+                    transaction.replace(R.id.threat_list_fragment_container, fragment)
+                    transaction.commit()
+                }
+            }
+            R.id.threats_on_map -> {
+                mapViewModel.updateThreatFeatures(mapView)
+                mapViewModel.threatFeatures.value?.let { visualizeThreats(it) }
+            }
+            R.id.threat_select_location -> {
+                mapViewModel.selectLocationManual = true
+                Toast.makeText(listener as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -279,7 +297,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
-    override fun onListFragmentInteraction(item: Threat?) {
+    private fun onListFragmentInteraction(item: Threat?) {
         if (item != null) {
 
             val feature = item.feature
@@ -327,7 +345,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
         }
 
-        val fragment = activity!!.supportFragmentManager.findFragmentById(R.id.threat_list_fragment_container)
+        val fragment =
+            activity!!.supportFragmentManager.findFragmentById(R.id.threat_list_fragment_container)
         if (fragment != null) {
             activity!!.supportFragmentManager.beginTransaction()
                 .remove(fragment).commit()
