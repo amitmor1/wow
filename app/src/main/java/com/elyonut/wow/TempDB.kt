@@ -9,12 +9,21 @@ import java.io.InputStreamReader
 
 class TempDB(var context: Context) {
     fun getFeatures(): ArrayList<LayerModel>? {
+
+        // threat features
         val gson = GsonBuilder().create()
-        val buffer = BufferedReader(InputStreamReader(context.assets.open("featurescopy2.geojson")))
-        val features = gson.fromJson(buffer, Array<FeatureModel>::class.java)
-        val layerModel = LayerModel(Constants.threatLayerId, "threat", features.toList())
+        var buffer = BufferedReader(InputStreamReader(context.assets.open("featurescopy2.geojson")))
+        var features = gson.fromJson(buffer, Array<FeatureModel>::class.java)
+        var layerModel = LayerModel(Constants.threatLayerId, "threat", features.toList())
         val layerList = ArrayList<LayerModel>()
         layerList.add(layerModel)
+
+        //trains features
+//        buffer = BufferedReader(InputStreamReader(context.assets.open("trains.geojson")))
+//        features = gson.fromJson(buffer, Array<FeatureModel>::class.java)
+//        layerModel = LayerModel(Constants.trainsLayerId, "trains", features.toList())
+//        layerList.add(layerModel)
+
         return layerList
     }
 }

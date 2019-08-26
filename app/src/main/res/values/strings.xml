@@ -9,7 +9,6 @@
     <string name="yes_hebrew">כן</string>
     <string name="no_thanks_hebrew">לא, תודה</string>
     <string name="turn_on_location_title">הפעלת שירותי מיקום</string>
-    <string name="STYLE_ACCESS_TOKEN">mapbox://styles/wowdev/cjwuhg9nv1gdf1cpidgrs4z6x</string>
     <string name="data_type">סוג מידע</string>
     <string name="data__second_title">כותרת משנה</string>
     <string name="image_desctiption">תמונת מהות</string>

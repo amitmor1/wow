@@ -45,8 +45,8 @@ private const val RECORD_REQUEST_CODE = 101
 
 class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener,
     PopupMenu.OnMenuItemClickListener {
-    private lateinit var mapView: MapView
 
+    private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
     private lateinit var mapViewModel: MapViewModel
     private lateinit var sharedViewModel: SharedViewModel
