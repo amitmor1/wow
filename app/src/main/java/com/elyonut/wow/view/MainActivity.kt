@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity(),
     override fun onMainFragmentInteraction() {
     }
 
-    override fun onBlankFragmentInteraction() {
+    override fun onFilterFragmentInteraction() {
     }
 
     override fun onDataCardFragmentInteraction() {

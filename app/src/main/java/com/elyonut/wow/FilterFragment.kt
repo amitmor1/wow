@@ -45,7 +45,7 @@ class FilterFragment : Fragment() {
 
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {
-        listener?.onBlankFragmentInteraction()
+        listener?.onFilterFragmentInteraction()
     }
 
     override fun onAttach(context: Context) {
@@ -75,7 +75,7 @@ class FilterFragment : Fragment() {
      */
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        fun onBlankFragmentInteraction()
+        fun onFilterFragmentInteraction()
     }
 
     companion object {

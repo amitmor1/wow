@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:layoutDirection="rtl"
     tools:context=".FilterFragment">
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -25,7 +25,7 @@
                     android:id="@+id/layersSpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/layerText" android:layout_alignParentBottom="true"
+                    android:layout_toLeftOf="@+id/layerText"
                     android:layout_marginBottom="-1dp"/>
 
         </RelativeLayout>
@@ -44,7 +44,7 @@
                     android:id="@+id/propertiesSpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/propertiesText" android:layout_alignParentBottom="true"
+                    android:layout_toLeftOf="@+id/propertiesText"
                     android:layout_marginBottom="-1dp"/>
 
         </RelativeLayout>
@@ -63,7 +63,7 @@
                     android:id="@+id/stringPropertySpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/stringProperty" android:layout_alignParentBottom="true"
+                    android:layout_toLeftOf="@+id/stringProperty"
                     android:layout_marginBottom="-1dp"/>
 
         </RelativeLayout>
@@ -82,7 +82,7 @@
                     android:id="@+id/numberPropertySpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/numberProperty" android:layout_alignParentBottom="true"
+                    android:layout_toLeftOf="@+id/numberProperty"
                     android:layout_marginBottom="-1dp"/>
 
         </RelativeLayout>
@@ -117,7 +117,7 @@
                     android:id="@+id/cancel_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/ok_button" android:layout_alignParentBottom="true"
+                    android:layout_toLeftOf="@+id/ok_button"
                     android:layout_marginRight="30dp"
                     android:text="ביטול"/>
         </RelativeLayout>
