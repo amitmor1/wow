@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context=".FilterFragment">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent" android:layout_height="match_parent">
+            <TextView
+                    android:id="@+id/layerText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="בחירת שכבה פעילה:"
+                    android:textStyle="bold"
+                    android:textSize="15dp" />
+
+            <Spinner
+                    android:id="@+id/layersSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/layerText" android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="-1dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent" android:layout_height="match_parent">
+            <TextView
+                    android:id="@+id/propertiesText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="בחירת מאפיין:"
+                    android:textStyle="bold"
+                    android:textSize="15dp" />
+
+            <Spinner
+                    android:id="@+id/propertiesSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/propertiesText" android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="-1dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="invisible" android:id="@+id/stringOptions">
+            <TextView
+                    android:id="@+id/stringProperty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="אפשרויות:"
+                    android:textStyle="bold"
+                    android:textSize="15dp" />
+
+            <Spinner
+                    android:id="@+id/stringPropertySpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/stringProperty" android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="-1dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="invisible" android:id="@+id/numberOptions">
+            <TextView
+                    android:id="@+id/numberProperty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="מיון מספרי לפי:"
+                    android:textStyle="bold"
+                    android:textSize="15dp" />
+
+            <Spinner
+                    android:id="@+id/numberPropertySpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/numberProperty" android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="-1dp"/>
+
+        </RelativeLayout>
+
+        <!--                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--                        android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="invisible" android:id="@+id/numberOptions">-->
+        <!--                    <TextView-->
+        <!--                            android:id="@+id/firstValue"-->
+        <!--                            android:layout_width="wrap_content"-->
+        <!--                            android:layout_height="wrap_content"-->
+        <!--                            android:text="מ:"-->
+        <!--                            android:textStyle="bold"-->
+        <!--                            android:textSize="15dp" />-->
+
+        <!--                    <EditText-->
+        <!--                            android:layout_width="wrap_content"-->
+        <!--                            android:layout_height="wrap_content"-->
+        <!--                            android:numeric="integer"-->
+
+        <!--                </RelativeLayout>-->
+
+        <RelativeLayout android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ok_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="30dp"
+                    android:text="אישור"/>
+
+            <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cancel_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/ok_button" android:layout_alignParentBottom="true"
+                    android:layout_marginRight="30dp"
+                    android:text="ביטול"/>
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</FrameLayout>
