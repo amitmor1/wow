@@ -7,6 +7,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import kotlinx.android.synthetic.main.fragment_filter.view.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,7 +25,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [FilterFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FilterFragment : Fragment() {
+class FilterFragment : Fragment(),  {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -40,8 +44,81 @@ class FilterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_filter, container, false)
+        val view= inflater.inflate(R.layout.fragment_filter, container, false)
+
+        return view
     }
+
+    private fun initOkButton(view: View) {
+        val okButton: View = view.ok_button
+        okButton.setOnClickListener {
+            sharedViewModel.filterLayer(mainViewModel.filterLayerId.value)
+        }
+    }
+
+    private fun initCancelButton(view: View) {
+        val cancelButton: View = view.cancel_button
+        cancelButton.setOnClickListener {
+            sharedViewModel.filterLayer(null)
+        }
+    }
+
+    private fun initSpinners(view: View) {
+        initLayersSpinner(view)
+        initPropertiesSpinner(view)
+        initStringPropertiesSpinner(view)
+        initNumberPropertiesSpinner(view)
+    }
+
+    private fun initLayersSpinner(view: View) {
+        val layerSpinner = view.layersSpinner
+        val layerAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            mainViewModel.initLayerAdapter()
+        )
+        layerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        layerSpinner.adapter = layerAdapter
+        layerSpinner.onItemSelectedListener = this
+    }
+
+    private fun initPropertiesSpinner(view: View) {
+        val propertySpinner = view.propertiesSpinner
+        propertySpinner.onItemSelectedListener = this
+    }
+
+    private fun initNumberPropertiesSpinner(view: View) {
+        val numberSpinner = view.numberPropertySpinner
+        val numberAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mainViewModel.initNumberPropertyAdapter())
+        numberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        numberSpinner.adapter = numberAdapter
+        numberSpinner.onItemSelectedListener = this
+    }
+
+    private fun initStringPropertiesSpinner(view: View) {
+        val stringPropertySpinner = view.stringPropertySpinner
+        stringPropertySpinner.onItemSelectedListener = this
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        when (parent?.id) {
+            R.id.layersSpinner -> mainViewModel.onLayerItemSelected(position)
+            R.id.propertiesSpinner -> mainViewModel.onPropertyItemSelected(position)
+            R.id.numberPropertySpinner -> mainViewModel.onNumberItemSelected(position)
+        }
+    }
+
+    private fun changeViewsVisibility(view: View, isVisible: Boolean) {
+        if (isVisible) {
+            view.visibility = View.VISIBLE
+        } else {
+            view.visibility = View.GONE
+        }
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {
