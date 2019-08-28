@@ -13,16 +13,11 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val selectedExperimentalOption = MutableLiveData<Int>()
     val selectedThreatItem = MutableLiveData<Threat>()
 
-    fun select(layerId: String) {
+    fun selectLayer(layerId: String) {
         selectedLayerId.value = layerId
     }
 
-    fun onNavigationItemSelected(item: MenuItem) {
-        if (item.groupId == R.id.nav_layers) {
-            val layerModel = item.actionView.tag as LayerModel
-            this.select(layerModel.id)
-        } else if (item.groupId == R.id.nav_experiments) {
-            this.selectedExperimentalOption.value = item.itemId
-        }
+    fun selectExperimentalOption(itemId: Int) {
+        selectedExperimentalOption.value = itemId
     }
 }

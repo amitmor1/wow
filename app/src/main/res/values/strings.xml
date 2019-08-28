@@ -28,4 +28,7 @@
     <string name="threats_on_map">איומים על המפה</string>
     <string name="threatlevelcolor">ThreatLevelColor</string>
     <string name="threats_on_map_with_location">איומים לפי מיקום</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

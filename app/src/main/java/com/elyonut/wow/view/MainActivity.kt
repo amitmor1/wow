@@ -6,16 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.elyonut.wow.Constants
-import com.elyonut.wow.ILogger
-import com.elyonut.wow.R
-import com.elyonut.wow.TimberLogAdapter
+import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -26,7 +24,8 @@ class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
     NavigationView.OnNavigationItemSelectedListener,
     ThreatFragment.OnListFragmentInteractionListener,
-    MainMapFragment.OnFragmentInteractionListener {
+    MainMapFragment.OnFragmentInteractionListener,
+    BlankFragment.OnFragmentInteractionListener {
 
     private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
@@ -39,18 +38,42 @@ class MainActivity : AppCompatActivity(),
         logger.initLogger()
 
         mainViewModel =
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+                .create(MainActivityViewModel::class.java)
         sharedViewModel =
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
+        initObservers()
+        initToolbar()
+        initNavigationMenu()
+    }
+
+    private fun initObservers() {
         mainViewModel.chosenLayerId.observe(this, Observer<String> {
             mainViewModel.chosenLayerId.value?.let {
-                sharedViewModel.select(it)
+                sharedViewModel.selectLayer(it)
             }
         })
 
-        initToolbar()
-        initNavigationMenu()
+        mainViewModel.selectedExperimentalOption.observe(
+            this,
+            Observer { sharedViewModel.selectExperimentalOption(it) }
+        )
+
+        mainViewModel.filterSelected.observe(this, Observer {
+            if (it) {
+                filterButtonClicked()
+            }
+        })
+    }
+
+    private fun filterButtonClicked() {
+        val blankFragment = BlankFragment.newInstance()
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.apply {
+            add(R.id.fragmentMenuParent, blankFragment).commit()
+            addToBackStack(blankFragment.javaClass.simpleName)
+        }
     }
 
     private fun initToolbar() {
@@ -61,7 +84,6 @@ class MainActivity : AppCompatActivity(),
         toolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
-
     private fun initNavigationMenu() {
         val navigationView = findViewById<NavigationView>(R.id.navigationView)
         val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null)
@@ -70,15 +92,21 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        sharedViewModel.onNavigationItemSelected(item)
+        if (mainViewModel.onNavigationItemSelected(item))
+            closeDrawer()
 
-//         close Drawer...
-        val drawer = findViewById<DrawerLayout>(R.id.parentLayout)
-        drawer.closeDrawer(GravityCompat.START)
         return true
     }
 
+    private fun closeDrawer() {
+        val drawer = findViewById<DrawerLayout>(R.id.parentLayout)
+        drawer.closeDrawer(GravityCompat.START)
+    }
+
     override fun onMainFragmentInteraction() {
+    }
+
+    override fun onBlankFragmentInteraction() {
     }
 
     override fun onDataCardFragmentInteraction() {

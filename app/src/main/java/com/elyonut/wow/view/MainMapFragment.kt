@@ -78,7 +78,9 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     }
 
     private fun initObservers() {
-        mapViewModel.selectedBuildingId.observe(this, Observer<String> { showDescriptionFragment() })
+        mapViewModel.selectedBuildingId.observe(
+            this,
+            Observer<String> { showDescriptionFragment() })
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {
                 requestPermissions1()
@@ -91,8 +93,12 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             sharedViewModel.selectedLayerId.value?.let { mapViewModel.layerSelected(it) }
         })
-        sharedViewModel.selectedExperimentalOption.observe(this, Observer<Int> { applyExperimentalOption(it) })
-        sharedViewModel.selectedThreatItem.observe(this, Observer<Threat> { onListFragmentInteraction(it) })
+        sharedViewModel.selectedExperimentalOption.observe(
+            this,
+            Observer<Int> { applyExperimentalOption(it) })
+        sharedViewModel.selectedThreatItem.observe(
+            this,
+            Observer<Threat> { onListFragmentInteraction(it) })
     }
 
     private fun changeStatus(status: String?) {
@@ -102,11 +108,13 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun showDescriptionFragment() {
         val dataCardFragmentInstance = DataCardFragment.newInstance()
 
-        if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
+        if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null) {
             activity!!.supportFragmentManager.beginTransaction().add(
                 R.id.fragmentParent,
                 dataCardFragmentInstance
             ).commit()
+            activity!!.supportFragmentManager.fragments
+        }
     }
 
     private fun requestPermissions1() {
@@ -120,7 +128,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     }
 
     private fun showAlertDialog() {
-        AlertDialog.Builder(listener as Context).setTitle(getString(R.string.turn_on_location_title))
+        AlertDialog.Builder(listener as Context)
+            .setTitle(getString(R.string.turn_on_location_title))
             .setMessage(getString(R.string.turn_on_location))
             .setPositiveButton(getString(R.string.yes_hebrew)) { _, _ ->
                 val settingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
@@ -230,7 +239,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                         R.id.fragmentParent,
                         dataCardFragmentInstance
                     ).commit()
-
+                activity!!.supportFragmentManager.fragments
             }
         }
 

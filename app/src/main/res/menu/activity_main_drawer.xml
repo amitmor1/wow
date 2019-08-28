@@ -9,7 +9,10 @@
             </group>
         </menu>
     </item>
-
+    <item
+        android:id="@+id/filterButton"
+        android:title="filter" />
+    <!--    android:onClick="filterClicked"-->
     <item android:title="Experiments">
         <menu>
             <group android:id="@+id/nav_experiments">

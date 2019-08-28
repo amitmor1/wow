@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.R
 import com.elyonut.wow.TempDB
+import com.elyonut.wow.model.LayerModel
 import com.elyonut.wow.view.LayerMenuAdapter
 import com.google.android.material.navigation.NavigationView
 
@@ -17,6 +18,27 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     private val layerManager = LayerManager(TempDB((application)))
     var chosenLayerId = MutableLiveData<String>()
+    val selectedExperimentalOption = MutableLiveData<Int>()
+    val filterSelected = MutableLiveData<Boolean>()
+
+    fun onNavigationItemSelected(item: MenuItem): Boolean {
+        var shouldCloseDrawer = true
+        when {
+            item.groupId == R.id.nav_layers -> {
+                val layerModel = item.actionView.tag as LayerModel
+                chosenLayerId.value = layerModel.id
+                shouldCloseDrawer = false
+            }
+            item.itemId == R.id.filterButton -> {
+                filterSelected.value = true
+                shouldCloseDrawer = false
+            }
+            item.groupId == R.id.nav_experiments ->
+                this.selectedExperimentalOption.value = item.itemId
+        }
+
+        return shouldCloseDrawer
+    }
 
     fun initNavigationMenu(
         navigationView: NavigationView,
