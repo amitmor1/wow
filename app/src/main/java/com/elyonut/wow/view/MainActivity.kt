@@ -2,6 +2,7 @@ package com.elyonut.wow.view
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.CheckBox
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -86,9 +87,24 @@ class MainActivity : AppCompatActivity(),
 
     private fun initNavigationMenu() {
         val navigationView = findViewById<NavigationView>(R.id.navigationView)
-        val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null)
+        val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
         navigationView.setNavigationItemSelectedListener(this)
-        mainViewModel.initNavigationMenu(navigationView, checkBoxView, ::onNavigationItemSelected)
+
+        val layers = mainViewModel.getLayersList()?.toTypedArray()
+        if (layers != null) {
+            val menu = navigationView.menu
+            val layersSubMenu = menu.getItem(0).subMenu
+            layers.forEachIndexed { index, layerModel ->
+                val menuItem = layersSubMenu.add(R.id.nav_layers, index, index, layerModel.name)
+                checkBoxView.tag = layerModel
+                menuItem.actionView = checkBoxView
+                checkBoxView.setOnCheckedChangeListener { _, _ ->
+                    (::onNavigationItemSelected)(menuItem)
+                }
+            }
+        }
+
+//        mainViewModel.initNavigationMenu(navigationView, checkBoxView, ::onNavigationItemSelected)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

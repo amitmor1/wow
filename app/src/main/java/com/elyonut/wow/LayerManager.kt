@@ -4,14 +4,14 @@ import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.LayerModel
 
 class LayerManager(tempDB: TempDB) {
-    var layerList: List<LayerModel>? = null
+    var layersList: List<LayerModel>? = null
 
     init {
-        layerList = tempDB.getFeatures()
+        layersList = tempDB.getFeatures()
     }
 
     fun getLayer(id: String): List<FeatureModel>? {
-       layerList?.forEach {
+       layersList?.forEach {
            when(it.id) {
                id-> return it.features
            }

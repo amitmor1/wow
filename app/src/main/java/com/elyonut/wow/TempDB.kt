@@ -22,7 +22,7 @@ class TempDB(var context: Context) {
 //        buffer = BufferedReader(InputStreamReader(context.assets.open("trains.geojson")))
 //        features = gson.fromJson(buffer, Array<FeatureModel>::class.java)
 //        layerModel = LayerModel(Constants.trainsLayerId, "trains", features.toList())
-//        layerList.add(layerModel)
+//        layersList.add(layerModel)
 
         return layerList
     }
