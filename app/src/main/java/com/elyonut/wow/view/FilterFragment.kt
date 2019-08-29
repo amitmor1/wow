@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.view
 
 import android.content.Context
 import android.net.Uri
@@ -9,11 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.RelativeLayout
-import android.widget.Spinner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.FilterViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_filter.view.*

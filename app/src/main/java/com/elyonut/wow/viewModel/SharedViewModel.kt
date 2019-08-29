@@ -12,6 +12,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val selectedLayerId = MutableLiveData<String>()
     val selectedExperimentalOption = MutableLiveData<Int>()
     val selectedThreatItem = MutableLiveData<Threat>()
+    val filterLayerId = MutableLiveData<String>()
 
     fun selectLayer(layerId: String) {
         selectedLayerId.value = layerId
@@ -19,5 +20,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     fun selectExperimentalOption(itemId: Int) {
         selectedExperimentalOption.value = itemId
+    }
+
+    fun filterLayer(layerId: String?) {
+        filterLayerId.value = layerId
     }
 }
