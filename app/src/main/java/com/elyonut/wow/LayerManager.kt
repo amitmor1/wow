@@ -2,6 +2,7 @@ package com.elyonut.wow
 
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.LayerModel
+import com.elyonut.wow.model.PropertyModel
 import com.google.gson.JsonPrimitive
 
 class LayerManager(tempDB: TempDB) {
