@@ -23,7 +23,7 @@ class LayerManager(tempDB: TempDB) {
 
     fun getLayers(): List<String>? {
         val layers = ArrayList<String>()
-        layerList?.forEach {
+        layersList?.forEach {
             layers.add(it.id)
         }
 

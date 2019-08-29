@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layoutDirection="rtl"
-    tools:context=".view.FilterFragment">
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/background_light"
+        android:layoutDirection="rtl"
+        tools:context=".view.FilterFragment">
 
     <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
@@ -12,78 +13,90 @@
             android:orientation="vertical">
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent" android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
             <TextView
                     android:id="@+id/layerText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="בחירת שכבה פעילה:"
-                    android:textStyle="bold"
-                    android:textSize="15dp" />
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
 
             <Spinner
                     android:id="@+id/layersSpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/layerText"
-                    android:layout_marginBottom="-1dp"/>
+                    android:layout_marginBottom="-1dp"
+                    android:layout_toLeftOf="@+id/layerText" />
 
         </RelativeLayout>
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent" android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
             <TextView
                     android:id="@+id/propertiesText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="בחירת מאפיין:"
-                    android:textStyle="bold"
-                    android:textSize="15dp" />
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
 
             <Spinner
                     android:id="@+id/propertiesSpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/propertiesText"
-                    android:layout_marginBottom="-1dp"/>
+                    android:layout_marginBottom="-1dp"
+                    android:layout_toLeftOf="@+id/propertiesText" />
 
         </RelativeLayout>
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="invisible" android:id="@+id/stringOptions">
+                android:id="@+id/stringOptions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible">
+
             <TextView
                     android:id="@+id/stringProperty"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="אפשרויות:"
-                    android:textStyle="bold"
-                    android:textSize="15dp" />
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
 
             <Spinner
                     android:id="@+id/stringPropertySpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/stringProperty"
-                    android:layout_marginBottom="-1dp"/>
+                    android:layout_marginBottom="-1dp"
+                    android:layout_toLeftOf="@+id/stringProperty" />
 
         </RelativeLayout>
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="invisible" android:id="@+id/numberOptions">
+                android:id="@+id/numberOptions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible">
+
             <TextView
                     android:id="@+id/numberProperty"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="מיון מספרי לפי:"
-                    android:textStyle="bold"
-                    android:textSize="15dp" />
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
 
             <Spinner
                     android:id="@+id/numberPropertySpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/numberProperty"
-                    android:layout_marginBottom="-1dp"/>
+                    android:layout_marginBottom="-1dp"
+                    android:layout_toLeftOf="@+id/numberProperty" />
 
         </RelativeLayout>
 
@@ -104,22 +117,24 @@
 
         <!--                </RelativeLayout>-->
 
-        <RelativeLayout android:layout_width="match_parent"
+        <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent">
+
             <com.google.android.material.button.MaterialButton
                     android:id="@+id/ok_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="30dp"
-                    android:text="אישור"/>
+                    android:text="אישור" />
 
             <com.google.android.material.button.MaterialButton
                     android:id="@+id/cancel_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/ok_button"
                     android:layout_marginRight="30dp"
-                    android:text="ביטול"/>
+                    android:layout_toLeftOf="@+id/ok_button"
+                    android:text="ביטול" />
         </RelativeLayout>
 
     </androidx.appcompat.widget.LinearLayoutCompat>

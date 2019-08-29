@@ -59,7 +59,15 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         sharedViewModel =
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
+        setObservers(view)
+        initOkButton(view)
+        initCancelButton(view)
+        initSpinners(view)
 
+        return view
+    }
+
+    private fun setObservers(view: View) {
         filterViewModel.filterLayerId.observe(this, Observer<String> {
             val propertySpinner = view.propertiesSpinner
             val adapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initPropertiesAdapter(it))
@@ -76,25 +84,21 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         })
         filterViewModel.isStringProperty.observe(this, Observer<Boolean> { changeViewsVisibility(view.stringOptions, it) })
-
-        initOkButton(view)
-        initCancelButton(view)
-        initSpinners(view)
-
-        return view
     }
 
     private fun initOkButton(view: View) {
         val okButton: View = view.ok_button
         okButton.setOnClickListener {
             sharedViewModel.filterLayer(filterViewModel.filterLayerId.value)
+            sharedViewModel.chosenProperty(filterViewModel.chosenProperty.value)
         }
     }
 
     private fun initCancelButton(view: View) {
         val cancelButton: View = view.cancel_button
         cancelButton.setOnClickListener {
-            sharedViewModel.filterLayer(null)
+            sharedViewModel.filterLayer("")
+            sharedViewModel.chosenProperty("")
         }
     }
 

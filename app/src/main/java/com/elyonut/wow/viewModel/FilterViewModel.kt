@@ -27,17 +27,6 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
         filterLayerId.value = layerManager.getLayers()?.first()
     }
 
-
-//    fun initLayerDropDown(spinner: Spinner) {
-//        val adapter = ArrayAdapter(
-//            getApplication(),
-//            android.R.layout.simple_spinner_item,
-//            layerManager.getLayers()
-//        )
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        spinner.adapter = adapter
-//    }
-
     fun initLayerAdapter(): List<String>? {
         layerAdapter = layerManager.getLayers()!!
         return layerAdapter
@@ -48,21 +37,6 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
         propertyAdapter = layerProperties.map { it.name }
         return propertyAdapter
     }
-
-//    fun initPropertyDropDown(spinner: Spinner) {
-//        propertySpinner = spinner
-//        initPropertyDropDownList()
-//    }
-
-//    private fun initPropertyDropDownList() {
-//        layerProperties = layerManager.getLayerProperties(filterLayerId.value!!)
-//        val propertiesNames = layerProperties.map { it.name }
-//        val adapter = ArrayAdapter(getApplication(), android.R.layout.simple_spinner_item, propertiesNames)
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        propertySpinner.adapter = adapter
-//
-//        checkPropertyType(propertiesNames.first())
-//    }
 
     fun initOptionsDropDown(propertyName: String) {
         checkPropertyType(propertyName)
@@ -94,20 +68,11 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
     }
 
     fun onLayerItemSelected(position: Int) {
-//        filterLayerId.value = layerManager.getLayers()?.get(position)
-//        initPropertyDropDownList()
+
         filterLayerId.value = layerAdapter?.get(position)
     }
 
     fun onPropertyItemSelected(position: Int) {
-//        layerProperties = layerManager.getLayerProperties(filterLayerId.value!!)
-//        layerProperties.forEach {
-//            if (it.name == propertySpinner.adapter.getItem(position)) {
-//                chosenProperty.value = it.name
-//                checkPropertyType(it.name)
-//                return
-//            }
-//        }
         layerProperties = layerManager.getLayerProperties(filterLayerId.value!!)
         chosenProperty.value = propertyAdapter[position]
     }
