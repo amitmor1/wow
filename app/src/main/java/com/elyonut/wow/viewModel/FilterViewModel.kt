@@ -3,7 +3,6 @@ package com.elyonut.wow.viewModel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.TempDB
 import com.elyonut.wow.model.PropertyModel
@@ -17,9 +16,9 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
     var filterLayerId = MutableLiveData<String>()
     var chosenProperty = MutableLiveData<String>()
     lateinit var layerProperties: List<PropertyModel>
-    lateinit var propertyAdapter: List<String>
-    private lateinit var layerAdapter: List<String>
-    private lateinit var numberPropertyDropDownAdapter: List<String>
+    lateinit var propertiesList: List<String>
+    private lateinit var layerList: List<String>
+    private lateinit var numberFilterOptions: List<String>
     var isStringProperty = MutableLiveData<Boolean>()
     var isNumberProperty = MutableLiveData<Boolean>()
 
@@ -27,18 +26,18 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
         filterLayerId.value = layerManager.getLayers()?.first()
     }
 
-    fun initLayerAdapter(): List<String>? {
-        layerAdapter = layerManager.getLayers()!!
-        return layerAdapter
+    fun initLayerList(): List<String>? {
+        layerList = layerManager.getLayers()!!
+        return layerList
     }
 
-    fun initPropertiesAdapter(layerId: String): List<String>? {
+    fun initPropertiesList(layerId: String): List<String>? {
         layerProperties = layerManager.getLayerProperties(layerId)
-        propertyAdapter = layerProperties.map { it.name }
-        return propertyAdapter
+        propertiesList = layerProperties.map { it.name }
+        return propertiesList
     }
 
-    fun initOptionsDropDown(propertyName: String) {
+    fun initOptionsList(propertyName: String) {
         checkPropertyType(propertyName)
     }
 
@@ -69,21 +68,21 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
 
     fun onLayerItemSelected(position: Int) {
 
-        filterLayerId.value = layerAdapter?.get(position)
+        filterLayerId.value = layerList?.get(position)
     }
 
     fun onPropertyItemSelected(position: Int) {
         layerProperties = layerManager.getLayerProperties(filterLayerId.value!!)
-        chosenProperty.value = propertyAdapter[position]
+        chosenProperty.value = propertiesList[position]
     }
 
-    fun initStringPropertyDropDown() {
+    fun initStringPropertyOptions() {
 
     }
 
-    fun initNumberPropertyAdapter(): List<String>{
-        numberPropertyDropDownAdapter = listOf("טווח", "קטן מ","גדול מ","בחר ערך מסוים")
-        return numberPropertyDropDownAdapter
+    fun initNumberPropertyOptionsList(): List<String>{
+        numberFilterOptions = listOf("טווח", "קטן מ","גדול מ","בחר ערך מסוים")
+        return numberFilterOptions
     }
 
     fun onNumberItemSelected(position: Int) {

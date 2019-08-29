@@ -70,20 +70,23 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun setObservers(view: View) {
         filterViewModel.filterLayerId.observe(this, Observer<String> {
             val propertySpinner = view.propertiesSpinner
-            val adapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initPropertiesAdapter(it))
+            val adapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initPropertiesList(it))
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             propertySpinner.adapter = adapter
         })
 
         filterViewModel.chosenProperty.observe(this, Observer<String> {
-            filterViewModel.initOptionsDropDown(it)
+            filterViewModel.initOptionsList(it)
         })
 
         filterViewModel.isNumberProperty.observe(this, Observer<Boolean> {
             changeViewsVisibility(view.numberOptions, it)
 
         })
-        filterViewModel.isStringProperty.observe(this, Observer<Boolean> { changeViewsVisibility(view.stringOptions, it) })
+
+        filterViewModel.isStringProperty.observe(this, Observer<Boolean> {
+            changeViewsVisibility(view.stringOptions, it)
+        })
     }
 
     private fun initOkButton(view: View) {
@@ -114,8 +117,9 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val layerAdapter = ArrayAdapter(
             activity!!.application,
             android.R.layout.simple_spinner_item,
-            filterViewModel.initLayerAdapter()
+            filterViewModel.initLayerList()
         )
+
         layerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         layerSpinner.adapter = layerAdapter
         layerSpinner.onItemSelectedListener = this
@@ -128,7 +132,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun initNumberPropertiesSpinner(view: View) {
         val numberSpinner = view.numberPropertySpinner
-        val numberAdapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initNumberPropertyAdapter())
+        val numberAdapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initNumberPropertyOptionsList())
         numberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         numberSpinner.adapter = numberAdapter
         numberSpinner.onItemSelectedListener = this
@@ -156,6 +160,18 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         } else {
             view.visibility = View.GONE
         }
+    }
+
+    private fun rangeFilter() {
+
+    }
+
+    private fun lowerRange() {
+
+    }
+
+    private fun upperRange() {
+
     }
 
 

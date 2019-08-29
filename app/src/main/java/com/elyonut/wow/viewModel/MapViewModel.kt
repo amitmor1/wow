@@ -212,6 +212,27 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun filterLayerByProperty(style: Style ,layerId: String, property: String, value: Int) {
+        val layer = style.getLayer(layerId)
+        (layer as FillLayer).setFilter((Expression.eq(Expression.get(property),value)))
+    }
+
+    private fun filterLayerByProperty(style: Style ,layerId: String, property: String, minValue: Int, maxValue: Int) {
+        val layer = style.getLayer(layerId)
+        (layer as FillLayer).setFilter(Expression.all(Expression.gte(Expression.get(property), minValue), Expression.lte(Expression.get(property), maxValue)))
+    }
+
+    private fun filterLayerByProperty(style: Style ,layerId: String, property: String, type: String) {
+        val layer = style.getLayer(layerId)
+        (layer as FillLayer).setFilter(Expression.all(Expression.eq(Expression.get(property), type)))
+    }
+
+    private fun removeFilter(style: Style, layerId: String) {
+        val layer = style.getLayer(layerId)
+        (layer as FillLayer).setFilter(Expression.literal(true))
+    }
+
+
 
 //    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
 ////        model.onMapClick()

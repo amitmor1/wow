@@ -14,7 +14,8 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:paddingTop="15sp">
 
             <TextView
                     android:id="@+id/layerText"
@@ -35,7 +36,8 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:paddingTop="15sp">
 
             <TextView
                     android:id="@+id/propertiesText"
@@ -58,7 +60,8 @@
                 android:id="@+id/stringOptions"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="invisible">
+                android:visibility="invisible"
+                android:paddingTop="15sp">
 
             <TextView
                     android:id="@+id/stringProperty"
@@ -81,7 +84,8 @@
                 android:id="@+id/numberOptions"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="invisible">
+                android:visibility="invisible"
+                android:paddingTop="15sp">
 
             <TextView
                     android:id="@+id/numberProperty"
@@ -100,26 +104,66 @@
 
         </RelativeLayout>
 
-        <!--                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--                        android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="invisible" android:id="@+id/numberOptions">-->
-        <!--                    <TextView-->
-        <!--                            android:id="@+id/firstValue"-->
-        <!--                            android:layout_width="wrap_content"-->
-        <!--                            android:layout_height="wrap_content"-->
-        <!--                            android:text="מ:"-->
-        <!--                            android:textStyle="bold"-->
-        <!--                            android:textSize="15dp" />-->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/minRangeOptions"
+                android:orientation="horizontal"
+                android:paddingTop="15sp"
+                android:visibility="invisible">
 
-        <!--                    <EditText-->
-        <!--                            android:layout_width="wrap_content"-->
-        <!--                            android:layout_height="wrap_content"-->
-        <!--                            android:numeric="integer"-->
+            <TextView
+                    android:id="@+id/minValueText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/minValueText"
+                    android:textStyle="bold"
+                    android:textSize="15dp" />
 
-        <!--                </RelativeLayout>-->
+            <EditText
+                    android:id="@+id/minValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:ems="10"
+                    android:inputType="number">
+            </EditText>
+
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/maxRangeOptions"
+                android:orientation="horizontal"
+                android:paddingTop="15sp"
+                android:visibility="invisible">
+
+            <TextView
+                    android:id="@+id/mavValueText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/maxValueText"
+                    android:textStyle="bold"
+                    android:textSize="15dp" />
+
+            <EditText
+                    android:id="@+id/maxValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:ems="10"
+                    android:inputType="number">
+            </EditText>
+
+        </LinearLayout>
 
         <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:paddingTop="15sp">
 
             <com.google.android.material.button.MaterialButton
                     android:id="@+id/ok_button"
