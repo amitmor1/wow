@@ -9,6 +9,7 @@ import com.elyonut.wow.TempDB
 import com.elyonut.wow.model.PropertyModel
 import com.elyonut.wow.view.LayerMenuAdapter
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 class FilterViewModel(application: Application): AndroidViewModel(application) {
     private lateinit var viewAdapter: LayerMenuAdapter
