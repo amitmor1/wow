@@ -4,20 +4,22 @@ import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.LayerModel
 import com.elyonut.wow.model.PropertyModel
 import com.google.gson.JsonPrimitive
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 class LayerManager(tempDB: TempDB) {
-    var layersList: List<LayerModel>? = null
+    var layerList: List<LayerModel>? = null
 
     init {
-        layersList = tempDB.getFeatures()
+        layerList = tempDB.getFeatures()
     }
 
     fun getLayer(id: String): List<FeatureModel>? {
-       layersList?.forEach {
-           when(it.id) {
-               id-> return it.features
-           }
-       }
+        layerList?.forEach {
+            when (it.id) {
+                id-> return it.features
+            }
+        }
         return null
     }
 

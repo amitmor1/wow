@@ -6,13 +6,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.TempDB
+import com.elyonut.wow.model.PropertyModel
 import com.elyonut.wow.view.LayerMenuAdapter
 import kotlin.reflect.KClass
 
 class FilterViewModel(application: Application): AndroidViewModel(application) {
     private lateinit var viewAdapter: LayerMenuAdapter
     private val layerManager = LayerManager(TempDB((application)))
-    var chosenLayerId = MutableLiveData<String>()
     var filterLayerId = MutableLiveData<String>()
     var chosenProperty = MutableLiveData<String>()
     lateinit var layerProperties: List<PropertyModel>
