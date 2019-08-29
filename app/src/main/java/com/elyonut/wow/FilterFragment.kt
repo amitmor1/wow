@@ -11,8 +11,10 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.RelativeLayout
 import android.widget.Spinner
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.elyonut.wow.viewModel.FilterViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_filter.view.*
 
@@ -35,6 +37,9 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
+    private lateinit var filterViewModel: FilterViewModel
+    private lateinit var sharedViewModel: SharedViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -50,39 +55,32 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Inflate the layout for this fragment
         val view= inflater.inflate(R.layout.fragment_filter, container, false)
 
-        mainViewModel =
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
+        filterViewModel =
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application).create(FilterViewModel::class.java)
         sharedViewModel =
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
-        mainViewModel.chosenLayerId.observe(this, Observer<String> {
-            mainViewModel.chosenLayerId.value?.let {
-                sharedViewModel.select(it)
-            }
-        })
 
-        mainViewModel.filterLayerId.observe(this, Observer<String> {
-            val propertySpinner = findViewById<Spinner>(R.id.propertiesSpinner)
-            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mainViewModel.initPropertiesAdapter(it))
+        filterViewModel.filterLayerId.observe(this, Observer<String> {
+            val propertySpinner = view.propertiesSpinner
+            val adapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initPropertiesAdapter(it))
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             propertySpinner.adapter = adapter
         })
 
-        mainViewModel.chosenProperty.observe(this, Observer<String> {
-            mainViewModel.initOptionsDropDown(it)
+        filterViewModel.chosenProperty.observe(this, Observer<String> {
+            filterViewModel.initOptionsDropDown(it)
         })
 
-        mainViewModel.isNumberProperty.observe(this, Observer<Boolean> {
-            changeViewsVisibility(findViewById<RelativeLayout>(R.id.numberOptions), it)
+        filterViewModel.isNumberProperty.observe(this, Observer<Boolean> {
+            changeViewsVisibility(view.numberOptions, it)
 
         })
-        mainViewModel.isStringProperty.observe(this, Observer<Boolean> { changeViewsVisibility(findViewById<RelativeLayout>(R.id.stringOptions), it) })
+        filterViewModel.isStringProperty.observe(this, Observer<Boolean> { changeViewsVisibility(view.stringOptions, it) })
 
-        initOkButton()
-        initCancelButton()
-        initToolbar()
-        initRecyclerView()
-        initSpinners()
+        initOkButton(view)
+        initCancelButton(view)
+        initSpinners(view)
 
         return view
     }
@@ -90,7 +88,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun initOkButton(view: View) {
         val okButton: View = view.ok_button
         okButton.setOnClickListener {
-            sharedViewModel.filterLayer(mainViewModel.filterLayerId.value)
+            sharedViewModel.filterLayer(filterViewModel.filterLayerId.value)
         }
     }
 
@@ -111,9 +109,9 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun initLayersSpinner(view: View) {
         val layerSpinner = view.layersSpinner
         val layerAdapter = ArrayAdapter(
-            this,
+            activity!!.application,
             android.R.layout.simple_spinner_item,
-            mainViewModel.initLayerAdapter()
+            filterViewModel.initLayerAdapter()
         )
         layerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         layerSpinner.adapter = layerAdapter
@@ -127,7 +125,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun initNumberPropertiesSpinner(view: View) {
         val numberSpinner = view.numberPropertySpinner
-        val numberAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mainViewModel.initNumberPropertyAdapter())
+        val numberAdapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initNumberPropertyAdapter())
         numberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         numberSpinner.adapter = numberAdapter
         numberSpinner.onItemSelectedListener = this
@@ -143,9 +141,9 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         when (parent?.id) {
-            R.id.layersSpinner -> mainViewModel.onLayerItemSelected(position)
-            R.id.propertiesSpinner -> mainViewModel.onPropertyItemSelected(position)
-            R.id.numberPropertySpinner -> mainViewModel.onNumberItemSelected(position)
+            R.id.layersSpinner -> filterViewModel.onLayerItemSelected(position)
+            R.id.propertiesSpinner -> filterViewModel.onPropertyItemSelected(position)
+            R.id.numberPropertySpinner -> filterViewModel.onNumberItemSelected(position)
         }
     }
 
