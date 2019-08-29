@@ -9,7 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.RelativeLayout
 import android.widget.Spinner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_filter.view.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -45,6 +49,40 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     ): View? {
         // Inflate the layout for this fragment
         val view= inflater.inflate(R.layout.fragment_filter, container, false)
+
+        mainViewModel =
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(MainActivityViewModel::class.java)
+        sharedViewModel =
+            ViewModelProviders.of(this)[SharedViewModel::class.java]
+
+        mainViewModel.chosenLayerId.observe(this, Observer<String> {
+            mainViewModel.chosenLayerId.value?.let {
+                sharedViewModel.select(it)
+            }
+        })
+
+        mainViewModel.filterLayerId.observe(this, Observer<String> {
+            val propertySpinner = findViewById<Spinner>(R.id.propertiesSpinner)
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mainViewModel.initPropertiesAdapter(it))
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            propertySpinner.adapter = adapter
+        })
+
+        mainViewModel.chosenProperty.observe(this, Observer<String> {
+            mainViewModel.initOptionsDropDown(it)
+        })
+
+        mainViewModel.isNumberProperty.observe(this, Observer<Boolean> {
+            changeViewsVisibility(findViewById<RelativeLayout>(R.id.numberOptions), it)
+
+        })
+        mainViewModel.isStringProperty.observe(this, Observer<Boolean> { changeViewsVisibility(findViewById<RelativeLayout>(R.id.stringOptions), it) })
+
+        initOkButton()
+        initCancelButton()
+        initToolbar()
+        initRecyclerView()
+        initSpinners()
 
         return view
     }
