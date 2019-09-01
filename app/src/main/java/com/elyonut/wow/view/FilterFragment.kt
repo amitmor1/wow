@@ -80,7 +80,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    private fun initCancelButton(view: View) {
+    private fun initCancelButton(view: View) { // TODO: MVVM need to be decided!
         val cancelButton: View = view.cancel_button
         cancelButton.setOnClickListener {
             sharedViewModel.filterLayer("")
@@ -153,7 +153,6 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
             R.id.layersSpinner -> filterViewModel.onLayerItemSelected(position)
             R.id.propertiesSpinner -> filterViewModel.onPropertyItemSelected(position)
             R.id.numberPropertySpinner -> filterViewModel.onNumberItemSelected(position)
-//            R.id.stringPropertySpinner -> filterViewModel.onNumberItemSelected(position)
         }
     }
 

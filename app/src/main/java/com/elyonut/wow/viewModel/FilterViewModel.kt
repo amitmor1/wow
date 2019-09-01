@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
+import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.TempDB
 import com.elyonut.wow.model.PropertyModel
 import com.elyonut.wow.view.LayerMenuAdapter
@@ -83,17 +84,29 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     fun initStringPropertyOptions(propertyName: String): List<String>? {
         val chosenLayer = layerManager.getLayer(chosenLayerId.value!!)
         val chosenProperty = propertiesList.find { p -> p == propertyName }
-        val allPropertiesOptions = chosenLayer?.map { a -> a.properties?.get(chosenProperty).toString() }
+        val allPropertiesOptions =
+            chosenLayer?.map { a -> a.properties?.get(chosenProperty).toString() }
 
         return allPropertiesOptions?.distinct()
     }
 
     fun initNumberPropertyOptionsList(): List<String> {
-        numberFilterOptions = listOf("טווח", "קטן מ", "גדול מ", "בחר ערך מסוים")
+
+        numberFilterOptions =
+            NumericFilterTypes.values().map { filterType -> filterType.hName }.toList()
         return numberFilterOptions
     }
 
     fun onNumberItemSelected(position: Int) {
-
+        when {
+            numberFilterOptions[position] == NumericFilterTypes.GREATER.hName -> {
+            }
+            numberFilterOptions[position] == NumericFilterTypes.LOWER.hName -> {
+            }
+            numberFilterOptions[position] == NumericFilterTypes.RANGE.hName -> {
+            }
+            numberFilterOptions[position] == NumericFilterTypes.SPECIFIC.hName -> {
+            }
+        }
     }
 }
