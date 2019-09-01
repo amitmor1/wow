@@ -10,7 +10,7 @@ import com.elyonut.wow.view.LayerMenuAdapter
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-class FilterViewModel(application: Application): AndroidViewModel(application) {
+class FilterViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var viewAdapter: LayerMenuAdapter
     private val layerManager = LayerManager(TempDB((application)))
     var filterLayerId = MutableLiveData<String>()
@@ -68,7 +68,7 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
 
     fun onLayerItemSelected(position: Int) {
 
-        filterLayerId.value = layerList?.get(position)
+        filterLayerId.value = layerList.get(position)
     }
 
     fun onPropertyItemSelected(position: Int) {
@@ -80,8 +80,8 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
 
     }
 
-    fun initNumberPropertyOptionsList(): List<String>{
-        numberFilterOptions = listOf("טווח", "קטן מ","גדול מ","בחר ערך מסוים")
+    fun initNumberPropertyOptionsList(): List<String> {
+        numberFilterOptions = listOf("טווח", "קטן מ", "גדול מ", "בחר ערך מסוים")
         return numberFilterOptions
     }
 
