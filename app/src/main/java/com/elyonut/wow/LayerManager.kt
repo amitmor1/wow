@@ -21,7 +21,7 @@ class LayerManager(tempDB: TempDB) {
         return null
     }
 
-    fun getLayers(): List<String>? {
+    fun initLayersIdList(): List<String>? {
         val layers = ArrayList<String>()
         layersList?.forEach {
             layers.add(it.id)
@@ -35,6 +35,7 @@ class LayerManager(tempDB: TempDB) {
         val currentLayer = getLayer(id)
         var type = null
 
+        // Why first()?
         currentLayer?.first()?.properties?.entrySet()?.forEach {
             if ((it.value as JsonPrimitive).isNumber) {
                 propertiesList.add(PropertyModel(it.key, Number::class))

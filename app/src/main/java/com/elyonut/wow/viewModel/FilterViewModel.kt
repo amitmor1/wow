@@ -13,27 +13,31 @@ import kotlin.reflect.full.isSubclassOf
 class FilterViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var viewAdapter: LayerMenuAdapter
     private val layerManager = LayerManager(TempDB((application)))
-    var filterLayerId = MutableLiveData<String>()
+    var chosenLayerId = MutableLiveData<String>()
     var chosenProperty = MutableLiveData<String>()
     lateinit var layerProperties: List<PropertyModel>
     lateinit var propertiesList: List<String>
-    private lateinit var layerList: List<String>
+    private lateinit var layersIdList: List<String>
     private lateinit var numberFilterOptions: List<String>
     var isStringProperty = MutableLiveData<Boolean>()
     var isNumberProperty = MutableLiveData<Boolean>()
 
     init {
-        filterLayerId.value = layerManager.getLayers()?.first()
+        chosenLayerId.value = layerManager.initLayersIdList()?.first()
     }
 
-    fun initLayerList(): List<String>? {
-        layerList = layerManager.getLayers()!!
-        return layerList
+    // Do we really need this function? should we put it in the init and just get the property when we need?
+    fun getLayersList(): List<String>? {
+        layersIdList =
+            layerManager.initLayersIdList()!! // TODO Why exception? shouldn't we use null check? if the layersIdList is null, what do we wanna do?
+        return layersIdList
     }
 
     fun initPropertiesList(layerId: String): List<String>? {
         layerProperties = layerManager.getLayerProperties(layerId)
-        propertiesList = layerProperties.map { it.name }
+        propertiesList =
+            layerProperties.map { it.name } // Should we maybe use a hashMap so we could get the property values when we need it? and not just the names and than search according to the name (?)
+        chosenProperty.value = propertiesList.first()
         return propertiesList
     }
 
@@ -67,17 +71,21 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onLayerItemSelected(position: Int) {
-
-        filterLayerId.value = layerList.get(position)
+        chosenLayerId.value = layersIdList[position]
     }
 
     fun onPropertyItemSelected(position: Int) {
-        layerProperties = layerManager.getLayerProperties(filterLayerId.value!!)
+        layerProperties =
+            layerManager.getLayerProperties(chosenLayerId.value!!) // What is this for?
         chosenProperty.value = propertiesList[position]
     }
 
-    fun initStringPropertyOptions() {
+    fun initStringPropertyOptions(propertyName: String): List<String>? {
+        val chosenLayer = layerManager.getLayer(chosenLayerId.value!!)
+        val chosenProperty = propertiesList.find { p -> p == propertyName }
+        val allPropertiesOptions = chosenLayer?.map { a -> a.properties?.get(chosenProperty).toString() }
 
+        return allPropertiesOptions?.distinct()
     }
 
     fun initNumberPropertyOptionsList(): List<String> {

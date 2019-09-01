@@ -43,7 +43,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun setObservers(view: View) {
-        filterViewModel.filterLayerId.observe(this, Observer<String> {
+        filterViewModel.chosenLayerId.observe(this, Observer<String> {
             val propertySpinner = view.propertiesSpinner
             val propertiesList = filterViewModel.initPropertiesList(it)
             if (propertiesList != null) {
@@ -67,6 +67,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         })
 
         filterViewModel.isStringProperty.observe(this, Observer<Boolean> {
+            initStringPropertiesSpinner(view)
             changeViewsVisibility(view.stringOptions, it)
         })
     }
@@ -74,7 +75,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun initOkButton(view: View) {
         val okButton: View = view.ok_button
         okButton.setOnClickListener {
-            sharedViewModel.filterLayer(filterViewModel.filterLayerId.value)
+            sharedViewModel.filterLayer(filterViewModel.chosenLayerId.value)
             sharedViewModel.chosenProperty(filterViewModel.chosenProperty.value)
         }
     }
@@ -90,21 +91,24 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun initSpinners(view: View) {
         initLayersSpinner(view)
         initPropertiesSpinner(view)
-        initStringPropertiesSpinner(view)
         initNumberPropertiesSpinner(view)
+//        initStringPropertiesSpnner(view)???
     }
 
     private fun initLayersSpinner(view: View) {
         val layerSpinner = view.layersSpinner
-        val layerAdapter = ArrayAdapter(
-            activity!!.application,
-            android.R.layout.simple_spinner_item,
-            filterViewModel.initLayerList()
-        )
+        val layersList = filterViewModel.getLayersList()
+        if (layersList != null) {
+            val layerAdapter = ArrayAdapter(
+                activity!!.application,
+                android.R.layout.simple_spinner_item,
+                layersList.toMutableList()
+            )
 
-        layerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        layerSpinner.adapter = layerAdapter
-        layerSpinner.onItemSelectedListener = this
+            layerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            layerSpinner.adapter = layerAdapter
+            layerSpinner.onItemSelectedListener = this
+        }  // TODO what else?? if null?
     }
 
     private fun initPropertiesSpinner(view: View) {
@@ -126,7 +130,19 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun initStringPropertiesSpinner(view: View) {
         val stringPropertySpinner = view.stringPropertySpinner
-        stringPropertySpinner.onItemSelectedListener = this
+        val allPropertiesValues =
+            filterViewModel.initStringPropertyOptions(filterViewModel.chosenProperty.value!!)
+        if (allPropertiesValues != null) {
+            val stringAdapter = ArrayAdapter(
+                activity!!.application,
+                android.R.layout.simple_spinner_item,
+                allPropertiesValues.toMutableList()
+            )
+
+            stringAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            stringPropertySpinner.adapter = stringAdapter
+            stringPropertySpinner.onItemSelectedListener = this
+        } // TODO what else?? if null?
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -137,6 +153,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
             R.id.layersSpinner -> filterViewModel.onLayerItemSelected(position)
             R.id.propertiesSpinner -> filterViewModel.onPropertyItemSelected(position)
             R.id.numberPropertySpinner -> filterViewModel.onNumberItemSelected(position)
+//            R.id.stringPropertySpinner -> filterViewModel.onNumberItemSelected(position)
         }
     }
 
