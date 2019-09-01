@@ -1,19 +1,17 @@
 package com.elyonut.wow.transformer
 
 import com.elyonut.wow.model.FeatureModel
-import com.elyonut.wow.model.GeometryModel
-import com.elyonut.wow.model.LatLngModel
+import com.elyonut.wow.model.PolygonModel
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Geometry
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
-import com.mapbox.mapboxsdk.geometry.LatLng
 
 class MapboxTransformer {
     companion object {
         fun transfromFeatureModelToMapboxFeature(featureModel: FeatureModel): Feature {
             return Feature.fromGeometry(
-                transformGeometryToMapboxGeometry(featureModel.geometry),
+                transformPolygonToMapboxPolygon(featureModel.geometry as PolygonModel),
                 featureModel.properties,
                 featureModel.id
             )
@@ -28,15 +26,24 @@ class MapboxTransformer {
             )
         }
 
-        private fun transformGeometryToMapboxGeometry(geometryModel: GeometryModel): Geometry {
+        private fun transformPolygonToMapboxPolygon(polygonModel: PolygonModel): Polygon {
             val points = ArrayList<Point>()
-            geometryModel.coordinates.forEach { it -> it.forEach { points.add(Point.fromLngLat(it[0], it[1])) } }
+            polygonModel.coordinates.forEach { it ->
+                it.forEach {
+                    points.add(
+                        Point.fromLngLat(
+                            it[0],
+                            it[1]
+                        )
+                    )
+                }
+            }
             val pointsList = arrayListOf(points.toList()).toList()
 
             return Polygon.fromLngLats(pointsList)
         }
 
-        private fun transformMapboxGeometryToGeometryModel(polygon: Polygon): GeometryModel {
+        private fun transformMapboxGeometryToGeometryModel(polygon: Polygon): PolygonModel {
             val points = ArrayList<List<List<Double>>>()
 
             polygon.coordinates().forEach { it ->
@@ -48,7 +55,7 @@ class MapboxTransformer {
                 points.add(coordinatesList)
             }
 
-            return GeometryModel(points, polygon.type())
+            return PolygonModel(points, polygon.type())
         }
     }
 }

@@ -176,7 +176,7 @@ class TopographyService {
             }
             "MultiPolygon" -> {
                 geometry = featureGeometry as MultiPolygon
-                // TODO: returning only single polygon
+                // TODO: returning only single geometry
                 coordinates = geometry.coordinates()[0][0].map { point ->
                     Coordinate(
                         point.latitude(),

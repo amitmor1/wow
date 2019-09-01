@@ -5,7 +5,6 @@ import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.google.gson.JsonObject
 import com.mapbox.geojson.*
-import com.mapbox.mapboxsdk.style.layers.Layer
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeta
 import com.mapbox.turf.TurfTransformation
