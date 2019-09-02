@@ -6,22 +6,27 @@ import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.TempDB
-import com.elyonut.wow.model.PropertyModel
 import com.elyonut.wow.view.LayerMenuAdapter
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 class FilterViewModel(application: Application) : AndroidViewModel(application) {
+    // TODO: null handling
+
     private lateinit var viewAdapter: LayerMenuAdapter
     private val layerManager = LayerManager(TempDB((application)))
     var chosenLayerId = MutableLiveData<String>()
     var chosenProperty = MutableLiveData<String>()
-    lateinit var layerProperties: List<PropertyModel>
+    //    lateinit var layerProperties: List<PropertyModel>
     lateinit var propertiesList: List<String>
     private lateinit var layersIdList: List<String>
     private lateinit var numberFilterOptions: List<String>
     var isStringProperty = MutableLiveData<Boolean>()
     var isNumberProperty = MutableLiveData<Boolean>()
+    val isGreaterChosen = MutableLiveData<Boolean>()
+    val isLowerChosen = MutableLiveData<Boolean>()
+    val isSpecificChosen = MutableLiveData<Boolean>()
+    private var propertiesHashMap = HashMap<String, KClass<*>>()
 
     init {
         chosenLayerId.value = layerManager.initLayersIdList()?.first()
@@ -35,9 +40,8 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun initPropertiesList(layerId: String): List<String>? {
-        layerProperties = layerManager.getLayerProperties(layerId)
-        propertiesList =
-            layerProperties.map { it.name } // Should we maybe use a hashMap so we could get the property values when we need it? and not just the names and than search according to the name (?)
+        propertiesHashMap = layerManager.getLayerProperties(layerId)
+        propertiesList = propertiesHashMap.keys.toList()
         chosenProperty.value = propertiesList.first()
         return propertiesList
     }
@@ -47,28 +51,24 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun checkPropertyType(propertyName: String) {
-        if (getPropertyType(propertyName).isSubclassOf(java.lang.Number::class)) {
-            isNumberProperty.value = true
-            isStringProperty.value = false
+        val propertyType = getPropertyType(propertyName)
+        if (propertyType != null) {
+            if (propertyType.isSubclassOf(java.lang.Number::class)) {
+                isNumberProperty.value = true
+                isStringProperty.value = false
 
-
-        } else if (getPropertyType(propertyName).isSubclassOf(java.lang.String::class)) {
-            isStringProperty.value = true
-            isNumberProperty.value = false
+            } else if (propertyType.isSubclassOf(java.lang.String::class)) {
+                isStringProperty.value = true
+                isNumberProperty.value = false
+                isGreaterChosen.value = false
+                isLowerChosen.value = false
+                isSpecificChosen.value = false
+            }
         }
     }
 
-    private fun getPropertyType(propertyName: String): KClass<*> {
-        lateinit var type: KClass<*>
-
-        layerProperties.forEach {
-            if (it.name == propertyName) {
-                type = it.type
-                return type
-            }
-        }
-
-        return type
+    private fun getPropertyType(propertyName: String): KClass<*>? {
+        return propertiesHashMap[propertyName]
     }
 
     fun onLayerItemSelected(position: Int) {
@@ -76,36 +76,45 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onPropertyItemSelected(position: Int) {
-        layerProperties =
-            layerManager.getLayerProperties(chosenLayerId.value!!) // What is this for?
+        propertiesHashMap =
+            layerManager.getLayerProperties(chosenLayerId.value!!)
         chosenProperty.value = propertiesList[position]
     }
 
     fun initStringPropertyOptions(propertyName: String): List<String>? {
-        val chosenLayer = layerManager.getLayer(chosenLayerId.value!!)
-        val chosenProperty = propertiesList.find { p -> p == propertyName }
-        val allPropertiesOptions =
-            chosenLayer?.map { a -> a.properties?.get(chosenProperty).toString() }
-
-        return allPropertiesOptions?.distinct()
+        return layerManager.getValuesOfLayerProperty(
+            chosenLayerId.value!!,
+            propertyName
+        )     // TODO: null handling
     }
 
     fun initNumberPropertyOptionsList(): List<String> {
-
         numberFilterOptions =
-            NumericFilterTypes.values().map { filterType -> filterType.hName }.toList()
+            NumericFilterTypes.values().map { filterType -> filterType.hebrewName }.toList()
         return numberFilterOptions
     }
 
     fun onNumberItemSelected(position: Int) {
         when {
-            numberFilterOptions[position] == NumericFilterTypes.GREATER.hName -> {
+            numberFilterOptions[position] == NumericFilterTypes.GREATER.hebrewName -> {
+                isGreaterChosen.value = true
+                isLowerChosen.value = false
+                isSpecificChosen.value = false
             }
-            numberFilterOptions[position] == NumericFilterTypes.LOWER.hName -> {
+            numberFilterOptions[position] == NumericFilterTypes.LOWER.hebrewName -> {
+                isGreaterChosen.value = false
+                isLowerChosen.value = true
+                isSpecificChosen.value = false
             }
-            numberFilterOptions[position] == NumericFilterTypes.RANGE.hName -> {
+            numberFilterOptions[position] == NumericFilterTypes.RANGE.hebrewName -> {
+                isGreaterChosen.value = true
+                isLowerChosen.value = true
+                isSpecificChosen.value = false
             }
-            numberFilterOptions[position] == NumericFilterTypes.SPECIFIC.hName -> {
+            numberFilterOptions[position] == NumericFilterTypes.SPECIFIC.hebrewName -> {
+                isGreaterChosen.value = false
+                isLowerChosen.value = false
+                isSpecificChosen.value = true
             }
         }
     }

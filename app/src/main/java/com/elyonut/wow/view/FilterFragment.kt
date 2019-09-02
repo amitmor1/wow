@@ -70,6 +70,21 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
             initStringPropertiesSpinner(view)
             changeViewsVisibility(view.stringOptions, it)
         })
+
+        filterViewModel.isGreaterChosen.observe(
+            this,
+            Observer { changeViewsVisibility(view.minRangeOptions, it) }
+        )
+
+        filterViewModel.isLowerChosen.observe(
+            this,
+            Observer { changeViewsVisibility(view.maxRangeOptions, it) }
+        )
+
+//        filterViewModel.isSpecificChosen.observe(
+//            this,
+//            Observer { changeViewsVisibility(view., it) }
+//        )
     }
 
     private fun initOkButton(view: View) {

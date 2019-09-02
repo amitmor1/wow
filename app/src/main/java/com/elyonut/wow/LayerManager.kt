@@ -2,8 +2,8 @@ package com.elyonut.wow
 
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.LayerModel
-import com.elyonut.wow.model.PropertyModel
 import com.google.gson.JsonPrimitive
+import kotlin.reflect.KClass
 
 class LayerManager(tempDB: TempDB) {
     var layersList: List<LayerModel>? = null
@@ -13,40 +13,35 @@ class LayerManager(tempDB: TempDB) {
     }
 
     fun getLayer(id: String): List<FeatureModel>? {
-        layersList?.forEach {
-            when(it.id) {
-                id-> return it.features
-            }
-        }
-        return null
+        return layersList?.find { layer -> id == layer.id }?.features
     }
 
     fun initLayersIdList(): List<String>? {
-        val layers = ArrayList<String>()
-        layersList?.forEach {
-            layers.add(it.id)
-        }
-
-        return layers
+        return layersList?.map { it.id }
     }
 
-    fun getLayerProperties(id: String): List<PropertyModel> {
-        val propertiesList = ArrayList<PropertyModel>()
+    fun getLayerProperties(id: String): HashMap<String, KClass<*>> {
+//        val propertiesList = ArrayList<PropertyModel>()
         val currentLayer = getLayer(id)
-        var type = null
 
-        // Why first()?
+        val propertiesHashMap = HashMap<String, KClass<*>>()
+
+        // Temp- until we have a real DB and real data
         currentLayer?.first()?.properties?.entrySet()?.forEach {
             if ((it.value as JsonPrimitive).isNumber) {
-                propertiesList.add(PropertyModel(it.key, Number::class))
+                propertiesHashMap[it.key] = Number::class
+//                propertiesList.add(PropertyModel(it.key, Number::class))
             } else if ((it.value as JsonPrimitive).isString) {
-                propertiesList.add(PropertyModel(it.key, String::class))
+                propertiesHashMap[it.key] = String::class
+//                propertiesList.add(PropertyModel(it.key, String::class))
             }
-
-//            propertiesList.add(PropertyModel(it.key, it.value.javaClass.typeName.javaClass))
         }
 
-        return propertiesList
+        return propertiesHashMap
+    }
+
+    fun getValuesOfLayerProperty(layerId: String, propertyName: String): List<String>? {
+           return getLayer(layerId)?.map { a -> a.properties?.get(propertyName).toString() }?.distinct()
     }
 
     fun getPropertyMinValue(layerId: String, property: String): Int {

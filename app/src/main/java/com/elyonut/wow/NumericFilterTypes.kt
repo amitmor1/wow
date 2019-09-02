@@ -1,8 +1,8 @@
 package com.elyonut.wow
 
-enum class NumericFilterTypes(val hName: String) {
+enum class NumericFilterTypes(val hebrewName: String) {
     RANGE("טווח"),
-    GREATER("גדול מ"),
-    LOWER("קטן מ"),
+    GREATER("ערך מינימלי"),
+    LOWER("ערך מקסימלי"),
     SPECIFIC("בחר ערך מסוים")
 }
