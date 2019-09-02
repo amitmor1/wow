@@ -92,13 +92,13 @@ class DataCardFragment : Fragment() {
 
     private fun initCloseCardByClickOnMap(view: View) {
         view.setOnClickListener {
-            dataCardViewModel.closeButtonClicked()
+            dataCardViewModel.close()
         }
     }
 
     private fun initCloseCardButton(view: View) {
         view.closeButton?.setOnClickListener {
-            dataCardViewModel.closeButtonClicked()
+            dataCardViewModel.close()
         }
     }
 
@@ -106,7 +106,7 @@ class DataCardFragment : Fragment() {
         view.buildingDataCard.setOnTouchListener(object : OnSwipeTouchListener(this@DataCardFragment.context!!) {
             override fun onSwipeRight() {
                 super.onSwipeRight()
-                dataCardViewModel.closeButtonClicked()
+                dataCardViewModel.close()
             }
         })
     }

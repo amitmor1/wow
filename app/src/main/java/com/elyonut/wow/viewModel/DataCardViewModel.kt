@@ -16,7 +16,7 @@ class DataCardViewModel(application: Application) : AndroidViewModel(application
         isReadMoreButtonClicked.value = moreContentView.visibility == View.GONE
     }
 
-    fun closeButtonClicked() {
+    fun close() {
         shouldCloseButton.value = true
     }
 
