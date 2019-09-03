@@ -41,7 +41,6 @@ private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
-
     var selectLocationManual: Boolean = false
     private lateinit var map: MapboxMap
     private val tempDB = TempDB(application)
