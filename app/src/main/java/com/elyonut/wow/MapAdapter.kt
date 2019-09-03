@@ -12,7 +12,6 @@ import com.mapbox.turf.TurfTransformation
 import java.util.*
 import kotlin.collections.ArrayList
 
-
 private const val circleUnit = TurfConstants.UNIT_KILOMETERS
 private const val circleSteps = 180
 
