@@ -24,6 +24,7 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.Property.NONE
@@ -73,6 +74,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             setBuildingFilter(style)
             setSelectedBuildingLayer(style)
             addRadiusLayer(style)
+
+            filterLayerByProperty(style, "buildingRisk", "", 1)
         }
     }
 
@@ -213,8 +216,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun filterLayerByProperty(style: Style ,layerId: String, property: String, value: Int) {
-        val layer = style.getLayer(layerId)
-        (layer as FillLayer).setFilter((Expression.eq(Expression.get(property),value)))
+        val layer = style.getLayer("featurescopy")
+//        (layer as FillLayer).setFilter((Expression.eq(Expression.get(property),value)))
+//        (layer as FillLayer).setFilter(eq())
     }
 
     private fun filterLayerByProperty(style: Style ,layerId: String, property: String, minValue: Int, maxValue: Int) {
