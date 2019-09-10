@@ -5,38 +5,38 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.NumericFilterTypes
+//import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.TempDB
-import com.elyonut.wow.view.LayerMenuAdapter
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 class FilterViewModel(application: Application) : AndroidViewModel(application) {
     // TODO: null handling
 
-    private lateinit var viewAdapter: LayerMenuAdapter
     private val layerManager = LayerManager(TempDB((application)))
+    private lateinit var propertiesList: List<String>
+    private var propertiesHashMap = HashMap<String, KClass<*>>()
     var chosenLayerId = MutableLiveData<String>()
     var chosenProperty = MutableLiveData<String>()
-    //    lateinit var layerProperties: List<PropertyModel>
-    lateinit var propertiesList: List<String>
-    private lateinit var layersIdList: List<String>
-    private lateinit var numberFilterOptions: List<String>
+    var layersIdsList: List<String>
+    var numberFilterOptions: List<String>
     var isStringProperty = MutableLiveData<Boolean>()
     var isNumberProperty = MutableLiveData<Boolean>()
     val isGreaterChosen = MutableLiveData<Boolean>()
     val isLowerChosen = MutableLiveData<Boolean>()
     val isSpecificChosen = MutableLiveData<Boolean>()
-    private var propertiesHashMap = HashMap<String, KClass<*>>()
+    val shouldApplyFilter = MutableLiveData<Boolean>()
+    var isStringType = MutableLiveData<Boolean>()
+    lateinit var numericType: NumericFilterTypes
 
     init {
-        chosenLayerId.value = layerManager.initLayersIdList()?.first()
+        layersIdsList = layerManager.initLayersIdList()!!
+        numberFilterOptions =
+            NumericFilterTypes.values().map { filterType -> filterType.hebrewName }.toList()
     }
 
-    // Do we really need this function? should we put it in the init and just get the property when we need?
-    fun getLayersList(): List<String>? {
-        layersIdList =
-            layerManager.initLayersIdList()!! // TODO Why exception? shouldn't we use null check? if the layersIdList is null, what do we wanna do?
-        return layersIdList
+    fun applyFilterButtonClicked(shouldApply: Boolean) {
+        shouldApplyFilter.value = shouldApply
     }
 
     fun initPropertiesList(layerId: String): List<String>? {
@@ -56,13 +56,15 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
             if (propertyType.isSubclassOf(java.lang.Number::class)) {
                 isNumberProperty.value = true
                 isStringProperty.value = false
+                onNumberItemSelected(0)
+
+                isStringType.value = false
 
             } else if (propertyType.isSubclassOf(java.lang.String::class)) {
                 isStringProperty.value = true
                 isNumberProperty.value = false
-                isGreaterChosen.value = false
-                isLowerChosen.value = false
-                isSpecificChosen.value = false
+                onNumberItemSelected(0)
+                isStringType.value = true
             }
         }
     }
@@ -72,7 +74,7 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onLayerItemSelected(position: Int) {
-        chosenLayerId.value = layersIdList[position]
+        chosenLayerId.value = layersIdsList[position]
     }
 
     fun onPropertyItemSelected(position: Int) {
@@ -85,36 +87,38 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
         return layerManager.getValuesOfLayerProperty(
             chosenLayerId.value!!,
             propertyName
-        )     // TODO: null handling
-    }
-
-    fun initNumberPropertyOptionsList(): List<String> {
-        numberFilterOptions =
-            NumericFilterTypes.values().map { filterType -> filterType.hebrewName }.toList()
-        return numberFilterOptions
+        ) // TODO: null handling
     }
 
     fun onNumberItemSelected(position: Int) {
-        when {
-            numberFilterOptions[position] == NumericFilterTypes.GREATER.hebrewName -> {
+        when (numberFilterOptions[position]) {
+            NumericFilterTypes.GREATER.hebrewName -> {
                 isGreaterChosen.value = true
                 isLowerChosen.value = false
                 isSpecificChosen.value = false
+
+                numericType = NumericFilterTypes.GREATER
             }
-            numberFilterOptions[position] == NumericFilterTypes.LOWER.hebrewName -> {
+            NumericFilterTypes.LOWER.hebrewName -> {
                 isGreaterChosen.value = false
                 isLowerChosen.value = true
                 isSpecificChosen.value = false
+
+                numericType = NumericFilterTypes.LOWER
             }
-            numberFilterOptions[position] == NumericFilterTypes.RANGE.hebrewName -> {
+            NumericFilterTypes.RANGE.hebrewName -> {
                 isGreaterChosen.value = true
                 isLowerChosen.value = true
                 isSpecificChosen.value = false
+
+                numericType = NumericFilterTypes.RANGE
             }
-            numberFilterOptions[position] == NumericFilterTypes.SPECIFIC.hebrewName -> {
+            NumericFilterTypes.SPECIFIC.hebrewName -> {
                 isGreaterChosen.value = false
                 isLowerChosen.value = false
                 isSpecificChosen.value = true
+
+                numericType = NumericFilterTypes.SPECIFIC
             }
         }
     }

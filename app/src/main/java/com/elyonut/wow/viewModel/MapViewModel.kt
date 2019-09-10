@@ -41,8 +41,7 @@ private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
-
-    var selectLocationManual: Boolean = false
+    var selectLocationManual: Boolean = false // Why is it here? never changes
     private lateinit var map: MapboxMap
     private val tempDB = TempDB(application)
     private val permissions: IPermissions = PermissionsAdapter(getApplication())
@@ -58,14 +57,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var threats = MutableLiveData<ArrayList<Threat>>()
     var threatFeatures = MutableLiveData<List<Feature>>()
 
-    init {
-//        val adapter = MapAdapter()
-//        val model = BLModel(adapter)
-    }
-
     fun onMapReady(mapboxMap: MapboxMap) {
-//        model.onMapReady()
-
         map = mapboxMap
         map.setStyle(getString(R.string.style_url)) { style ->
             locationSetUp(style)
@@ -88,7 +80,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun startLocationService(loadedMapStyle: Style) {
         val myLocationComponentOptions = LocationComponentOptions.builder(getApplication())
             .trackingGesturesManagement(true)
-            .accuracyColor(ContextCompat.getColor(getApplication(), R.color.myLocationColor)).build()
+            .accuracyColor(ContextCompat.getColor(getApplication(), R.color.myLocationColor))
+            .build()
 
         val locationComponentActivationOptions =
             LocationComponentActivationOptions.builder(getApplication(), loadedMapStyle)
@@ -101,7 +94,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             renderMode = RenderMode.COMPASS
         }
 
-        locationAdapter = LocationAdapter(getApplication(), map.locationComponent, analyzer, threatStatus)
+        locationAdapter =
+            LocationAdapter(getApplication(), map.locationComponent, analyzer, threatStatus)
 
         if (!locationAdapter!!.isGpsEnabled()) {
             isAlertVisible.value = true
@@ -120,7 +114,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     noPermissionsToast.value =
-                        Toast.makeText(getApplication(), R.string.permission_not_granted, Toast.LENGTH_LONG)
+                        Toast.makeText(
+                            getApplication(),
+                            R.string.permission_not_granted,
+                            Toast.LENGTH_LONG
+                        )
                 } else {
                     startLocationService((map.style!!))
                 }
@@ -212,26 +210,51 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun filterLayerByProperty(style: Style ,layerId: String, property: String, value: Int) {
-        val layer = style.getLayer(layerId)
-        (layer as FillLayer).setFilter((Expression.eq(Expression.get(property),value)))
+    fun applyFilter(
+        loadedStyle: Style,
+        layerId: String,
+        propertyId: String,
+        isStringType: Boolean,
+        numericType: NumericFilterTypes,
+        stringValue: String,
+        specificValue: Number,
+        minValue: Number,
+        maxValue: Number
+    ) {
+        if (isStringType) {
+            FilterHandler.filterLayerByStringProperty(loadedStyle, layerId, propertyId, stringValue)
+        } else {
+            when (numericType) {
+                NumericFilterTypes.RANGE -> {
+                    FilterHandler.filterLayerByNumericRange(
+                        loadedStyle,
+                        layerId,
+                        propertyId,
+                        minValue,
+                        maxValue
+                    )
+                }
+                NumericFilterTypes.LOWER -> {
+                    FilterHandler.filterLayerByMaxValue(loadedStyle, layerId, propertyId, maxValue)
+                }
+                NumericFilterTypes.GREATER -> {
+                    FilterHandler.filterLayerByMinValue(loadedStyle, layerId, propertyId, minValue)
+                }
+                NumericFilterTypes.SPECIFIC -> {
+                    FilterHandler.filterLayerBySpecificNumericProperty(
+                        loadedStyle,
+                        layerId,
+                        propertyId,
+                        specificValue
+                    )
+                }
+            }
+        }
     }
 
-    private fun filterLayerByProperty(style: Style ,layerId: String, property: String, minValue: Int, maxValue: Int) {
-        val layer = style.getLayer(layerId)
-        (layer as FillLayer).setFilter(Expression.all(Expression.gte(Expression.get(property), minValue), Expression.lte(Expression.get(property), maxValue)))
+    fun removeFilter(style: Style, layerId: String) {
+        FilterHandler.removeFilter(style, layerId)
     }
-
-    private fun filterLayerByProperty(style: Style ,layerId: String, property: String, type: String) {
-        val layer = style.getLayer(layerId)
-        (layer as FillLayer).setFilter(Expression.all(Expression.eq(Expression.get(property), type)))
-    }
-
-    private fun removeFilter(style: Style, layerId: String) {
-        val layer = style.getLayer(layerId)
-        (layer as FillLayer).setFilter(Expression.literal(true))
-    }
-
 
 
 //    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
@@ -302,3 +325,82 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 }
 
+class FilterHandler {
+    companion object {
+        fun filterLayerByStringProperty(
+            style: Style,
+            layerId: String,
+            propertyId: String,
+            type: String
+        ) {
+            val layer = style.getLayer(layerId)
+            (layer as FillLayer).setFilter(
+                Expression.all(Expression.eq(Expression.get(propertyId), type))
+            )
+        }
+
+        fun filterLayerBySpecificNumericProperty(
+            style: Style,
+            layerId: String,
+            propertyId: String,
+            value: Number
+        ) {
+            val layer = style.getLayer(layerId)
+            (layer as FillLayer).setFilter((Expression.eq(Expression.get(propertyId), value)))
+        }
+
+        fun filterLayerByNumericRange(
+            style: Style,
+            layerId: String,
+            propertyId: String,
+            minValue: Number,
+            maxValue: Number
+        ) {
+            val layer = style.getLayer(layerId)
+            (layer as FillLayer).setFilter(
+                Expression.all(
+                    Expression.gte(
+                        Expression.get(propertyId),
+                        minValue
+                    ), Expression.lte(Expression.get(propertyId), maxValue)
+                )
+            )
+        }
+
+        fun filterLayerByMinValue(
+            style: Style,
+            layerId: String,
+            propertyId: String,
+            minValue: Number
+        ) {
+            val layer = style.getLayer(layerId)
+            (layer as FillLayer).setFilter(
+                Expression.all(
+                    Expression.gte(
+                        Expression.get(propertyId),
+                        minValue
+                    )
+                )
+            )
+        }
+
+        fun filterLayerByMaxValue(
+            style: Style,
+            layerId: String,
+            propertyId: String,
+            maxValue: Number
+        ) {
+            val layer = style.getLayer(layerId)
+            (layer as FillLayer).setFilter(
+                Expression.all(
+                    Expression.lte(Expression.get(propertyId), maxValue)
+                )
+            )
+        }
+
+        fun removeFilter(style: Style, layerId: String) {
+            val layer = style.getLayer(layerId)
+            (layer as FillLayer).setFilter(Expression.literal(true))
+        }
+    }
+}
