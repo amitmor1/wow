@@ -14,7 +14,7 @@ import com.google.android.material.navigation.NavigationView
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
     private val layerManager = LayerManager(TempDB((application)))
-    var chosenLayerId = MutableLiveData<String>()
+    val chosenLayerId = MutableLiveData<String>()
     val selectedExperimentalOption = MutableLiveData<Int>()
     val filterSelected = MutableLiveData<Boolean>()
 
@@ -35,27 +35,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
 
         return shouldCloseDrawer
-    }
-
-    fun initNavigationMenu(
-        navigationView: NavigationView,
-        actionView: View,
-        selectedListener: (MenuItem) -> Boolean
-    ) {
-        val menu = navigationView.menu
-        if (layerManager.layersList != null) {
-            val layers = layerManager.layersList!!.toTypedArray()
-            val layersSubMenu = menu.getItem(0).subMenu
-            layers.forEachIndexed { index, layerModel ->
-                val menuItem = layersSubMenu.add(R.id.nav_layers, index, index, layerModel.name)
-                menuItem.actionView = actionView
-                actionView.tag = layerModel
-                val checkBoxView = actionView as CheckBox
-                checkBoxView.setOnCheckedChangeListener { _, _ ->
-                    selectedListener(menuItem)
-                }
-            }
-        }
     }
 
     fun getLayersList(): List<LayerModel>? {

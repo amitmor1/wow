@@ -13,6 +13,9 @@ import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.Feature
 import com.elyonut.wow.analysis.ThreatAnalyzer
 import com.elyonut.wow.analysis.TopographyService
+import com.elyonut.wow.adapter.LocationAdapter
+import com.elyonut.wow.adapter.MapAdapter
+import com.elyonut.wow.adapter.PermissionsAdapter
 import com.elyonut.wow.model.Threat
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -44,11 +47,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var selectLocationManual: Boolean = false // Why is it here? never changes
     private lateinit var map: MapboxMap
     private val tempDB = TempDB(application)
-    private val permissions: IPermissions = PermissionsAdapter(getApplication())
+    private val permissions: IPermissions =
+        PermissionsAdapter(getApplication())
     private var locationAdapter: ILocationManager? = null
     private val layerManager = LayerManager(tempDB)
     private val analyzer: IAnalyze = AnalyzeManager(layerManager)
-    private val mapAdapter: MapAdapter = MapAdapter(layerManager)
+    private val mapAdapter: MapAdapter =
+        MapAdapter(layerManager)
     var selectedBuildingId = MutableLiveData<String>()
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
@@ -95,7 +100,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         locationAdapter =
-            LocationAdapter(getApplication(), map.locationComponent, analyzer, threatStatus)
+            LocationAdapter(
+                getApplication(),
+                map.locationComponent,
+                analyzer,
+                threatStatus
+            )
 
         if (!locationAdapter!!.isGpsEnabled()) {
             isAlertVisible.value = true

@@ -1,8 +1,9 @@
-package com.elyonut.wow
+package com.elyonut.wow.adapter
 
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import com.elyonut.wow.IPermissions
 import com.mapbox.android.core.permissions.PermissionsManager
 
 class PermissionsAdapter(private var context: Context) : IPermissions {

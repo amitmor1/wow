@@ -136,12 +136,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun showDescriptionFragment() {
         val dataCardFragmentInstance = DataCardFragment.newInstance()
 
-        if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null) {
-            activity!!.supportFragmentManager.beginTransaction().add(
-                R.id.fragmentParent,
-                dataCardFragmentInstance
-            ).commit()
-        }
+        activity!!.supportFragmentManager.beginTransaction().replace(
+            R.id.fragmentParent,
+            dataCardFragmentInstance
+        ).commit()
     }
 
     private fun requestPermissions1() {
@@ -260,11 +258,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 // take to function!
                 val dataCardFragmentInstance = DataCardFragment.newInstance()
                 dataCardFragmentInstance.arguments = bundle
-                if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
-                    activity!!.supportFragmentManager.beginTransaction().replace(
-                        R.id.fragmentParent,
-                        dataCardFragmentInstance
-                    ).commit()
+                activity!!.supportFragmentManager.beginTransaction().replace(
+                    R.id.fragmentParent,
+                    dataCardFragmentInstance
+                ).commit()
                 activity!!.supportFragmentManager.fragments
             }
         }

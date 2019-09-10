@@ -1,11 +1,13 @@
-package com.elyonut.wow
+package com.elyonut.wow.adapter
 
 import android.graphics.Color
+import com.elyonut.wow.Constants
+import com.elyonut.wow.IMap
+import com.elyonut.wow.LayerManager
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.google.gson.JsonObject
 import com.mapbox.geojson.*
-import com.mapbox.mapboxsdk.style.layers.Layer
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeta
 import com.mapbox.turf.TurfTransformation
@@ -66,7 +68,10 @@ class MapAdapter(var layerManager: LayerManager) : IMap {
         if ((currentLatitude != null) && (currentLongitude != null)) {
             val featureRiskRadius = feature.properties?.get("radius").let { t -> t?.asDouble }
             val currPoint = Point.fromLngLat(currentLongitude.asDouble, currentLatitude.asDouble)
-            circlePolygon = TurfTransformation.circle(currPoint, featureRiskRadius!!, circleSteps, circleUnit)
+            circlePolygon = TurfTransformation.circle(currPoint, featureRiskRadius!!,
+                circleSteps,
+                circleUnit
+            )
         }
 
         return circlePolygon
