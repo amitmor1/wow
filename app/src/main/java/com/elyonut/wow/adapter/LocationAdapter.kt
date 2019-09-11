@@ -1,10 +1,12 @@
-package com.elyonut.wow
+package com.elyonut.wow.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import androidx.lifecycle.MutableLiveData
+import com.elyonut.wow.IAnalyze
+import com.elyonut.wow.ILocationManager
 import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
 import java.lang.ref.WeakReference
@@ -13,11 +15,15 @@ import java.lang.ref.WeakReference
 private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
 private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
-class LocationAdapter(private var context: Context, var locationComponent: LocationComponent, var calculator: IAnalyze, var riskStatus: MutableLiveData<String>) : ILocationManager {
+class LocationAdapter(private var context: Context, var locationComponent: LocationComponent, var calculator: IAnalyze, var riskStatus: MutableLiveData<String>) :
+    ILocationManager {
     private var lastUpdatedLocation: Location? = null
     private var locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var locationEngine: LocationEngine = LocationEngineProvider.getBestLocationEngine(context)
-    private var callback = LocationUpdatesCallback(locationComponent, this)
+    private var callback = LocationUpdatesCallback(
+        locationComponent,
+        this
+    )
 
     override fun isGpsEnabled(): Boolean {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -33,7 +39,9 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
 
     @SuppressLint("MissingPermission")
     private fun initLocationEngine(context: Context) {
-        val request: LocationEngineRequest = LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+        val request: LocationEngineRequest = LocationEngineRequest.Builder(
+            DEFAULT_INTERVAL_IN_MILLISECONDS
+        )
             .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
             .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build()
 

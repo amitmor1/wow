@@ -1,14 +1,13 @@
 package com.elyonut.wow.view
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -17,107 +16,181 @@ import com.elyonut.wow.viewModel.FilterViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_filter.view.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [FilterFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [FilterFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-    private var listener: OnFragmentInteractionListener? = null
 
+    private var fragmentContext: OnFragmentInteractionListener? = null
     private lateinit var filterViewModel: FilterViewModel
     private lateinit var sharedViewModel: SharedViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        val view= inflater.inflate(R.layout.fragment_filter, container, false)
+        val view = inflater.inflate(R.layout.fragment_filter, container, false)
 
         filterViewModel =
-            ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application).create(FilterViewModel::class.java)
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
+                .create(FilterViewModel::class.java)
         sharedViewModel =
-            ViewModelProviders.of(this)[SharedViewModel::class.java]
+            ViewModelProviders.of(activity!!)[SharedViewModel::class.java]
 
         setObservers(view)
         initOkButton(view)
         initCancelButton(view)
         initSpinners(view)
-
         return view
     }
 
     private fun setObservers(view: View) {
-        filterViewModel.filterLayerId.observe(this, Observer<String> {
-            val propertySpinner = view.propertiesSpinner
-            val adapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initPropertiesList(it))
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            propertySpinner.adapter = adapter
+        filterViewModel.chosenLayerId.observe(this, Observer<String> {
+            sharedViewModel.chosenLayerId = it
+            initPropertiesSpinner(view, it)
         })
 
         filterViewModel.chosenProperty.observe(this, Observer<String> {
             filterViewModel.initOptionsList(it)
+            sharedViewModel.chosenPropertyId = it
         })
 
         filterViewModel.isNumberProperty.observe(this, Observer<Boolean> {
             changeViewsVisibility(view.numberOptions, it)
-
         })
 
         filterViewModel.isStringProperty.observe(this, Observer<Boolean> {
+            initStringPropertiesSpinner(view)
             changeViewsVisibility(view.stringOptions, it)
         })
+
+        filterViewModel.isGreaterChosen.observe(
+            this,
+            Observer { changeViewsVisibility(view.minRangeOptions, it) }
+        )
+
+        filterViewModel.isLowerChosen.observe(
+            this,
+            Observer { changeViewsVisibility(view.maxRangeOptions, it) }
+        )
+
+        filterViewModel.isSpecificChosen.observe(
+            this,
+            Observer { changeViewsVisibility(view.specificOption, it) }
+        )
+
+        filterViewModel.isStringType.observe(this, Observer {
+//            propertyTypeChosen(view, it)
+            sharedViewModel.isStringType = it
+            sharedViewModel.numericType = filterViewModel.numericType
+        })
+
+        filterViewModel.shouldApplyFilter.observe(this, Observer { applyFilter(it, view) })
+    }
+
+    private fun propertyTypeChosen(view: View, isStringPropertyChosen: Boolean) {
+        if (isStringPropertyChosen) {
+            initStringPropertiesSpinner(view)
+            changeViewsVisibility(view.stringOptions, isStringPropertyChosen)
+            changeViewsVisibility(view.numberOptions, !isStringPropertyChosen)
+        } else {
+            changeViewsVisibility(view.stringOptions, !isStringPropertyChosen)
+            changeViewsVisibility(view.numberOptions, isStringPropertyChosen)
+        }
+
+        sharedViewModel.isStringType = isStringPropertyChosen
+        sharedViewModel.numericType = filterViewModel.numericType
+    }
+
+    private fun initPropertiesSpinner(view: View, layerId: String) {
+        val propertySpinner = view.propertiesSpinner
+        val propertiesList = filterViewModel.initPropertiesList(layerId)
+        propertySpinner.onItemSelectedListener = this
+
+        if (propertiesList != null) {
+            val adapter = ArrayAdapter(
+                activity!!.application,
+                android.R.layout.simple_spinner_item,
+                propertiesList.toMutableList()
+            )
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            propertySpinner.adapter = adapter
+        } // TODO what else?? if null?
+    }
+
+    private fun changeViewsVisibility(view: View, shouldShowView: Boolean) {
+        if (shouldShowView) {
+            view.visibility = View.VISIBLE
+        } else {
+            view.visibility = View.GONE
+        }
+    }
+
+    private fun initStringPropertiesSpinner(view: View) {
+        val stringPropertySpinner = view.stringPropertySpinner
+        val allPropertiesValues =
+            filterViewModel.initStringPropertyOptions(filterViewModel.chosenProperty.value!!)
+
+        if (allPropertiesValues != null) {
+            val stringAdapter = ArrayAdapter(
+                activity!!.application,
+                android.R.layout.simple_spinner_item,
+                allPropertiesValues.toMutableList()
+            )
+
+            stringAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            stringPropertySpinner.adapter = stringAdapter
+            stringPropertySpinner.onItemSelectedListener = this
+        } // TODO what else?? if null?
+    }
+
+    private fun applyFilter(shouldApplyFilter: Boolean, view: View) {
+        if (shouldApplyFilter) {
+            if (filterViewModel.isNumberProperty.value!!) {
+                sharedViewModel.numericType = filterViewModel.numericType
+                sharedViewModel.minValue = view.minNumericPicker.value
+                sharedViewModel.specificValue = view.specificNumericPicker.value / 10.0
+
+                if (view.maxValue.text.toString() != "") {
+                    sharedViewModel.maxValue = view.maxValue.text.toString().toInt()
+                }
+            } else {
+                sharedViewModel.chosenPropertyValue =
+                    view.stringPropertySpinner.selectedItem.toString()
+            }
+        }
+
+        sharedViewModel.applyFilter(shouldApplyFilter)
     }
 
     private fun initOkButton(view: View) {
         val okButton: View = view.ok_button
+
         okButton.setOnClickListener {
-            sharedViewModel.filterLayer(filterViewModel.filterLayerId.value)
-            sharedViewModel.chosenProperty(filterViewModel.chosenProperty.value)
+            filterViewModel.applyFilterButtonClicked(true)
         }
     }
 
     private fun initCancelButton(view: View) {
-        val cancelButton: View = view.cancel_button
+        val cancelButton: View = view.remove_button
+
         cancelButton.setOnClickListener {
-            sharedViewModel.filterLayer("")
-            sharedViewModel.chosenProperty("")
+            filterViewModel.applyFilterButtonClicked(false)
         }
     }
 
     private fun initSpinners(view: View) {
         initLayersSpinner(view)
-        initPropertiesSpinner(view)
-        initStringPropertiesSpinner(view)
         initNumberPropertiesSpinner(view)
+        initNumericPickers(view)
     }
 
     private fun initLayersSpinner(view: View) {
         val layerSpinner = view.layersSpinner
+        val layersIdsList = filterViewModel.layersIdsList
+
         val layerAdapter = ArrayAdapter(
             activity!!.application,
             android.R.layout.simple_spinner_item,
-            filterViewModel.initLayerList()
+            layersIdsList.toMutableList()
         )
 
         layerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -125,25 +198,28 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         layerSpinner.onItemSelectedListener = this
     }
 
-    private fun initPropertiesSpinner(view: View) {
-        val propertySpinner = view.propertiesSpinner
-        propertySpinner.onItemSelectedListener = this
-    }
-
     private fun initNumberPropertiesSpinner(view: View) {
         val numberSpinner = view.numberPropertySpinner
-        val numberAdapter = ArrayAdapter(activity!!.application, android.R.layout.simple_spinner_item, filterViewModel.initNumberPropertyOptionsList())
+        val numberAdapter = ArrayAdapter(
+            activity!!.application,
+            android.R.layout.simple_spinner_item,
+            filterViewModel.numberFilterOptions
+        )
+
         numberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         numberSpinner.adapter = numberAdapter
         numberSpinner.onItemSelectedListener = this
     }
 
-    private fun initStringPropertiesSpinner(view: View) {
-        val stringPropertySpinner = view.stringPropertySpinner
-        stringPropertySpinner.onItemSelectedListener = this
-    }
+    private fun initNumericPickers(view: View) {
+        val nums = arrayOf(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
 
-    override fun onNothingSelected(parent: AdapterView<*>?) {
+        view.minNumericPicker.minValue = 0
+        view.minNumericPicker.maxValue = nums.size - 1
+        view.specificNumericPicker.minValue = 0
+        view.specificNumericPicker.maxValue = nums.size - 1
+        view.minNumericPicker.displayedValues = nums.map { it.toString() }.toTypedArray()
+        view.specificNumericPicker.displayedValues = nums.map { it.toString() }.toTypedArray()
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -154,79 +230,29 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    private fun changeViewsVisibility(view: View, isVisible: Boolean) {
-        if (isVisible) {
-            view.visibility = View.VISIBLE
-        } else {
-            view.visibility = View.GONE
-        }
-    }
-
-    private fun rangeFilter() {
-
-    }
-
-    private fun lowerRange() {
-
-    }
-
-    private fun upperRange() {
-
-    }
-
-
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        listener?.onFilterFragmentInteraction()
+    override fun onNothingSelected(parent: AdapterView<*>?) {
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
-            listener = context
+            fragmentContext = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException("$context must implement OnMapFragmentInteractionListener")
         }
     }
 
     override fun onDetach() {
         super.onDetach()
-        listener = null
+        fragmentContext = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments]
-     * (http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFilterFragmentInteraction()
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment FilterFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance() =
-            FilterFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        fun newInstance() = FilterFragment()
     }
 }

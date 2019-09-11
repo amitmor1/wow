@@ -14,6 +14,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.elyonut.wow.*
+import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -24,7 +25,7 @@ class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
     NavigationView.OnNavigationItemSelectedListener,
     ThreatFragment.OnListFragmentInteractionListener,
-    MainMapFragment.OnFragmentInteractionListener,
+    MainMapFragment.OnMapFragmentInteractionListener,
     FilterFragment.OnFragmentInteractionListener {
 
     private lateinit var mainViewModel: MainActivityViewModel
@@ -103,12 +104,12 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-//        mainViewModel.initNavigationMenu(navigationView, checkBoxView, ::onNavigationItemSelected)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (mainViewModel.onNavigationItemSelected(item))
+        if (mainViewModel.onNavigationItemSelected(item)) {
             closeDrawer()
+        }
 
         return true
     }
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity(),
         drawer.closeDrawer(GravityCompat.START)
     }
 
-    override fun onMainFragmentInteraction() {
+    override fun onMapFragmentInteraction() {
     }
 
     override fun onFilterFragmentInteraction() {

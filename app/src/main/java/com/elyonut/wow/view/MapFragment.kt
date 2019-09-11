@@ -50,37 +50,39 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private lateinit var map: MapboxMap
     private lateinit var mapViewModel: MapViewModel
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var threatStatus: View
-    private var listener: OnFragmentInteractionListener? = null
+    private lateinit var threatStatusView: View
+    private var listenerMap: OnMapFragmentInteractionListener? = null
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Mapbox.getInstance(listener as Context, Constants.MAPBOX_ACCESS_TOKEN)
+        Mapbox.getInstance(listenerMap as Context, Constants.MAPBOX_ACCESS_TOKEN)
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         mapViewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
                 .create(MapViewModel::class.java)
         sharedViewModel =
-            activity?.run { ViewModelProviders.of(this)[SharedViewModel::class.java] }!!
+            activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
         initObservers()
-        threatStatus = view.findViewById(R.id.status)
+        threatStatusView = view.findViewById(R.id.status)
         mapView = view.findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
-
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
+
         return view
     }
 
     private fun initObservers() {
         mapViewModel.selectedBuildingId.observe(
             this,
-            Observer<String> { showDescriptionFragment() })
+            Observer<String> { showDescriptionFragment() }
+        )
+
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {
                 requestPermissions1()
@@ -93,28 +95,51 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             sharedViewModel.selectedLayerId.value?.let { mapViewModel.layerSelected(it) }
         })
+
         sharedViewModel.selectedExperimentalOption.observe(
             this,
-            Observer<Int> { applyExperimentalOption(it) })
+            Observer<Int> { applyExperimentalOption(it) }
+        )
+
         sharedViewModel.selectedThreatItem.observe(
             this,
-            Observer<Threat> { onListFragmentInteraction(it) })
+            Observer<Threat> { onListFragmentInteraction(it) }
+        )
+
+        sharedViewModel.shouldApplyFilter.observe(this,
+            Observer<Boolean> { filter(it) }
+        )
+    }
+
+    private fun filter(shouldApplyFilter: Boolean) {
+        if (!shouldApplyFilter) {
+            mapViewModel.removeFilter(map.style!!, sharedViewModel.chosenLayerId)
+        } else {
+            mapViewModel.applyFilter(
+                map.style!!,
+                sharedViewModel.chosenLayerId,
+                sharedViewModel.chosenPropertyId,
+                sharedViewModel.isStringType,
+                sharedViewModel.numericType,
+                sharedViewModel.chosenPropertyValue,
+                sharedViewModel.specificValue,
+                sharedViewModel.minValue,
+                sharedViewModel.maxValue
+            )
+        }
     }
 
     private fun changeStatus(status: String?) {
-        (threatStatus as Button).text = status
+        (threatStatusView as Button).text = status
     }
 
     private fun showDescriptionFragment() {
         val dataCardFragmentInstance = DataCardFragment.newInstance()
 
-        if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null) {
-            activity!!.supportFragmentManager.beginTransaction().add(
-                R.id.fragmentParent,
-                dataCardFragmentInstance
-            ).commit()
-            activity!!.supportFragmentManager.fragments
-        }
+        activity!!.supportFragmentManager.beginTransaction().replace(
+            R.id.fragmentParent,
+            dataCardFragmentInstance
+        ).commit()
     }
 
     private fun requestPermissions1() {
@@ -128,7 +153,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     }
 
     private fun showAlertDialog() {
-        AlertDialog.Builder(listener as Context)
+        AlertDialog.Builder(listenerMap as Context)
             .setTitle(getString(R.string.turn_on_location_title))
             .setMessage(getString(R.string.turn_on_location))
             .setPositiveButton(getString(R.string.yes_hebrew)) { _, _ ->
@@ -153,9 +178,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
-        mapboxMap.addOnMapClickListener(this)
-
-        mapViewModel.onMapReady(mapboxMap)
+        map.addOnMapClickListener(this)
+        mapViewModel.onMapReady(map)
     }
 
     private fun initFocusOnMyLocationButton(view: View) {
@@ -172,7 +196,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
-    override fun onMapClick(latLng: LatLng): Boolean {
+    override fun onMapClick(latLng: LatLng): Boolean { // TODO UniqAi need to fix
 
         // return mapViewModel.onMapClick(map, latLng)
 
@@ -234,11 +258,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 // take to function!
                 val dataCardFragmentInstance = DataCardFragment.newInstance()
                 dataCardFragmentInstance.arguments = bundle
-                if (activity!!.supportFragmentManager.fragments.find { fragment -> fragment.id == R.id.fragmentParent } == null)
-                    activity!!.supportFragmentManager.beginTransaction().replace(
-                        R.id.fragmentParent,
-                        dataCardFragmentInstance
-                    ).commit()
+                activity!!.supportFragmentManager.beginTransaction().replace(
+                    R.id.fragmentParent,
+                    dataCardFragmentInstance
+                ).commit()
                 activity!!.supportFragmentManager.fragments
             }
         }
@@ -269,7 +292,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
             R.id.threat_select_location -> {
                 mapViewModel.selectLocationManual = true
-                Toast.makeText(listener as Context, "Select Location", Toast.LENGTH_LONG).show()
+                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -299,7 +322,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
             R.id.threat_select_location -> {
                 mapViewModel.selectLocationManual = true
-                Toast.makeText(listener as Context, "Select Location", Toast.LENGTH_LONG).show()
+                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
                 true
             }
             else -> false
@@ -378,26 +401,22 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
     }
 
-    fun onButtonPressed() {
-        listener?.onMainFragmentInteraction()
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            listener = context
+        if (context is OnMapFragmentInteractionListener) {
+            listenerMap = context
         } else {
-            throw RuntimeException("$context must implement OnFragmentInteractionListener")
+            throw RuntimeException("$context must implement OnMapFragmentInteractionListener")
         }
     }
 
     override fun onDetach() {
         super.onDetach()
-        listener = null
+        listenerMap = null
     }
 
-    interface OnFragmentInteractionListener {
-        fun onMainFragmentInteraction()
+    interface OnMapFragmentInteractionListener {
+        fun onMapFragmentInteraction()
     }
 
     override fun onStart() {

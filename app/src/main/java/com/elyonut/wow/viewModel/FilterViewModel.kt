@@ -4,36 +4,45 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
+import com.elyonut.wow.NumericFilterTypes
+//import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.TempDB
-import com.elyonut.wow.model.PropertyModel
-import com.elyonut.wow.view.LayerMenuAdapter
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-class FilterViewModel(application: Application): AndroidViewModel(application) {
-    private lateinit var viewAdapter: LayerMenuAdapter
+class FilterViewModel(application: Application) : AndroidViewModel(application) {
+    // TODO: null handling
+
     private val layerManager = LayerManager(TempDB((application)))
-    var filterLayerId = MutableLiveData<String>()
+    private lateinit var propertiesList: List<String>
+    private var propertiesHashMap = HashMap<String, KClass<*>>()
+    var chosenLayerId = MutableLiveData<String>()
     var chosenProperty = MutableLiveData<String>()
-    lateinit var layerProperties: List<PropertyModel>
-    lateinit var propertiesList: List<String>
-    private lateinit var layerList: List<String>
-    private lateinit var numberFilterOptions: List<String>
+    var layersIdsList: List<String>
+    var numberFilterOptions: List<String>
     var isStringProperty = MutableLiveData<Boolean>()
     var isNumberProperty = MutableLiveData<Boolean>()
+    val isGreaterChosen = MutableLiveData<Boolean>()
+    val isLowerChosen = MutableLiveData<Boolean>()
+    val isSpecificChosen = MutableLiveData<Boolean>()
+    val shouldApplyFilter = MutableLiveData<Boolean>()
+    var isStringType = MutableLiveData<Boolean>()
+    lateinit var numericType: NumericFilterTypes
 
     init {
-        filterLayerId.value = layerManager.getLayers()?.first()
+        layersIdsList = layerManager.initLayersIdList()!!
+        numberFilterOptions =
+            NumericFilterTypes.values().map { filterType -> filterType.hebrewName }.toList()
     }
 
-    fun initLayerList(): List<String>? {
-        layerList = layerManager.getLayers()!!
-        return layerList
+    fun applyFilterButtonClicked(shouldApply: Boolean) {
+        shouldApplyFilter.value = shouldApply
     }
 
     fun initPropertiesList(layerId: String): List<String>? {
-        layerProperties = layerManager.getLayerProperties(layerId)
-        propertiesList = layerProperties.map { it.name }
+        propertiesHashMap = layerManager.getLayerProperties(layerId)
+        propertiesList = propertiesHashMap.keys.toList()
+        chosenProperty.value = propertiesList.first()
         return propertiesList
     }
 
@@ -42,50 +51,75 @@ class FilterViewModel(application: Application): AndroidViewModel(application) {
     }
 
     private fun checkPropertyType(propertyName: String) {
-        if (getPropertyType(propertyName).isSubclassOf(java.lang.Number::class)) {
-            isNumberProperty.value = true
-            isStringProperty.value = false
+        val propertyType = getPropertyType(propertyName)
+        if (propertyType != null) {
+            if (propertyType.isSubclassOf(java.lang.Number::class)) {
+                isNumberProperty.value = true
+                isStringProperty.value = false
+                onNumberItemSelected(0)
 
+                isStringType.value = false
 
-        } else if (getPropertyType(propertyName).isSubclassOf(java.lang.String::class)) {
-            isStringProperty.value = true
-            isNumberProperty.value = false
+            } else if (propertyType.isSubclassOf(java.lang.String::class)) {
+                isStringProperty.value = true
+                isNumberProperty.value = false
+                onNumberItemSelected(0)
+                isStringType.value = true
+            }
         }
     }
 
-    private fun getPropertyType(propertyName: String): KClass<*> {
-        lateinit var type: KClass<*>
-
-        layerProperties.forEach {
-            if (it.name == propertyName) {
-                type = it.type
-                return type
-            }
-        }
-
-        return type
+    private fun getPropertyType(propertyName: String): KClass<*>? {
+        return propertiesHashMap[propertyName]
     }
 
     fun onLayerItemSelected(position: Int) {
-
-        filterLayerId.value = layerList?.get(position)
+        chosenLayerId.value = layersIdsList[position]
     }
 
     fun onPropertyItemSelected(position: Int) {
-        layerProperties = layerManager.getLayerProperties(filterLayerId.value!!)
+        propertiesHashMap =
+            layerManager.getLayerProperties(chosenLayerId.value!!)
         chosenProperty.value = propertiesList[position]
     }
 
-    fun initStringPropertyOptions() {
-
-    }
-
-    fun initNumberPropertyOptionsList(): List<String>{
-        numberFilterOptions = listOf("טווח", "קטן מ","גדול מ","בחר ערך מסוים")
-        return numberFilterOptions
+    fun initStringPropertyOptions(propertyName: String): List<String>? {
+        return layerManager.getValuesOfLayerProperty(
+            chosenLayerId.value!!,
+            propertyName
+        ) // TODO: null handling
     }
 
     fun onNumberItemSelected(position: Int) {
+        when (numberFilterOptions[position]) {
+            NumericFilterTypes.GREATER.hebrewName -> {
+                isGreaterChosen.value = true
+                isLowerChosen.value = false
+                isSpecificChosen.value = false
 
+                numericType = NumericFilterTypes.GREATER
+            }
+            NumericFilterTypes.LOWER.hebrewName -> {
+                isGreaterChosen.value = false
+                isLowerChosen.value = true
+                isSpecificChosen.value = false
+
+                numericType = NumericFilterTypes.LOWER
+            }
+            NumericFilterTypes.RANGE.hebrewName -> {
+                isGreaterChosen.value = true
+                isLowerChosen.value = true
+                isSpecificChosen.value = false
+
+                numericType = NumericFilterTypes.RANGE
+            }
+            NumericFilterTypes.SPECIFIC.hebrewName -> {
+                isGreaterChosen.value = false
+                isLowerChosen.value = false
+                isSpecificChosen.value = true
+
+                numericType = NumericFilterTypes.SPECIFIC
+            }
+        }
     }
 }
