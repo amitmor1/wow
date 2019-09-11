@@ -20,14 +20,12 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     var chosenProperty = MutableLiveData<String>()
     var layersIdsList: List<String>
     var numberFilterOptions: List<String>
-    var isStringProperty = MutableLiveData<Boolean>()
-    var isNumberProperty = MutableLiveData<Boolean>()
+    var isStringType = MutableLiveData<Boolean>()
+    var numericTypeChosen = MutableLiveData<NumericFilterTypes>()
     val isGreaterChosen = MutableLiveData<Boolean>()
     val isLowerChosen = MutableLiveData<Boolean>()
     val isSpecificChosen = MutableLiveData<Boolean>()
     val shouldApplyFilter = MutableLiveData<Boolean>()
-    var isStringType = MutableLiveData<Boolean>()
-    lateinit var numericType: NumericFilterTypes
 
     init {
         layersIdsList = layerManager.initLayersIdList()!!
@@ -54,15 +52,10 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
         val propertyType = getPropertyType(propertyName)
         if (propertyType != null) {
             if (propertyType.isSubclassOf(java.lang.Number::class)) {
-                isNumberProperty.value = true
-                isStringProperty.value = false
                 onNumberItemSelected(0)
-
                 isStringType.value = false
 
             } else if (propertyType.isSubclassOf(java.lang.String::class)) {
-                isStringProperty.value = true
-                isNumberProperty.value = false
                 onNumberItemSelected(0)
                 isStringType.value = true
             }
@@ -93,32 +86,16 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     fun onNumberItemSelected(position: Int) {
         when (numberFilterOptions[position]) {
             NumericFilterTypes.GREATER.hebrewName -> {
-                isGreaterChosen.value = true
-                isLowerChosen.value = false
-                isSpecificChosen.value = false
-
-                numericType = NumericFilterTypes.GREATER
+                numericTypeChosen.value = NumericFilterTypes.GREATER
             }
             NumericFilterTypes.LOWER.hebrewName -> {
-                isGreaterChosen.value = false
-                isLowerChosen.value = true
-                isSpecificChosen.value = false
-
-                numericType = NumericFilterTypes.LOWER
+                numericTypeChosen.value = NumericFilterTypes.LOWER
             }
             NumericFilterTypes.RANGE.hebrewName -> {
-                isGreaterChosen.value = true
-                isLowerChosen.value = true
-                isSpecificChosen.value = false
-
-                numericType = NumericFilterTypes.RANGE
+                numericTypeChosen.value = NumericFilterTypes.RANGE
             }
             NumericFilterTypes.SPECIFIC.hebrewName -> {
-                isGreaterChosen.value = false
-                isLowerChosen.value = false
-                isSpecificChosen.value = true
-
-                numericType = NumericFilterTypes.SPECIFIC
+                numericTypeChosen.value = NumericFilterTypes.SPECIFIC
             }
         }
     }

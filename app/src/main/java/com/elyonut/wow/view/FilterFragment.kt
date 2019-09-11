@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.FilterViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -52,37 +53,38 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
             sharedViewModel.chosenPropertyId = it
         })
 
-        filterViewModel.isNumberProperty.observe(this, Observer<Boolean> {
-            changeViewsVisibility(view.numberOptions, it)
-        })
-
-        filterViewModel.isStringProperty.observe(this, Observer<Boolean> {
-            initStringPropertiesSpinner(view)
-            changeViewsVisibility(view.stringOptions, it)
-        })
-
-        filterViewModel.isGreaterChosen.observe(
-            this,
-            Observer { changeViewsVisibility(view.minRangeOptions, it) }
-        )
-
-        filterViewModel.isLowerChosen.observe(
-            this,
-            Observer { changeViewsVisibility(view.maxRangeOptions, it) }
-        )
-
-        filterViewModel.isSpecificChosen.observe(
-            this,
-            Observer { changeViewsVisibility(view.specificOption, it) }
-        )
-
         filterViewModel.isStringType.observe(this, Observer {
-//            propertyTypeChosen(view, it)
-            sharedViewModel.isStringType = it
-            sharedViewModel.numericType = filterViewModel.numericType
+            propertyTypeChosen(view, it)
         })
+
+        filterViewModel.numericTypeChosen.observe(this, Observer { numericTypeChosen(view, it) })
 
         filterViewModel.shouldApplyFilter.observe(this, Observer { applyFilter(it, view) })
+    }
+
+    private fun numericTypeChosen(view: View, numericFilterType: NumericFilterTypes) {
+        when (numericFilterType) {
+            NumericFilterTypes.RANGE -> {
+                changeViewsVisibility(view.minRangeOptions, true)
+                changeViewsVisibility(view.maxRangeOptions, true)
+                changeViewsVisibility(view.specificOption, false)
+            }
+            NumericFilterTypes.GREATER -> {
+                changeViewsVisibility(view.minRangeOptions, true)
+                changeViewsVisibility(view.maxRangeOptions, false)
+                changeViewsVisibility(view.specificOption, false)
+            }
+            NumericFilterTypes.LOWER -> {
+                changeViewsVisibility(view.minRangeOptions, false)
+                changeViewsVisibility(view.maxRangeOptions, true)
+                changeViewsVisibility(view.specificOption, false)
+            }
+            NumericFilterTypes.SPECIFIC -> {
+                changeViewsVisibility(view.minRangeOptions, false)
+                changeViewsVisibility(view.maxRangeOptions, false)
+                changeViewsVisibility(view.specificOption, true)
+            }
+        }
     }
 
     private fun propertyTypeChosen(view: View, isStringPropertyChosen: Boolean) {
@@ -91,12 +93,12 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
             changeViewsVisibility(view.stringOptions, isStringPropertyChosen)
             changeViewsVisibility(view.numberOptions, !isStringPropertyChosen)
         } else {
-            changeViewsVisibility(view.stringOptions, !isStringPropertyChosen)
-            changeViewsVisibility(view.numberOptions, isStringPropertyChosen)
+            changeViewsVisibility(view.stringOptions, isStringPropertyChosen)
+            changeViewsVisibility(view.numberOptions, !isStringPropertyChosen)
         }
 
         sharedViewModel.isStringType = isStringPropertyChosen
-        sharedViewModel.numericType = filterViewModel.numericType
+        sharedViewModel.numericType = filterViewModel.numericTypeChosen.value!!
     }
 
     private fun initPropertiesSpinner(view: View, layerId: String) {
@@ -144,8 +146,8 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun applyFilter(shouldApplyFilter: Boolean, view: View) {
         if (shouldApplyFilter) {
-            if (filterViewModel.isNumberProperty.value!!) {
-                sharedViewModel.numericType = filterViewModel.numericType
+            if (!filterViewModel.isStringType.value!!) {
+//                sharedViewModel.numericTypeChosen = filterViewModel.numericTypeChosen.value!!
                 sharedViewModel.minValue = view.minNumericPicker.value
                 sharedViewModel.specificValue = view.specificNumericPicker.value / 10.0
 
