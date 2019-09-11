@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -15,6 +14,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.elyonut.wow.*
+import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -25,8 +25,8 @@ class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
     NavigationView.OnNavigationItemSelectedListener,
     ThreatFragment.OnListFragmentInteractionListener,
-    MainMapFragment.OnFragmentInteractionListener,
-    BlankFragment.OnFragmentInteractionListener {
+    MainMapFragment.OnMapFragmentInteractionListener,
+    FilterFragment.OnFragmentInteractionListener {
 
     private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun filterButtonClicked() {
-        val blankFragment = BlankFragment.newInstance()
+        val blankFragment = FilterFragment.newInstance()
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.apply {
             add(R.id.fragmentMenuParent, blankFragment).commit()
@@ -104,12 +104,12 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-//        mainViewModel.initNavigationMenu(navigationView, checkBoxView, ::onNavigationItemSelected)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (mainViewModel.onNavigationItemSelected(item))
+        if (mainViewModel.onNavigationItemSelected(item)) {
             closeDrawer()
+        }
 
         return true
     }
@@ -119,10 +119,10 @@ class MainActivity : AppCompatActivity(),
         drawer.closeDrawer(GravityCompat.START)
     }
 
-    override fun onMainFragmentInteraction() {
+    override fun onMapFragmentInteraction() {
     }
 
-    override fun onBlankFragmentInteraction() {
+    override fun onFilterFragmentInteraction() {
     }
 
     override fun onDataCardFragmentInteraction() {
