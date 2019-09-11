@@ -5,5 +5,7 @@
     <color name="colorAccent">#D81B60</color>
     <color name="myLocationColor">#ccffff</color>
     <color name="color_gray">#808080</color>
-    <color name="sunflowerYellow">#FFDB4D</color>
+    <color name="lowRisk">#ffdb4d</color>
+    <color name="mediumRisk">#ff9500</color>
+    <color name="highRisk">#e02416</color>
 </resources>

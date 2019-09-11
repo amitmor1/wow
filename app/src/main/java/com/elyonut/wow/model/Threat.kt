@@ -1,14 +1,13 @@
 package com.elyonut.wow.model
 
-import android.graphics.Color
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE
+import com.elyonut.wow.RiskStatus
 import com.mapbox.geojson.Feature
 
 
-
-class Threat() : Parcelable{
+class Threat() : Parcelable {
     var name: String = ""
     var description: String = ""
     var level: ThreatLevel = ThreatLevel.None
@@ -44,11 +43,9 @@ class Threat() : Parcelable{
         parcel.writeString(level.name)
         parcel.writeParcelable(location, PARCELABLE_WRITE_RETURN_VALUE)
         parcel.writeString(feature.toJson())
-        parcel.writeInt(if(isLos) 1 else 0)
+        parcel.writeInt(if (isLos) 1 else 0)
         parcel.writeDouble(azimuth)
     }
-
-
 
     override fun describeContents(): Int {
         return 0
@@ -64,13 +61,12 @@ class Threat() : Parcelable{
         }
 
         fun color(threat: Threat): Int {
-            return when(threat.level){
-                ThreatLevel.None -> Color.GREEN
-                ThreatLevel.Low -> Color.YELLOW
-                ThreatLevel.Medium -> Color.parseColor("#f5ad42")
-                ThreatLevel.High -> Color.RED
+            return when (threat.level) {
+                ThreatLevel.None -> RiskStatus.NONE.color
+                ThreatLevel.Low -> RiskStatus.LOW.color
+                ThreatLevel.Medium -> RiskStatus.MEDIUM.color
+                ThreatLevel.High -> RiskStatus.HIGH.color
             }
         }
     }
-
 }

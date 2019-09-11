@@ -8,7 +8,7 @@
             android:id="@+id/threat_level_color"
             android:layout_width="5dp"
             android:layout_height="40dp"
-            android:background="@color/sunflowerYellow"
+            android:background="@color/lowRisk"
             android:contentDescription="@string/threatlevelcolor"
             android:layout_marginStart="16dp"/>
 

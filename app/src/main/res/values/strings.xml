@@ -18,9 +18,9 @@
     <string name="buildings_layer">building</string>
     <string name="readMoreHebrew">קרא עוד</string>
     <string name="readLessHebrew">קרא פחות</string>
-    <string name="grey_status">אפור</string>
-    <string name="orange_status">כתום</string>
-    <string name="red_status">אדום</string>
+<!--    <string name="grey_status">אפור</string>-->
+<!--    <string name="orange_status">כתום</string>-->
+<!--    <string name="red_status">אדום</string>-->
     <string name="layers_item">שכבות</string>
     <string name="layer_name">שכבת איומים</string>
     <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
