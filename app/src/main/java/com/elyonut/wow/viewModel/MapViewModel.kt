@@ -35,11 +35,6 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
-// Constant values
-private const val DEFAULT_COLOR = Color.GRAY
-private const val LOW_HEIGHT_COLOR = Color.YELLOW
-private const val MIDDLE_HEIGHT_COLOR = Color.MAGENTA
-private const val HIGH_HEIGHT_COLOR = Color.RED
 private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
@@ -141,10 +136,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         (buildingLayer as FillExtrusionLayer).withProperties(
             PropertyFactory.fillExtrusionColor(
                 Expression.step(
-                    (Expression.get("height")), Expression.color(DEFAULT_COLOR),
-                    Expression.stop(3, Expression.color(LOW_HEIGHT_COLOR)),
-                    Expression.stop(10, Expression.color(MIDDLE_HEIGHT_COLOR)),
-                    Expression.stop(100, Expression.color(HIGH_HEIGHT_COLOR))
+                    (Expression.get("height")), Expression.color(RiskStatus.NONE.color),
+                    Expression.stop(3, Expression.color(RiskStatus.LOW.color)),
+                    Expression.stop(10, Expression.color(RiskStatus.MEDIUM.color)),
+                    Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
                 )
             ), PropertyFactory.fillExtrusionOpacity(0.5f)
         )

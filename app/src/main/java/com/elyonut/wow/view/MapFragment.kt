@@ -138,7 +138,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun changeStatus(status: RiskStatus) {
         (threatStatusView as Button).text = status.text
-        (threatStatusColorView as MaterialButton).backgroundTintList = ColorStateList(
+        (threatStatusColorView as Button).backgroundTintList = ColorStateList(
             arrayOf(
                 intArrayOf(android.R.attr.state_enabled)
             ), intArrayOf(status.color)
