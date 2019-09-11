@@ -7,6 +7,7 @@ import android.location.LocationManager
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.IAnalyze
 import com.elyonut.wow.ILocationManager
+import com.elyonut.wow.RiskStatus
 import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
 import java.lang.ref.WeakReference
@@ -15,7 +16,7 @@ import java.lang.ref.WeakReference
 private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
 private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
-class LocationAdapter(private var context: Context, var locationComponent: LocationComponent, var calculator: IAnalyze, var riskStatus: MutableLiveData<String>) :
+class LocationAdapter(private var context: Context, var locationComponent: LocationComponent, var calculator: IAnalyze, var riskStatus: MutableLiveData<RiskStatus>) :
     ILocationManager {
     private var lastUpdatedLocation: Location? = null
     private var locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -64,8 +65,9 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
             locationAdapterWeakReference.get()?.lastUpdatedLocation = location
 //            locationComponentWeakReference.get()?.forceLocationUpdate(location)
             locationAdapterWeakReference.get()?.locationComponent?.forceLocationUpdate(location)
-            locationAdapterWeakReference.get()?.riskStatus?.value = locationAdapterWeakReference.get()?.context!!.
-                getString(locationAdapterWeakReference.get()?.calculator?.calcThreatStatus(result.lastLocation!!)!!)
+//            locationAdapterWeakReference.get()?.riskStatus?.value = locationAdapterWeakReference.get()?.context!!.
+//                getString(locationAdapterWeakReference.get()?.calculator?.calcThreatStatus(result.lastLocation!!)!!)
+            locationAdapterWeakReference.get()?.riskStatus?.value = locationAdapterWeakReference.get()?.calculator?.calcThreatStatus(result.lastLocation!!)!!
         }
 
         override fun onFailure(exception: java.lang.Exception) {

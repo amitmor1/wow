@@ -3,5 +3,5 @@ package com.elyonut.wow
 import android.location.Location
 
 interface IAnalyze {
-    fun calcThreatStatus(location: Location): Int
+    fun calcThreatStatus(location: Location): RiskStatus
 }

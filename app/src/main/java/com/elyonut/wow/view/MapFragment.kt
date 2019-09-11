@@ -3,6 +3,8 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.content.res.Resources
 import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
@@ -35,11 +37,14 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.MenuItem
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
+import com.google.android.material.button.MaterialButton
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -51,6 +56,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private lateinit var mapViewModel: MapViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var threatStatusView: View
+    private lateinit var threatStatusColorView: View
     private var listenerMap: OnMapFragmentInteractionListener? = null
 
 
@@ -68,6 +74,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         initObservers()
         threatStatusView = view.findViewById(R.id.status)
+        threatStatusColorView = view.findViewById(R.id.statusColor)
         mapView = view.findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
@@ -90,7 +97,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         })
         mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
-        mapViewModel.threatStatus.observe(this, Observer<String> { changeStatus(it) })
+        mapViewModel.threatStatus.observe(this, Observer<RiskStatus> { changeStatus(it) })
 
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             sharedViewModel.selectedLayerId.value?.let { mapViewModel.layerSelected(it) }
@@ -129,8 +136,13 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
-    private fun changeStatus(status: String?) {
-        (threatStatusView as Button).text = status
+    private fun changeStatus(status: RiskStatus) {
+        (threatStatusView as Button).text = status.text
+        (threatStatusColorView as MaterialButton).backgroundTintList = ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_enabled)
+            ), intArrayOf(status.color)
+        )
     }
 
     private fun showDescriptionFragment() {

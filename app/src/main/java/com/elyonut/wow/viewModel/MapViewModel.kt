@@ -58,7 +58,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
     var noPermissionsToast = MutableLiveData<Toast>()
-    var threatStatus = MutableLiveData<String>()
+    var threatStatus = MutableLiveData<RiskStatus>()
     var threats = MutableLiveData<ArrayList<Threat>>()
     var threatFeatures = MutableLiveData<List<Feature>>()
 
@@ -188,10 +188,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         fillLayer.setProperties(
             PropertyFactory.fillColor(
                 Expression.step(
-                    (Expression.get(Constants.threatProperty)), Expression.color(DEFAULT_COLOR),
-                    Expression.stop(0, Expression.color(LOW_HEIGHT_COLOR)),
-                    Expression.stop(0.4, Expression.color(MIDDLE_HEIGHT_COLOR)),
-                    Expression.stop(0.7, Expression.color(HIGH_HEIGHT_COLOR))
+                    Expression.get(Constants.threatProperty),
+                    Expression.color(RiskStatus.NONE.color),
+                    Expression.stop(0, Expression.color(RiskStatus.LOW.color)),
+                    Expression.stop(0.4, Expression.color(RiskStatus.MEDIUM.color)),
+                    Expression.stop(0.7, Expression.color(RiskStatus.HIGH.color))
                 )
             ),
             PropertyFactory.fillOpacity(.4f),
