@@ -10,14 +10,14 @@ import androidx.lifecycle.MutableLiveData
 class DataCardViewModel(application: Application) : AndroidViewModel(application) {
 
     var isReadMoreButtonClicked = MutableLiveData<Boolean>()
-    var shouldCloseButton = MutableLiveData<Boolean>()
+    var shouldCloseCard = MutableLiveData<Boolean>()
 
     fun readMoreButtonClicked(moreContentView: View) {
         isReadMoreButtonClicked.value = moreContentView.visibility == View.GONE
     }
 
-    fun closeButtonClicked() {
-        shouldCloseButton.value = true
+    fun close() {
+        shouldCloseCard.value = true
     }
 
     fun getRelativeLayoutParams(sizeRelativelyToScreen: Double): FrameLayout.LayoutParams {

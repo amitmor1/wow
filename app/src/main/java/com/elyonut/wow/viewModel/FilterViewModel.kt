@@ -1,6 +1,7 @@
 package com.elyonut.wow.viewModel
 
 import android.app.Application
+import android.view.animation.Transformation
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
@@ -58,6 +59,7 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
             } else if (propertyType.isSubclassOf(java.lang.String::class)) {
                 onNumberItemSelected(0)
                 isStringType.value = true
+
             }
         }
     }

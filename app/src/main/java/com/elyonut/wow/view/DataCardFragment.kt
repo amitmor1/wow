@@ -52,16 +52,15 @@ class DataCardFragment : Fragment() {
         builder.append(String.format("אזימוט: %.3f\n", threat.azimuth))
         builder.append(String.format("האם בקו ראיה: %s", if (threat.isLos) "כן" else "לא"))
         view.moreContent.text = builder.toString()
-        view.moreContent.visibility = View.VISIBLE
         view.buildingStateColor.background.setColorFilter(Threat.color(threat), PorterDuff.Mode.MULTIPLY)
     }
 
     private fun initObservers(view: View) {
-        dataCardViewModel.isReadMoreButtonClicked.observe(viewLifecycleOwner, Observer<Boolean> { updateView(view) })
-        dataCardViewModel.shouldCloseButton.observe(viewLifecycleOwner, Observer<Boolean> { closeCard() })
+        dataCardViewModel.isReadMoreButtonClicked.observe(viewLifecycleOwner, Observer<Boolean> { extendDataCard(view) })
+        dataCardViewModel.shouldCloseCard.observe(viewLifecycleOwner, Observer<Boolean> { closeCard() })
     }
 
-    private fun updateView(view: View) {
+    private fun extendDataCard(view: View) {
         if (dataCardViewModel.isReadMoreButtonClicked.value!!) {
             view.buildingDataCard.layoutParams =
                 dataCardViewModel.getRelativeLayoutParams(EXPENDED_CARD_SIZE_RELATION_TO_SCREEN)
@@ -92,13 +91,13 @@ class DataCardFragment : Fragment() {
 
     private fun initCloseCardByClickOnMap(view: View) {
         view.setOnClickListener {
-            dataCardViewModel.closeButtonClicked()
+            dataCardViewModel.close()
         }
     }
 
     private fun initCloseCardButton(view: View) {
         view.closeButton?.setOnClickListener {
-            dataCardViewModel.closeButtonClicked()
+            dataCardViewModel.close()
         }
     }
 
@@ -106,7 +105,7 @@ class DataCardFragment : Fragment() {
         view.buildingDataCard.setOnTouchListener(object : OnSwipeTouchListener(this@DataCardFragment.context!!) {
             override fun onSwipeRight() {
                 super.onSwipeRight()
-                dataCardViewModel.closeButtonClicked()
+                dataCardViewModel.close()
             }
         })
     }
