@@ -4,7 +4,7 @@ class Constants {
     companion object {
 //        const val trainsLayerId = "trains.geojson"
 //        const val threatLayerId = "buildingRisk"
-        const val threatLayerId = "buildingRisk"
+        const val threatLayerId = "construction"
         const val constructionLayerId = "construction"
         const val buildingsLayerId = "building"
         const val threatProperty = "risk"

@@ -162,7 +162,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
-        var threatLayer = loadedMapStyle.getLayer(Constants.constructionLayerId)
+        val threatLayer = loadedMapStyle.getLayer(Constants.constructionLayerId)
         (threatLayer as FillExtrusionLayer).withProperties(
             PropertyFactory.fillExtrusionOpacity(
                 opacity
@@ -365,7 +365,7 @@ class FilterHandler {
             type: String
         ) {
             val layer = style.getLayer(layerId)
-            (layer as FillLayer).setFilter(
+            (layer as FillExtrusionLayer).setFilter(
                 Expression.all(Expression.eq(Expression.get(propertyId), type))
             )
         }
@@ -377,7 +377,7 @@ class FilterHandler {
             value: Number
         ) {
             val layer = style.getLayer(layerId)
-            (layer as FillLayer).setFilter((Expression.eq(Expression.get(propertyId), value)))
+            (layer as FillExtrusionLayer).setFilter((Expression.eq(Expression.get(propertyId), value)))
         }
 
         fun filterLayerByNumericRange(
@@ -388,7 +388,7 @@ class FilterHandler {
             maxValue: Number
         ) {
             val layer = style.getLayer(layerId)
-            (layer as FillLayer).setFilter(
+            (layer as FillExtrusionLayer).setFilter(
                 Expression.all(
                     Expression.gte(
                         Expression.get(propertyId),
@@ -405,7 +405,7 @@ class FilterHandler {
             minValue: Number
         ) {
             val layer = style.getLayer(layerId)
-            (layer as FillLayer).setFilter(
+            (layer as FillExtrusionLayer).setFilter(
                 Expression.all(
                     Expression.gte(
                         Expression.get(propertyId),
@@ -422,7 +422,7 @@ class FilterHandler {
             maxValue: Number
         ) {
             val layer = style.getLayer(layerId)
-            (layer as FillLayer).setFilter(
+            (layer as FillExtrusionLayer).setFilter(
                 Expression.all(
                     Expression.lte(Expression.get(propertyId), maxValue)
                 )
@@ -431,7 +431,7 @@ class FilterHandler {
 
         fun removeFilter(style: Style, layerId: String) {
             val layer = style.getLayer(layerId)
-            (layer as FillLayer).setFilter(Expression.literal(true))
+            (layer as FillExtrusionLayer).setFilter(Expression.literal(true))
         }
     }
 }
