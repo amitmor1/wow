@@ -4,7 +4,6 @@ package com.elyonut.wow.view
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.content.res.Resources
 import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
@@ -37,14 +36,11 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.view.MenuItem
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
-import com.google.android.material.button.MaterialButton
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -72,12 +68,12 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         sharedViewModel =
             activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
-        initObservers()
         threatStatusView = view.findViewById(R.id.status)
         threatStatusColorView = view.findViewById(R.id.statusColor)
         mapView = view.findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
+        initObservers()
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
 
@@ -97,11 +93,14 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         })
         mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
-        mapViewModel.threatStatus.observe(this, Observer<RiskStatus> { changeStatus(it) })
 
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             sharedViewModel.selectedLayerId.value?.let { mapViewModel.layerSelected(it) }
         })
+
+        mapViewModel.isLocationAdapterInitialized.observe(
+            this,
+            Observer<Boolean> { observeRiskStatus(it) })
 
         sharedViewModel.selectedExperimentalOption.observe(
             this,
@@ -116,6 +115,12 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         sharedViewModel.shouldApplyFilter.observe(this,
             Observer<Boolean> { filter(it) }
         )
+    }
+
+    private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
+        if (isLocationAdapterInitialized)
+            mapViewModel.riskStatus?.observe(this, Observer<RiskStatus> { changeStatus(it) })
+
     }
 
     private fun filter(shouldApplyFilter: Boolean) {
@@ -255,7 +260,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         } else {
 
             val point = map.projection.toScreenLocation(latLng)
-            val features = map.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+            val features = map.queryRenderedFeatures(point, Constants.buildingsLayerId)
 
             if (features.size > 0) {
                 val selectedBuildingSource =
@@ -443,6 +448,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onDestroy() {
         super.onDestroy()
+        if (mapViewModel.riskStatus?.hasObservers()!!) { mapViewModel.riskStatus?.removeObservers(this) }
         mapViewModel.clean()
         map.removeOnMapClickListener(this)
         mapView.onDestroy()

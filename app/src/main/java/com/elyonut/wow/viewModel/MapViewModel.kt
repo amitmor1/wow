@@ -6,9 +6,9 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import com.elyonut.wow.*
+import com.elyonut.wow.R
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.Feature
 import com.elyonut.wow.analysis.ThreatAnalyzer
@@ -53,18 +53,20 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
     var noPermissionsToast = MutableLiveData<Toast>()
-    var threatStatus = MutableLiveData<RiskStatus>()
+    lateinit var riskStatus: LiveData<RiskStatus>
     var threats = MutableLiveData<ArrayList<Threat>>()
     var threatFeatures = MutableLiveData<List<Feature>>()
+    val isLocationAdapterInitialized = MutableLiveData<Boolean>()
 
     fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
         map.setStyle(getString(R.string.style_url)) { style ->
             locationSetUp(style)
 //            initOfflineMap(style)
-            setBuildingFilter(style)
+//            setBuildingFilter(style)
             setSelectedBuildingLayer(style)
             addRadiusLayer(style)
+            setThreatLayerOpacity(style, Constants.regularOpacity)
         }
     }
 
@@ -98,15 +100,29 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             LocationAdapter(
                 getApplication(),
                 map.locationComponent,
-                analyzer,
-                threatStatus
+                analyzer
             )
+
 
         if (!locationAdapter!!.isGpsEnabled()) {
             isAlertVisible.value = true
         }
 
         locationAdapter!!.startLocationService()
+        initRiskStatus(loadedMapStyle)
+
+    }
+
+    private fun initRiskStatus(loadedMapStyle: Style) {
+        riskStatus = locationAdapter!!.getRiskStatus()!!
+        isLocationAdapterInitialized.value = true
+        riskStatus.observeForever {
+            if (riskStatus.value == RiskStatus.HIGH  || riskStatus.value == RiskStatus.MEDIUM) {
+                setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
+            } else {
+                setThreatLayerOpacity(loadedMapStyle, Constants.regularOpacity)
+            }
+        }
     }
 
     @SuppressLint("ShowToast")
@@ -132,7 +148,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setBuildingFilter(loadedMapStyle: Style) {
-        val buildingLayer = loadedMapStyle.getLayer(getString(R.string.buildings_layer))
+        val buildingLayer = loadedMapStyle.getLayer(Constants.buildingsLayerId)
         (buildingLayer as FillExtrusionLayer).withProperties(
             PropertyFactory.fillExtrusionColor(
                 Expression.step(
@@ -142,6 +158,15 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                     Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
                 )
             ), PropertyFactory.fillExtrusionOpacity(0.5f)
+        )
+    }
+
+    private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
+        var threatLayer = loadedMapStyle.getLayer(Constants.constructionLayerId)
+        (threatLayer as FillExtrusionLayer).withProperties(
+            PropertyFactory.fillExtrusionOpacity(
+                opacity
+            )
         )
     }
 
@@ -194,7 +219,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             visibility(NONE)
         )
 
-        loadedStyle.addLayerBelow(fillLayer, getString(R.string.buildings_layer))
+        loadedStyle.addLayerBelow(fillLayer, Constants.buildingsLayerId)
     }
 
     fun showRadiusLayerButtonClicked(layerId: String) {

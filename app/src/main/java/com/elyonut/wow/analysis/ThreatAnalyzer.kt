@@ -2,6 +2,7 @@ package com.elyonut.wow.analysis
 
 import android.graphics.RectF
 import com.elyonut.wow.App
+import com.elyonut.wow.Constants
 import com.elyonut.wow.R
 import com.elyonut.wow.model.*
 import com.mapbox.geojson.Feature
@@ -93,7 +94,7 @@ class ThreatAnalyzer(private var mapView: MapView, private var mapboxMap: Mapbox
             mapView.bottom.toFloat()
         )
 
-        val features = mapboxMap.queryRenderedFeatures(rectF, App.resourses.getString(R.string.buildings_layer))
+        val features = mapboxMap.queryRenderedFeatures(rectF, Constants.buildingsLayerId)
         //val uniqueFeatures = features.distinctBy { it.id() }
         return features
 
