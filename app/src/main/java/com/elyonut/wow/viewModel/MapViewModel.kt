@@ -16,9 +16,11 @@ import com.elyonut.wow.analysis.TopographyService
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
+import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -26,6 +28,7 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.offline.*
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
 import com.mapbox.mapboxsdk.style.layers.FillLayer
@@ -34,6 +37,7 @@ import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import org.json.JSONObject
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -57,12 +61,17 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var threats = MutableLiveData<ArrayList<Threat>>()
     var threatFeatures = MutableLiveData<List<Feature>>()
     val isLocationAdapterInitialized = MutableLiveData<Boolean>()
+    private val logger: ILogger = TimberLogAdapter()
+
+    init {
+        logger.initLogger()
+    }
 
     fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
         map.setStyle(getString(R.string.style_url)) { style ->
             locationSetUp(style)
-//            initOfflineMap(style)
+            initOfflineMap(style)
 //            setBuildingFilter(style)
             setSelectedBuildingLayer(style)
             addRadiusLayer(style)
@@ -117,7 +126,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         riskStatus = locationAdapter!!.getRiskStatus()!!
         isLocationAdapterInitialized.value = true
         riskStatus.observeForever {
-            if (riskStatus.value == RiskStatus.HIGH  || riskStatus.value == RiskStatus.MEDIUM) {
+            if (riskStatus.value == RiskStatus.HIGH || riskStatus.value == RiskStatus.MEDIUM) {
                 setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
             } else {
                 setThreatLayerOpacity(loadedMapStyle, Constants.regularOpacity)
@@ -349,11 +358,101 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val currentLocation = LatLng(location!!.latitude, location.longitude)
         val topographyService = TopographyService(map)
         val isLOS = topographyService.isLOS(currentLocation, building)
-
         val ta = ThreatAnalyzer(mapView, map)
 
         return ta.featureToThreat(building, currentLocation, isLOS)
     }
+
+    private fun initOfflineMap(loadedMapStyle: Style) {
+
+        val offlineManager = OfflineManager.getInstance(getApplication())
+        val definition = getDefinition(loadedMapStyle)
+        val metadata = getMetadata()
+        val callback = getOfflineRegionCallback()
+
+        if (metadata != null) {
+            offlineManager.createOfflineRegion(
+                definition,
+                metadata,
+                callback
+            )
+        }
+    }
+
+    private fun getOfflineRegionCallback(): OfflineManager.CreateOfflineRegionCallback {
+
+        return object : OfflineManager.CreateOfflineRegionCallback {
+            override fun onCreate(offlineRegion: OfflineRegion?) {
+                offlineRegion?.setDownloadState(OfflineRegion.STATE_ACTIVE)
+                offlineRegion?.setObserver(getObserver())
+            }
+
+            override fun onError(error: String?) {
+                error?.let { logger.error(it) }
+            }
+        }
+    }
+
+    private fun getObserver(): OfflineRegion.OfflineRegionObserver {
+
+        return object : OfflineRegion.OfflineRegionObserver {
+            override fun onStatusChanged(status: OfflineRegionStatus) {
+                val percentage = if (status.requiredResourceCount >= 0)
+                    100.0 * status.completedResourceCount / status.requiredResourceCount else 0.0
+
+                if (status.isComplete) {
+                    logger.debug("Region downloaded successfully.")
+                } else if (status.isRequiredResourceCountPrecise) {
+                    logger.debug(percentage.toString())
+                }
+            }
+
+            override fun onError(error: OfflineRegionError) {
+                logger.error("onError reason: " + error.reason)
+                logger.error("onError message: %s" + error.message)
+            }
+
+            override fun mapboxTileCountLimitExceeded(limit: Long) {
+                logger.error("Mapbox tile count limit exceeded: $limit")
+            }
+
+        }
+    }
+
+    private fun getDefinition(loadedMapStyle: Style): OfflineRegionDefinition {
+
+        // Create a bounding box for the offline region
+        val latLngBounds = LatLngBounds.Builder()
+            .include(LatLng(32.1826, 35.0110)) // Northeast
+            .include(LatLng(31.9291, 34.5808)) // Southwest
+            .build()
+
+        return OfflineTilePyramidRegionDefinition(
+            loadedMapStyle.url,
+            latLngBounds,
+            10.0,
+            20.0,
+            getApplication<Application>().resources.displayMetrics.density
+        )
+    }
+
+    private fun getMetadata(): ByteArray? {
+        var metadata: ByteArray? = null
+        try {
+            val jsonObject = JSONObject()
+            jsonObject.put(
+                getString(R.string.json_field_region_name),
+                getString(R.string.region_name)
+            )
+            val json = jsonObject.toString()
+            metadata = json.toByteArray(charset(getString(R.string.charset)))
+        } catch (exception: Exception) {
+            logger.error("Failed to encode metadata: " + exception.message)
+        } finally {
+            return metadata
+        }
+    }
+
 }
 
 class FilterHandler {
@@ -377,7 +476,12 @@ class FilterHandler {
             value: Number
         ) {
             val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter((Expression.eq(Expression.get(propertyId), value)))
+            (layer as FillExtrusionLayer).setFilter(
+                (Expression.eq(
+                    Expression.get(propertyId),
+                    value
+                ))
+            )
         }
 
         fun filterLayerByNumericRange(
@@ -435,3 +539,4 @@ class FilterHandler {
         }
     }
 }
+
