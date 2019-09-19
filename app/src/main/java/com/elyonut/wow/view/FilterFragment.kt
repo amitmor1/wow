@@ -147,7 +147,6 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun applyFilter(shouldApplyFilter: Boolean, view: View) {
         if (shouldApplyFilter) {
             if (!filterViewModel.isStringType.value!!) {
-//                sharedViewModel.numericTypeChosen = filterViewModel.numericTypeChosen.value!!
                 sharedViewModel.minValue = view.minNumericPicker.value
                 sharedViewModel.specificValue = view.specificNumericPicker.value / 10.0
 

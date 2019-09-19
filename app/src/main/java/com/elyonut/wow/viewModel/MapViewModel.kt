@@ -3,7 +3,6 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
@@ -318,7 +317,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun getString(stringName: Int): String {
-        return getApplication<Application>().getString(stringName)
+        return getApplication<Application>().getString(stringName)  // constants?
     }
 
     fun clean() {

@@ -15,8 +15,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-//import com.elyonut.wow.Constants
-//import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.MapViewModel
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -24,9 +22,6 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import android.widget.PopupMenu
-//import com.elyonut.wow.analysis.ThreatAnalyzer
-//import com.elyonut.wow.analysis.TopographyService
-//import com.elyonut.wow.model.Threat
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -520,8 +515,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onDestroy() {
         super.onDestroy()
-        if (mapViewModel.riskStatus?.hasObservers()!!) {
-            mapViewModel.riskStatus?.removeObservers(this)
+        if (mapViewModel.riskStatus.hasObservers()) {
+            mapViewModel.riskStatus.removeObservers(this)
         }
         mapViewModel.clean()
         map.removeOnMapClickListener(this)

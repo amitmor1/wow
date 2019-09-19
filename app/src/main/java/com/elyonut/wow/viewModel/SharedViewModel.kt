@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.model.Threat
-import com.mapbox.mapboxsdk.maps.Style
 
 class SharedViewModel(application: Application) : AndroidViewModel(application) {
     val selectedLayerId = MutableLiveData<String>()
