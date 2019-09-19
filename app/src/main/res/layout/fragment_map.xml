@@ -1,96 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mapFragmentParentLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
->
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mainMapLayout"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/mapFragmentParentLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.MainMapFragment">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mainMapLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".view.MainMapFragment">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/status"
-            android:layout_width="171dp"
-            android:layout_height="43dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="16dp"
-            android:layout_weight="1"
-            android:backgroundTint="#ECEBEB"
-            android:clickable="false"
-            android:textColor="@android:color/background_dark"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/mainMapView" />
+                android:id="@+id/status"
+                android:layout_width="171dp"
+                android:layout_height="43dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_weight="1"
+                android:backgroundTint="#ECEBEB"
+                android:clickable="false"
+                android:textColor="@android:color/background_dark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/mainMapView" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/statusColor"
-            android:layout_width="22dp"
-            android:layout_height="42dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="false"
-            android:textColor="#00000000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/status" />
+                android:id="@+id/statusColor"
+                android:layout_width="22dp"
+                android:layout_height="42dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="false"
+                android:textColor="#00000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/status" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/currentLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_my_location_black"
-            app:backgroundTint="@color/color_gray"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
+                android:id="@+id/currentLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/ic_my_location_black"
+                app:backgroundTint="@color/color_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/radiusLayer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:src="@drawable/ic_layers_black"
-            app:backgroundTint="#4d79ff"
-            app:layout_constraintBottom_toTopOf="@+id/currentLocation"
-            app:layout_constraintEnd_toEndOf="@+id/mainMapView"
-            tools:backgroundTint="#4d79ff" />
+                android:id="@+id/radiusLayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:src="@drawable/ic_layers_black"
+                app:backgroundTint="#4d79ff"
+                app:layout_constraintBottom_toTopOf="@+id/currentLocation"
+                app:layout_constraintEnd_toEndOf="@+id/mainMapView"
+                tools:backgroundTint="#4d79ff" />
 
         <com.mapbox.mapboxsdk.maps.MapView
-            android:id="@+id/mainMapView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            mapbox:mapbox_cameraTargetLat="32.078899"
-            mapbox:mapbox_cameraTargetLng="34.794590"
-            mapbox:mapbox_cameraZoom="12" />
+                android:id="@+id/mainMapView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                mapbox:mapbox_cameraTargetLat="32.078899"
+                mapbox:mapbox_cameraTargetLng="34.794590"
+                mapbox:mapbox_cameraZoom="12" />
 
         <LinearLayout
-            android:id="@+id/fragmentParent"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="parent" />
+                android:background="#ff0000"
+                android:id="@+id/choose_area_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:orientation="horizontal"/>
+
+<!--        <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                android:orientation="horizontal">-->
+
+<!--            <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal"-->
+<!--                    android:background="#00ff00"-->
+<!--                    app:layout_constraintBottom_toBottomOf="parent">-->
+
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/cancel_area"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:layout_margin="5dp"-->
+<!--                        android:text="ביטול" />-->
+
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/apply_area"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:layout_toLeftOf="@+id/cancel_area"-->
+<!--                        android:layout_margin="5dp"-->
+<!--                        android:text="אישור" />-->
+<!--            </LinearLayout>-->
+<!--        </LinearLayout>-->
+
+        <LinearLayout
+                android:id="@+id/fragmentParent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="parent"/>
 
         <FrameLayout
-            android:id="@+id/threat_list_fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                android:id="@+id/threat_list_fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        <!--        <LinearLayout-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="match_parent"-->
+        <!--                android:layoutDirection="rtl"-->
+        <!--                android:clickable="true"-->
+        <!--                android:focusable="true"-->
+        <!--                android:orientation="horizontal"-->
+        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--                app:layout_constraintEnd_toEndOf="@+id/mainMapView" >-->
+
+
+        <!--            <com.google.android.material.button.MaterialButton-->
+        <!--                    android:id="@+id/cancel_area"-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_weight="1"-->
+        <!--                    android:layout_margin="5dp"-->
+        <!--                    android:text="ביטול" />-->
+
+        <!--            <com.google.android.material.button.MaterialButton-->
+        <!--                    android:id="@+id/apply_area"-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:layout_weight="1"-->
+        <!--                    android:layout_toLeftOf="@+id/cancel_area"-->
+        <!--                    android:layout_margin="5dp"-->
+        <!--                    android:text="אישור" />-->
+        <!--        </LinearLayout>-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

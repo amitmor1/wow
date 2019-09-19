@@ -11,8 +11,18 @@
     </item>
     <item
         android:id="@+id/filterButton"
-        android:title="filter" />
-    <!--    android:onClick="filterClicked"-->
+            android:title="filter" >
+    </item>
+    <item android:id="@+id/settings" android:title="הגדרות">
+        <menu>
+            <group>
+                <item android:id="@+id/define_area" android:title="הגדר תחום התעניינות">
+
+                </item>
+            </group>
+        </menu>
+
+    </item>
     <item android:title="Experiments">
         <menu>
             <group android:id="@+id/nav_experiments">

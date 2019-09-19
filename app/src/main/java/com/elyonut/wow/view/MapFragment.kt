@@ -37,10 +37,15 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.view.MenuItem
+import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
+import kotlinx.android.synthetic.main.area_selection.view.*
+import kotlinx.android.synthetic.main.fragment_map.view.*
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -73,14 +78,14 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapView = view.findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
-        initObservers()
+        initObservers(view)
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
 
         return view
     }
 
-    private fun initObservers() {
+    private fun initObservers(view: View) {
         mapViewModel.selectedBuildingId.observe(
             this,
             Observer<String> { showDescriptionFragment() }
@@ -115,6 +120,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         sharedViewModel.shouldApplyFilter.observe(this,
             Observer<Boolean> { filter(it) }
         )
+
+        sharedViewModel.shouldDefineArea.observe(this, Observer {
+            enableAreaSelection(view ,it)
+        })
     }
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
@@ -312,6 +321,29 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun enableAreaSelection(view: View ,shouldEnable: Boolean) {
+        var layout = view.mainMapLayout
+        var currentLocationButton = view.currentLocation
+        var radiusLayerButton = view.radiusLayer
+        if (shouldEnable) {
+
+            var child = layoutInflater.inflate(R.layout.area_selection, layout)
+            val c = ConstraintSet()
+            c.clone(child as ConstraintLayout)
+            c.connect(R.id.currentLocation,ConstraintSet.BOTTOM, child.area.id,ConstraintSet.TOP)
+            c.applyTo(child)
+//            currentLocationButton.isEnabled= false
+            radiusLayerButton.isClickable = false
+            currentLocationButton.isClickable = false
+            radiusLayerButton.alpha = 0.5f
+            currentLocationButton.alpha = 0.5f
+
+        } else {
+            layout.removeAllViews()
+        }
+
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {

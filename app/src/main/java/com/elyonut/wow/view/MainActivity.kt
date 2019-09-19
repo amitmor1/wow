@@ -66,6 +66,10 @@ class MainActivity : AppCompatActivity(),
                 filterButtonClicked()
             }
         })
+
+        mainViewModel.shouldDefineArea.observe(this, Observer {
+            sharedViewModel.shouldDefineArea.value = it
+        })
     }
 
     private fun filterButtonClicked() {

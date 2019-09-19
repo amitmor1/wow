@@ -20,6 +20,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val shouldApplyFilter = MutableLiveData<Boolean>()
     var isStringType: Boolean = false
     lateinit var numericType: NumericFilterTypes
+    var shouldDefineArea = MutableLiveData<Boolean>()
 
     fun selectLayer(layerId: String) {
         selectedLayerId.value = layerId
