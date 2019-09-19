@@ -117,7 +117,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         riskStatus = locationAdapter!!.getRiskStatus()!!
         isLocationAdapterInitialized.value = true
         riskStatus.observeForever {
-            if (riskStatus.value == RiskStatus.HIGH  || riskStatus.value == RiskStatus.MEDIUM) {
+            if (riskStatus.value == RiskStatus.HIGH || riskStatus.value == RiskStatus.MEDIUM) {
                 setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
             } else {
                 setThreatLayerOpacity(loadedMapStyle, Constants.regularOpacity)
@@ -377,7 +377,12 @@ class FilterHandler {
             value: Number
         ) {
             val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter((Expression.eq(Expression.get(propertyId), value)))
+            (layer as FillExtrusionLayer).setFilter(
+                (Expression.eq(
+                    Expression.get(propertyId),
+                    value
+                ))
+            )
         }
 
         fun filterLayerByNumericRange(

@@ -34,7 +34,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             item.groupId == R.id.nav_experiments ->
                 this.selectedExperimentalOption.value = item.itemId
             item.itemId == R.id.define_area -> {
-                shouldDefineArea.value = true
+                if (shouldDefineArea.value == null || !shouldDefineArea.value!!) {
+                    shouldDefineArea.value = true
+                }
             }
         }
 

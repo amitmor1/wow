@@ -78,51 +78,51 @@
                 mapbox:mapbox_cameraZoom="12" />
 
         <LinearLayout
-                android:background="#ff0000"
                 android:id="@+id/choose_area_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:orientation="horizontal"/>
+                android:background="#ff0000"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-<!--        <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                android:orientation="horizontal">-->
+        <!--        <LinearLayout-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--                android:orientation="horizontal">-->
 
-<!--            <LinearLayout-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="horizontal"-->
-<!--                    android:background="#00ff00"-->
-<!--                    app:layout_constraintBottom_toBottomOf="parent">-->
+        <!--            <LinearLayout-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="wrap_content"-->
+        <!--                    android:orientation="horizontal"-->
+        <!--                    android:background="#00ff00"-->
+        <!--                    app:layout_constraintBottom_toBottomOf="parent">-->
 
-<!--                <com.google.android.material.button.MaterialButton-->
-<!--                        android:id="@+id/cancel_area"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_weight="1"-->
-<!--                        android:layout_margin="5dp"-->
-<!--                        android:text="ביטול" />-->
+        <!--                <com.google.android.material.button.MaterialButton-->
+        <!--                        android:id="@+id/cancel_area"-->
+        <!--                        android:layout_width="match_parent"-->
+        <!--                        android:layout_height="wrap_content"-->
+        <!--                        android:layout_weight="1"-->
+        <!--                        android:layout_margin="5dp"-->
+        <!--                        android:text="ביטול" />-->
 
-<!--                <com.google.android.material.button.MaterialButton-->
-<!--                        android:id="@+id/apply_area"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_weight="1"-->
-<!--                        android:layout_toLeftOf="@+id/cancel_area"-->
-<!--                        android:layout_margin="5dp"-->
-<!--                        android:text="אישור" />-->
-<!--            </LinearLayout>-->
-<!--        </LinearLayout>-->
+        <!--                <com.google.android.material.button.MaterialButton-->
+        <!--                        android:id="@+id/apply_area"-->
+        <!--                        android:layout_width="match_parent"-->
+        <!--                        android:layout_height="wrap_content"-->
+        <!--                        android:layout_weight="1"-->
+        <!--                        android:layout_toLeftOf="@+id/cancel_area"-->
+        <!--                        android:layout_margin="5dp"-->
+        <!--                        android:text="אישור" />-->
+        <!--            </LinearLayout>-->
+        <!--        </LinearLayout>-->
 
         <LinearLayout
                 android:id="@+id/fragmentParent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="parent"/>
+                app:layout_constraintTop_toBottomOf="parent" />
 
         <FrameLayout
                 android:id="@+id/threat_list_fragment_container"

@@ -37,7 +37,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.view.MenuItem
-import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.ViewModelProviders
@@ -122,14 +121,15 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         )
 
         sharedViewModel.shouldDefineArea.observe(this, Observer {
-            enableAreaSelection(view ,it)
+            if (it) {
+                enableAreaSelection(view, it)
+            }
         })
     }
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized)
             mapViewModel.riskStatus?.observe(this, Observer<RiskStatus> { changeStatus(it) })
-
     }
 
     private fun filter(shouldApplyFilter: Boolean) {
@@ -323,25 +323,33 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
-    private fun enableAreaSelection(view: View ,shouldEnable: Boolean) {
-        var layout = view.mainMapLayout
-        var currentLocationButton = view.currentLocation
-        var radiusLayerButton = view.radiusLayer
-        if (shouldEnable) {
+    private fun enableAreaSelection(view: View, shouldEnable: Boolean) {
+        val mainMapLayoutView = view.mainMapLayout
+        val currentLocationButton = view.currentLocation
+        val radiusLayerButton = view.radiusLayer
 
-            var child = layoutInflater.inflate(R.layout.area_selection, layout)
-            val c = ConstraintSet()
-            c.clone(child as ConstraintLayout)
-            c.connect(R.id.currentLocation,ConstraintSet.BOTTOM, child.area.id,ConstraintSet.TOP)
-            c.applyTo(child)
-//            currentLocationButton.isEnabled= false
+        if (shouldEnable) {
+            layoutInflater.inflate(R.layout.area_selection, mainMapLayoutView)
+
+            val constraintSet = ConstraintSet()
+            constraintSet.apply {
+                clone(mainMapLayoutView as ConstraintLayout)
+                connect(
+                    currentLocationButton.id,
+                    ConstraintSet.BOTTOM,
+                    mainMapLayoutView.area.id,
+                    ConstraintSet.TOP
+                )
+                applyTo(mainMapLayoutView)
+            }
+
             radiusLayerButton.isClickable = false
-            currentLocationButton.isClickable = false
             radiusLayerButton.alpha = 0.5f
+            currentLocationButton.isClickable = false
             currentLocationButton.alpha = 0.5f
 
         } else {
-            layout.removeAllViews()
+            mainMapLayoutView.removeAllViews()
         }
 
     }
@@ -480,7 +488,9 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onDestroy() {
         super.onDestroy()
-        if (mapViewModel.riskStatus?.hasObservers()!!) { mapViewModel.riskStatus?.removeObservers(this) }
+        if (mapViewModel.riskStatus?.hasObservers()!!) {
+            mapViewModel.riskStatus?.removeObservers(this)
+        }
         mapViewModel.clean()
         map.removeOnMapClickListener(this)
         mapView.onDestroy()
