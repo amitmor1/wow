@@ -70,20 +70,24 @@ class MainActivity : AppCompatActivity(),
         })
 
         mainViewModel.shouldDefineArea.observe(this, Observer {
-            sharedViewModel.shouldDefineArea.value = it
+            if (it) {
+                sharedViewModel.shouldDefineArea.value = it
+            }
         })
 
         sharedViewModel.shouldDefineArea.observe(this, Observer {
-
+            if (!it) {
+                mainViewModel.shouldDefineArea.value = it
+            }
         })
     }
 
     private fun filterButtonClicked() {
-        val blankFragment = FilterFragment.newInstance()
+        val filterFragment = FilterFragment.newInstance()
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.apply {
-            add(R.id.fragmentMenuParent, blankFragment).commit()
-            addToBackStack(blankFragment.javaClass.simpleName)
+            add(R.id.fragmentMenuParent, filterFragment).commit()
+            addToBackStack(filterFragment.javaClass.simpleName)
         }
     }
 
@@ -92,7 +96,7 @@ class MainActivity : AppCompatActivity(),
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.area_not_defined))
                 .setPositiveButton(getString(R.string.yes_hebrew)) { _, _ ->
-                    sharedViewModel.shouldDefineArea.value = true
+                    mainViewModel.shouldDefineArea.value = true
                 }.setNegativeButton(getString(R.string.no_thanks_hebrew)) { dialog, _ ->
                     dialog.cancel()
                 }.show()

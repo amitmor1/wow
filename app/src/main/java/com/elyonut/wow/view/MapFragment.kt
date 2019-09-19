@@ -217,20 +217,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
-    private fun initApplyAreaButton(view: View) {
-        val applyAreaButton: View = view.apply_area
-        applyAreaButton.setOnClickListener {
-            enableAreaSelection(view, false)
-        }
-    }
-
-    private fun initCancelAreaButton(view: View) {
-        val cancelButton: View = view.cancel_area
-        cancelButton.setOnClickListener {
-            enableAreaSelection(view, false)
-        }
-    }
-
     override fun onMapClick(latLng: LatLng): Boolean { // TODO UniqAi need to fix
 
         // return mapViewModel.onMapClick(map, latLng)
@@ -354,9 +340,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 applyTo(mainMapLayoutView)
             }
 
-            radiusLayerButton.isClickable = false
             radiusLayerButton.alpha = 0.5f
-            currentLocationButton.isClickable = false
             currentLocationButton.alpha = 0.5f
 
         } else {
@@ -372,13 +356,27 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 applyTo(mainMapLayoutView)
             }
 
-            radiusLayerButton.isClickable = true
             radiusLayerButton.alpha = 1f
-            currentLocationButton.isClickable = true
             currentLocationButton.alpha = 1f
             sharedViewModel.shouldDefineArea.value = false
         }
 
+        radiusLayerButton.isClickable = !shouldEnable
+        currentLocationButton.isClickable = !shouldEnable
+    }
+
+    private fun initApplyAreaButton(view: View) {
+        val applyAreaButton: View = view.apply_area
+        applyAreaButton.setOnClickListener {
+            enableAreaSelection(view, false)
+        }
+    }
+
+    private fun initCancelAreaButton(view: View) {
+        val cancelButton: View = view.cancel_area
+        cancelButton.setOnClickListener {
+            enableAreaSelection(view, false)
+        }
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
