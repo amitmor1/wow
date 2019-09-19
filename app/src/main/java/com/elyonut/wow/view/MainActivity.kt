@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(),
     private fun initObservers() {
         mainViewModel.chosenLayerId.observe(this, Observer<String> {
             mainViewModel.chosenLayerId.value?.let {
-                sharedViewModel.selectLayer(it)
+                sharedViewModel.selectedLayerId.value = it
             }
         })
 

@@ -3,7 +3,6 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
@@ -335,22 +334,19 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateThreats(mapView: MapView) {
-        val ta = ThreatAnalyzer(mapView, map)
         val location = locationAdapter?.getCurrentLocation()
         val currentLocation = LatLng(location!!.latitude, location.longitude)
-        threats.value = ta.getThreats(currentLocation)
+        threats.value = ThreatAnalyzer(mapView, map).getThreats(currentLocation)
     }
 
     fun updateThreatFeatures(mapView: MapView) {
-        val ta = ThreatAnalyzer(mapView, map)
         val location = locationAdapter?.getCurrentLocation()
         val currentLocation = LatLng(location!!.latitude, location.longitude)
-        threatFeatures.value = ta.getThreatFeatures(currentLocation)
+        threatFeatures.value = ThreatAnalyzer(mapView, map).getThreatFeatures(currentLocation)
     }
 
     fun updateThreatFeatures(mapView: MapView, latLng: LatLng) {
-        val ta = ThreatAnalyzer(mapView, map)
-        threatFeatures.value = ta.getThreatFeatures(latLng)
+        threatFeatures.value = ThreatAnalyzer(mapView, map).getThreatFeatures(latLng)
     }
 
     fun buildingThreatToCurrentLocation(mapView: MapView, building: Feature): Threat {
@@ -358,13 +354,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val currentLocation = LatLng(location!!.latitude, location.longitude)
         val topographyService = TopographyService(map)
         val isLOS = topographyService.isLOS(currentLocation, building)
-        val ta = ThreatAnalyzer(mapView, map)
 
-        return ta.featureToThreat(building, currentLocation, isLOS)
+        return ThreatAnalyzer(mapView, map).featureToThreat(building, currentLocation, isLOS)
     }
 
     private fun initOfflineMap(loadedMapStyle: Style) {
-
         val offlineManager = OfflineManager.getInstance(getApplication())
         val definition = getDefinition(loadedMapStyle)
         val metadata = getMetadata()

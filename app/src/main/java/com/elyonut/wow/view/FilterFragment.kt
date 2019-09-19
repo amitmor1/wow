@@ -160,7 +160,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         }
 
-        sharedViewModel.applyFilter(shouldApplyFilter)
+        sharedViewModel.shouldApplyFilter.value = shouldApplyFilter
     }
 
     private fun initOkButton(view: View) {

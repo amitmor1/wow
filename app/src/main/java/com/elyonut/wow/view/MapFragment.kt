@@ -119,7 +119,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized)
-            mapViewModel.riskStatus?.observe(this, Observer<RiskStatus> { changeStatus(it) })
+            mapViewModel.riskStatus.observe(this, Observer<RiskStatus> { changeStatus(it) })
 
     }
 
