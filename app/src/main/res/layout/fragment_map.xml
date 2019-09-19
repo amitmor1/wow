@@ -78,46 +78,6 @@
                 mapbox:mapbox_cameraZoom="12" />
 
         <LinearLayout
-                android:id="@+id/choose_area_mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#ff0000"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-        <!--        <LinearLayout-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                android:orientation="horizontal">-->
-
-        <!--            <LinearLayout-->
-        <!--                    android:layout_width="match_parent"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    android:orientation="horizontal"-->
-        <!--                    android:background="#00ff00"-->
-        <!--                    app:layout_constraintBottom_toBottomOf="parent">-->
-
-        <!--                <com.google.android.material.button.MaterialButton-->
-        <!--                        android:id="@+id/cancel_area"-->
-        <!--                        android:layout_width="match_parent"-->
-        <!--                        android:layout_height="wrap_content"-->
-        <!--                        android:layout_weight="1"-->
-        <!--                        android:layout_margin="5dp"-->
-        <!--                        android:text="ביטול" />-->
-
-        <!--                <com.google.android.material.button.MaterialButton-->
-        <!--                        android:id="@+id/apply_area"-->
-        <!--                        android:layout_width="match_parent"-->
-        <!--                        android:layout_height="wrap_content"-->
-        <!--                        android:layout_weight="1"-->
-        <!--                        android:layout_toLeftOf="@+id/cancel_area"-->
-        <!--                        android:layout_margin="5dp"-->
-        <!--                        android:text="אישור" />-->
-        <!--            </LinearLayout>-->
-        <!--        </LinearLayout>-->
-
-        <LinearLayout
                 android:id="@+id/fragmentParent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -130,36 +90,6 @@
                 android:layout_height="match_parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-
-        <!--        <LinearLayout-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="match_parent"-->
-        <!--                android:layoutDirection="rtl"-->
-        <!--                android:clickable="true"-->
-        <!--                android:focusable="true"-->
-        <!--                android:orientation="horizontal"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintEnd_toEndOf="@+id/mainMapView" >-->
-
-
-        <!--            <com.google.android.material.button.MaterialButton-->
-        <!--                    android:id="@+id/cancel_area"-->
-        <!--                    android:layout_width="match_parent"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    android:layout_weight="1"-->
-        <!--                    android:layout_margin="5dp"-->
-        <!--                    android:text="ביטול" />-->
-
-        <!--            <com.google.android.material.button.MaterialButton-->
-        <!--                    android:id="@+id/apply_area"-->
-        <!--                    android:layout_width="match_parent"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    android:layout_weight="1"-->
-        <!--                    android:layout_toLeftOf="@+id/cancel_area"-->
-        <!--                    android:layout_margin="5dp"-->
-        <!--                    android:text="אישור" />-->
-        <!--        </LinearLayout>-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

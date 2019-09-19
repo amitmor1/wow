@@ -43,6 +43,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
+import kotlinx.android.synthetic.main.area_selection.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
 private const val RECORD_REQUEST_CODE = 101
@@ -57,7 +58,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private lateinit var threatStatusView: View
     private lateinit var threatStatusColorView: View
     private var listenerMap: OnMapFragmentInteractionListener? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -222,6 +222,20 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
+    private fun initApplyAreaButton(view: View) {
+        val applyAreaButton: View = view.apply_area
+        applyAreaButton.setOnClickListener {
+            enableAreaSelection(view, false)
+        }
+    }
+
+    private fun initCancelAreaButton(view: View) {
+        val cancelButton: View = view.cancel_area
+        cancelButton.setOnClickListener {
+            enableAreaSelection(view, false)
+        }
+    }
+
     override fun onMapClick(latLng: LatLng): Boolean { // TODO UniqAi need to fix
 
         // return mapViewModel.onMapClick(map, latLng)
@@ -327,17 +341,19 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         val mainMapLayoutView = view.mainMapLayout
         val currentLocationButton = view.currentLocation
         val radiusLayerButton = view.radiusLayer
+        val constraintSet = ConstraintSet()
 
         if (shouldEnable) {
             layoutInflater.inflate(R.layout.area_selection, mainMapLayoutView)
+            initCancelAreaButton(view)
+            initApplyAreaButton(view)
 
-            val constraintSet = ConstraintSet()
             constraintSet.apply {
                 clone(mainMapLayoutView as ConstraintLayout)
                 connect(
                     currentLocationButton.id,
                     ConstraintSet.BOTTOM,
-                    R.id.area,
+                    R.id.area_mode,
                     ConstraintSet.TOP
                 )
                 applyTo(mainMapLayoutView)
@@ -349,7 +365,23 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             currentLocationButton.alpha = 0.5f
 
         } else {
-            mainMapLayoutView.removeAllViews()
+            mainMapLayoutView.removeView(view.findViewById(R.id.area_mode))
+            constraintSet.apply {
+                clone(mainMapLayoutView as ConstraintLayout)
+                connect(
+                    currentLocationButton.id,
+                    ConstraintSet.BOTTOM,
+                    mainMapLayoutView.id,
+                    ConstraintSet.BOTTOM
+                )
+                applyTo(mainMapLayoutView)
+            }
+
+            radiusLayerButton.isClickable = true
+            radiusLayerButton.alpha = 1f
+            currentLocationButton.isClickable = true
+            currentLocationButton.alpha = 1f
+            sharedViewModel.shouldDefineArea.value = false
         }
 
     }
