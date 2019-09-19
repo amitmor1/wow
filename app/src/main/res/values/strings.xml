@@ -29,4 +29,5 @@
     <string name="threats_on_map_with_location">איומים לפי מיקום</string>
     <string name="maxValueText">ערך מקסימלי:</string>
     <string name="minValueText">ערך מינימלי:</string>
+    <string name="area_not_defined">תחום עניין לא הוגדר, האם תרצה להגדיר כעת?</string>
 </resources>

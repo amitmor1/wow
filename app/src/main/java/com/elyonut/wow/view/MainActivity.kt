@@ -3,6 +3,7 @@ package com.elyonut.wow.view
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.CheckBox
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity(),
         sharedViewModel =
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
+        initArea()
         initObservers()
         initToolbar()
         initNavigationMenu()
@@ -78,6 +80,18 @@ class MainActivity : AppCompatActivity(),
         fragmentTransaction.apply {
             add(R.id.fragmentMenuParent, blankFragment).commit()
             addToBackStack(blankFragment.javaClass.simpleName)
+        }
+    }
+
+    private fun initArea() {
+        if (!sharedViewModel.isAreaDefined) {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.area_not_defined))
+                .setPositiveButton(getString(R.string.yes_hebrew)) { _, _ ->
+                    sharedViewModel.shouldDefineArea.value = true
+                }.setNegativeButton(getString(R.string.no_thanks_hebrew)) { dialog, _ ->
+                    dialog.cancel()
+                }.show()
         }
     }
 

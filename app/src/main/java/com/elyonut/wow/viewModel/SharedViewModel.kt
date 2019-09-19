@@ -21,6 +21,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var isStringType: Boolean = false
     lateinit var numericType: NumericFilterTypes
     var shouldDefineArea = MutableLiveData<Boolean>()
+    var isAreaDefined = false
 
     fun selectLayer(layerId: String) {
         selectedLayerId.value = layerId

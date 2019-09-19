@@ -43,7 +43,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
-import kotlinx.android.synthetic.main.area_selection.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
 private const val RECORD_REQUEST_CODE = 101
@@ -95,6 +94,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 requestPermissions1()
             }
         })
+
         mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
 
@@ -129,7 +129,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized)
-            mapViewModel.riskStatus?.observe(this, Observer<RiskStatus> { changeStatus(it) })
+            mapViewModel.riskStatus.observe(this, Observer<RiskStatus> { changeStatus(it) })
     }
 
     private fun filter(shouldApplyFilter: Boolean) {
@@ -337,7 +337,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 connect(
                     currentLocationButton.id,
                     ConstraintSet.BOTTOM,
-                    mainMapLayoutView.area.id,
+                    R.id.area,
                     ConstraintSet.TOP
                 )
                 applyTo(mainMapLayoutView)
