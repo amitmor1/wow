@@ -3,7 +3,6 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.provider.Settings
@@ -33,8 +32,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.view.MenuItem
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
@@ -73,7 +70,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initArea()
-        initObservers(view)
+        setObservers(view)
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
 
@@ -86,7 +83,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
-    private fun initObservers(view: View) {
+    private fun setObservers(view: View) {
         mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
         mapViewModel.areaOfInterest.observe(this, Observer { sharedViewModel.areaOfInterest = it })

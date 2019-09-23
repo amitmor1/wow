@@ -53,29 +53,26 @@ class MainActivity : AppCompatActivity(),
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
         initArea()
-        initObservers()
+        setObservers()
         initToolbar()
         initNavigationMenu()
     }
 
-    private fun initObservers() {
+    private fun setObservers() {
         mainViewModel.chosenLayerId.observe(this, Observer<String> {
             mainViewModel.chosenLayerId.value?.let {
                 sharedViewModel.selectLayer(it)
             }
         })
-
         mainViewModel.selectedExperimentalOption.observe(
             this,
             Observer { sharedViewModel.selectExperimentalOption(it) }
         )
-
         mainViewModel.filterSelected.observe(this, Observer {
             if (it) {
                 filterButtonClicked()
             }
         })
-
         mainViewModel.shouldDefineArea.observe(this, Observer {
             if (it) {
                 sharedViewModel.shouldDefineArea.value = it

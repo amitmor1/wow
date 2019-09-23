@@ -43,23 +43,19 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun setObservers(view: View) {
+        filterViewModel.numericTypeChosen.observe(this, Observer { numericTypeChosen(view, it) })
+        filterViewModel.shouldApplyFilter.observe(this, Observer { applyFilter(it, view) })
         filterViewModel.chosenLayerId.observe(this, Observer<String> {
             sharedViewModel.chosenLayerId = it
             initPropertiesSpinner(view, it)
         })
-
         filterViewModel.chosenProperty.observe(this, Observer<String> {
             filterViewModel.initOptionsList(it)
             sharedViewModel.chosenPropertyId = it
         })
-
         filterViewModel.isStringType.observe(this, Observer {
             propertyTypeChosen(view, it)
         })
-
-        filterViewModel.numericTypeChosen.observe(this, Observer { numericTypeChosen(view, it) })
-
-        filterViewModel.shouldApplyFilter.observe(this, Observer { applyFilter(it, view) })
     }
 
     private fun numericTypeChosen(view: View, numericFilterType: NumericFilterTypes) {

@@ -6,16 +6,17 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
-import com.elyonut.wow.R
-import com.elyonut.wow.transformer.MapboxTransformer
-import com.elyonut.wow.analysis.ThreatAnalyzer
-import com.elyonut.wow.analysis.TopographyService
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
+import com.elyonut.wow.analysis.ThreatAnalyzer
+import com.elyonut.wow.analysis.TopographyService
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -31,6 +32,7 @@ import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -58,11 +60,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var areaOfInterest = MutableLiveData<Polygon>()
     private var lineLayerPointList = ArrayList<Point>()
     private var circleLayerFeatureList = ArrayList<Feature>()
+    private var fillLayerPointList = ArrayList<Point>()
     private var listOfList = ArrayList<MutableList<Point>>()
     private lateinit var circleSource: GeoJsonSource
     private lateinit var lineSource: GeoJsonSource
+    private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
-
 
     fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
@@ -73,14 +76,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             setSelectedBuildingLayer(style)
             addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.regularOpacity)
-
-            // Add sources to the map
             circleSource = initCircleSource(style)
             lineSource = initLineSource(style)
-
-            // Add layers to the map
+            fillSource = initFillSource(style)
             initCircleLayer(style)
             initLineLayer(style)
+            initFillLayer(style)
         }
     }
 
@@ -362,19 +363,25 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
 
-        // Add the click point to the fill layer and update the display of the fill layer data
-//            if (circleLayerFeatureList.size < 3) {
-//                fillLayerPointList.add(mapTargetPoint)
-//            } else if (circleLayerFeatureList.size() == 3) {
-//                fillLayerPointList.add(mapTargetPoint)
-//                fillLayerPointList.add(firstPointOfPolygon)
-//            } else {
-//                fillLayerPointList.remove(fillLayerPointList.size() - 1)
-//                fillLayerPointList.add(mapTargetPoint);
-//                fillLayerPointList.add(firstPointOfPolygon)
-//            }
+//         Add the click point to the fill layer and update the display of the fill layer data
+        when {
+            circleLayerFeatureList.size < 3 -> fillLayerPointList.add(mapTargetPoint)
+            circleLayerFeatureList.size == 3 -> {
+                fillLayerPointList.add(mapTargetPoint)
+                fillLayerPointList.add(firstPointOfPolygon)
+            }
+            else -> {
+                fillLayerPointList.removeAt(fillLayerPointList.size - 1)
+                fillLayerPointList.add(mapTargetPoint);
+                fillLayerPointList.add(firstPointOfPolygon)
+            }
+        }
 
-        listOfList.add(lineLayerPointList)
+        listOfList.add(fillLayerPointList)
+        val finalFeatureList = ArrayList<Feature>()
+        finalFeatureList.add(Feature.fromGeometry(Polygon.fromLngLats(listOfList)))
+        val newFeatureCollection = FeatureCollection.fromFeatures(finalFeatureList)
+        fillSource.setGeoJson(newFeatureCollection)
     }
 
     fun saveAreaOfInterest() {
@@ -385,6 +392,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val circleFeatureCollection = FeatureCollection.fromFeatures(ArrayList<Feature>())
         val circleGeoJsonSource = GeoJsonSource(Constants.CIRCLE_SOURCE_ID, circleFeatureCollection)
         loadedMapStyle.addSource(circleGeoJsonSource)
+
         return circleGeoJsonSource
     }
 
@@ -392,7 +400,15 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val lineFeatureCollection = FeatureCollection.fromFeatures(ArrayList<Feature>())
         val lineGeoJsonSource = GeoJsonSource(Constants.LINE_SOURCE_ID, lineFeatureCollection)
         loadedMapStyle.addSource(lineGeoJsonSource)
+
         return lineGeoJsonSource
+    }
+
+    private fun initFillSource(loadedMapStyle: Style): GeoJsonSource {
+        val fillFeatureCollection = FeatureCollection.fromFeatures(ArrayList<Feature>())
+        val fillGeoJsonSource = GeoJsonSource("fillSource", fillFeatureCollection)
+        loadedMapStyle.addSource(fillGeoJsonSource)
+        return fillGeoJsonSource
     }
 
     private fun initCircleLayer(loadedMapStyle: Style) {
@@ -417,6 +433,18 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             lineWidth(5f)
         )
         loadedMapStyle.addLayerBelow(lineLayer, Constants.CIRCLE_LAYER_ID)
+    }
+
+    private fun initFillLayer(style: Style) {
+        val fillLayer = FillLayer(
+            "fillLayer",
+            "fillSource"
+        )
+        fillLayer.setProperties(
+            fillOpacity(.6f),
+            fillColor(Color.parseColor("#00e9ff"))
+        )
+        style.addLayerBelow(fillLayer, Constants.LINE_LAYER_ID)
     }
 
     fun focusOnMyLocationClicked() {
