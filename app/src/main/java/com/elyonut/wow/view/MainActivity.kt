@@ -1,5 +1,7 @@
 package com.elyonut.wow.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.CheckBox
@@ -20,6 +22,8 @@ import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.Gson
+import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
 
 class MainActivity : AppCompatActivity(),
@@ -32,9 +36,12 @@ class MainActivity : AppCompatActivity(),
     private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private val logger: ILogger = TimberLogAdapter()
+    private lateinit var sharedPreferences: SharedPreferences
+    private val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPreferences = getSharedPreferences("com.elyonut.wow.prefs", Context.MODE_PRIVATE)
         Mapbox.getInstance(applicationContext, Constants.MAPBOX_ACCESS_TOKEN)
         setContentView(R.layout.activity_main)
         logger.initLogger()
@@ -92,7 +99,11 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initArea() {
-        if (!sharedViewModel.isAreaDefined) {
+        val areaOfInterestJson = sharedPreferences.getString(Constants.AREA_OF_INTEREST_KEY, "")
+        if (areaOfInterestJson != "") {
+            sharedViewModel.areaOfInterest =
+                gson.fromJson<Polygon>(areaOfInterestJson, Polygon::class.java)
+        } else {
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.area_not_defined))
                 .setPositiveButton(getString(R.string.yes_hebrew)) { _, _ ->
@@ -160,5 +171,13 @@ class MainActivity : AppCompatActivity(),
     @SuppressWarnings("MissingPermission")
     override fun onStart() {
         super.onStart()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val areaOfInterestJson = gson.toJson(sharedViewModel.areaOfInterest)
+        sharedPreferences.edit()
+            .putString(Constants.AREA_OF_INTEREST_KEY, areaOfInterestJson)
+            .apply()
     }
 }

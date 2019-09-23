@@ -3,6 +3,7 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.provider.Settings
@@ -71,6 +72,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapView = view.findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
+        initArea()
         initObservers(view)
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
@@ -78,43 +80,45 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         return view
     }
 
-    private fun initObservers(view: View) {
-        mapViewModel.selectedBuildingId.observe(
-            this,
-            Observer<String> { showDescriptionFragment() }
-        )
+    private fun initArea() {
+        if (sharedViewModel.areaOfInterest != null) {
+            mapViewModel.areaOfInterest.value = sharedViewModel.areaOfInterest
+        }
+    }
 
+    private fun initObservers(view: View) {
+        mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
+        mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
+        mapViewModel.areaOfInterest.observe(this, Observer { sharedViewModel.areaOfInterest = it })
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {
                 requestPermissions1()
             }
         })
-
-        mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
-        mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
-
-        sharedViewModel.selectedLayerId.observe(this, Observer<String> {
-            sharedViewModel.selectedLayerId.value?.let { mapViewModel.layerSelected(it) }
-        })
-
+        mapViewModel.selectedBuildingId.observe(
+            this,
+            Observer<String> { showDescriptionFragment() }
+        )
         mapViewModel.isLocationAdapterInitialized.observe(
             this,
-            Observer<Boolean> { observeRiskStatus(it) })
+            Observer<Boolean> { observeRiskStatus(it) }
+        )
+
+        sharedViewModel.selectedLayerId.observe(this, Observer<String> {
+            it?.let { mapViewModel.layerSelected(it) }
+        })
 
         sharedViewModel.selectedExperimentalOption.observe(
             this,
             Observer<Int> { applyExperimentalOption(it) }
         )
-
         sharedViewModel.selectedThreatItem.observe(
             this,
             Observer<Threat> { onListFragmentInteraction(it) }
         )
-
         sharedViewModel.shouldApplyFilter.observe(this,
             Observer<Boolean> { filter(it) }
         )
-
         sharedViewModel.shouldDefineArea.observe(this, Observer {
             if (it) {
                 enableAreaSelection(view, it)
@@ -229,61 +233,64 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         loadedMapStyle.removeLayer("threat-source-layer")
         loadedMapStyle.removeSource("threat-source")
-
         loadedMapStyle.removeLayer("layer-selected-location")
         loadedMapStyle.removeSource("source-marker-click")
         loadedMapStyle.removeImage("marker-icon-id")
 
-        if (mapViewModel.selectLocationManual) {
-
-            // Add the marker image to map
-            loadedMapStyle.addImage(
-                "marker-icon-id",
-                BitmapFactory.decodeResource(
-                    App.resourses, R.drawable.mapbox_marker_icon_default
-                )
-            )
-
-            val geoJsonSource = GeoJsonSource(
-                "source-marker-click",
-                Feature.fromGeometry(Point.fromLngLat(latLng.longitude, latLng.latitude))
-            )
-
-            loadedMapStyle.addSource(geoJsonSource)
-
-            val symbolLayer = SymbolLayer("layer-selected-location", "source-marker-click")
-            symbolLayer.withProperties(
-                PropertyFactory.iconImage("marker-icon-id")
-            )
-            loadedMapStyle.addLayer(symbolLayer)
-
-            mapViewModel.updateThreatFeatures(mapView, latLng)
-            mapViewModel.threatFeatures.value?.let { visualizeThreats(it) }
-            mapViewModel.selectLocationManual = false
-
+        if (mapViewModel.isAreaSelectionMode) {
+            mapViewModel.drawPolygonMode(map, latLng)
+//            sharedViewModel.isAreaDefined = true
         } else {
+            if (mapViewModel.selectLocationManual) {
 
-            val point = map.projection.toScreenLocation(latLng)
-            val features = map.queryRenderedFeatures(point, Constants.buildingsLayerId)
+                // Add the marker image to map
+                loadedMapStyle.addImage(
+                    "marker-icon-id",
+                    BitmapFactory.decodeResource(
+                        App.resourses, R.drawable.mapbox_marker_icon_default
+                    )
+                )
 
-            if (features.size > 0) {
-                val selectedBuildingSource =
-                    loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
-                selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+                val geoJsonSource = GeoJsonSource(
+                    "source-marker-click",
+                    Feature.fromGeometry(Point.fromLngLat(latLng.longitude, latLng.latitude))
+                )
 
-                val threat = mapViewModel.buildingThreatToCurrentLocation(mapView, features[0])
+                loadedMapStyle.addSource(geoJsonSource)
 
-                val bundle = Bundle()
-                bundle.putParcelable("threat", threat)
+                val symbolLayer = SymbolLayer("layer-selected-location", "source-marker-click")
+                symbolLayer.withProperties(
+                    PropertyFactory.iconImage("marker-icon-id")
+                )
+                loadedMapStyle.addLayer(symbolLayer)
 
-                // take to function!
-                val dataCardFragmentInstance = DataCardFragment.newInstance()
-                dataCardFragmentInstance.arguments = bundle
-                activity!!.supportFragmentManager.beginTransaction().replace(
-                    R.id.fragmentParent,
-                    dataCardFragmentInstance
-                ).commit()
-                activity!!.supportFragmentManager.fragments
+                mapViewModel.updateThreatFeatures(mapView, latLng)
+                mapViewModel.threatFeatures.value?.let { visualizeThreats(it) }
+                mapViewModel.selectLocationManual = false
+
+            } else {
+                val point = map.projection.toScreenLocation(latLng)
+                val features = map.queryRenderedFeatures(point, Constants.buildingsLayerId)
+
+                if (features.size > 0) {
+                    val selectedBuildingSource =
+                        loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+                    selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+
+                    val threat = mapViewModel.buildingThreatToCurrentLocation(mapView, features[0])
+
+                    val bundle = Bundle()
+                    bundle.putParcelable("threat", threat)
+
+                    // take to function!
+                    val dataCardFragmentInstance = DataCardFragment.newInstance()
+                    dataCardFragmentInstance.arguments = bundle
+                    activity!!.supportFragmentManager.beginTransaction().replace(
+                        R.id.fragmentParent,
+                        dataCardFragmentInstance
+                    ).commit()
+                    activity!!.supportFragmentManager.fragments
+                }
             }
         }
 
@@ -335,6 +342,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         radiusLayerButton.isEnabled = !shouldEnable
         currentLocationButton.isEnabled = !shouldEnable
+        mapViewModel.isAreaSelectionMode = shouldEnable
     }
 
     private fun initUndoButton(view: View) {
@@ -343,8 +351,9 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
-    private fun initApplyAreaButton(view: View) {
+    private fun initApplyAreaButton(view: View) { // MVVM ? applyClicked function?
         view.apply_area.setOnClickListener {
+            mapViewModel.saveAreaOfInterest()
             enableAreaSelection(view, false)
         }
     }
@@ -505,6 +514,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+//        SharedPreferences.Editor
+//        val preferencesEditor =
     }
 
     override fun onLowMemory() {

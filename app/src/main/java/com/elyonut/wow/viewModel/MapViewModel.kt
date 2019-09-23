@@ -54,13 +54,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var threats = MutableLiveData<ArrayList<Threat>>()
     var threatFeatures = MutableLiveData<List<Feature>>()
     val isLocationAdapterInitialized = MutableLiveData<Boolean>()
-    val isAreaSelectionMode = false
-    lateinit var polygonArea: Polygon
+    var isAreaSelectionMode = false
+    var areaOfInterest = MutableLiveData<Polygon>()
     private var lineLayerPointList = ArrayList<Point>()
     private var circleLayerFeatureList = ArrayList<Feature>()
-    private lateinit var listOfList: List<List<Point>>
-
-    //
+    private var listOfList = ArrayList<MutableList<Point>>()
     private lateinit var circleSource: GeoJsonSource
     private lateinit var lineSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
@@ -327,46 +325,44 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //    }
 
     fun drawPolygonMode(mapboxMap: MapboxMap, latLng: LatLng) {
-        if (isAreaSelectionMode) {
-            var mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.longitude)
+        val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.longitude)
 
-            // Make note of the first map click location so that it can be used to create a closed polygon later on
-            if (circleLayerFeatureList.isEmpty()) {
-                firstPointOfPolygon = mapTargetPoint
+        // Make note of the first map click location so that it can be used to create a closed polygon later on
+        if (circleLayerFeatureList.isEmpty()) {
+            firstPointOfPolygon = mapTargetPoint
+        }
+
+        // Add the click point to the circle layer and update the display of the circle layer data
+        circleLayerFeatureList.add(Feature.fromGeometry(mapTargetPoint))
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(circleLayerFeatureList))
+
+        // Add the click point to the line layer and update the display of the line layer data
+        when {
+            circleLayerFeatureList.size < 3 -> lineLayerPointList.add(mapTargetPoint)
+            circleLayerFeatureList.size == 3 -> {
+                lineLayerPointList.add(mapTargetPoint)
+                lineLayerPointList.add(firstPointOfPolygon)
             }
-
-            // Add the click point to the circle layer and update the display of the circle layer data
-            circleLayerFeatureList.add(Feature.fromGeometry(mapTargetPoint))
-            circleSource.setGeoJson(FeatureCollection.fromFeatures(circleLayerFeatureList))
-
-            // Add the click point to the line layer and update the display of the line layer data
-            when {
-                circleLayerFeatureList.size < 3 -> lineLayerPointList.add(mapTargetPoint)
-                circleLayerFeatureList.size == 3 -> {
-                    lineLayerPointList.add(mapTargetPoint);
-                    lineLayerPointList.add(firstPointOfPolygon)
-                }
-                else -> {
-                    lineLayerPointList.removeAt(circleLayerFeatureList.size - 1)
-                    lineLayerPointList.add(mapTargetPoint);
-                    lineLayerPointList.add(firstPointOfPolygon)
-                }
+            else -> {
+                lineLayerPointList.removeAt(circleLayerFeatureList.size - 1)
+                lineLayerPointList.add(mapTargetPoint)
+                lineLayerPointList.add(firstPointOfPolygon)
             }
+        }
 
-            lineSource.setGeoJson(
-                FeatureCollection.fromFeatures(
-                    arrayOf(
-                        Feature.fromGeometry(
-                            LineString.fromLngLats(
-                                lineLayerPointList
-                            )
+        lineSource.setGeoJson(
+            FeatureCollection.fromFeatures(
+                arrayOf(
+                    Feature.fromGeometry(
+                        LineString.fromLngLats(
+                            lineLayerPointList
                         )
                     )
                 )
             )
+        )
 
-
-            // Add the click point to the fill layer and update the display of the fill layer data
+        // Add the click point to the fill layer and update the display of the fill layer data
 //            if (circleLayerFeatureList.size < 3) {
 //                fillLayerPointList.add(mapTargetPoint)
 //            } else if (circleLayerFeatureList.size() == 3) {
@@ -378,15 +374,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //                fillLayerPointList.add(firstPointOfPolygon)
 //            }
 
-//            listOfList = new ArrayList < > ()
-//            listOfList.add(fillLayerPointList)
-//            List<Feature> finalFeatureList = new ArrayList<>()
-//            finalFeatureList.add(Feature.fromGeometry(Polygon.fromLngLats(listOfList)))
-//            FeatureCollection newFeatureCollection = FeatureCollection . fromFeatures (finalFeatureList)
-//            if (fillSource != null) {
-//                fillSource.setGeoJson(newFeatureCollection)
-//            }
-        }
+        listOfList.add(lineLayerPointList)
+    }
+
+    fun saveAreaOfInterest() {
+        areaOfInterest.value = Polygon.fromLngLats(listOfList)
     }
 
     private fun initCircleSource(loadedMapStyle: Style): GeoJsonSource {

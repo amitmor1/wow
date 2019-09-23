@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.model.Threat
+import com.mapbox.geojson.Polygon
 
 class SharedViewModel(application: Application) : AndroidViewModel(application) {
     val selectedLayerId = MutableLiveData<String>()
@@ -20,7 +21,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var isStringType: Boolean = false
     lateinit var numericType: NumericFilterTypes
     var shouldDefineArea = MutableLiveData<Boolean>()
-    var isAreaDefined = false
+    var areaOfInterest: Polygon? = null
 
     fun selectLayer(layerId: String) {
         selectedLayerId.value = layerId

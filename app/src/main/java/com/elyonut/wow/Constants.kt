@@ -20,5 +20,6 @@ class Constants {
         const val LINE_SOURCE_ID = "line-source-id"
         const val CIRCLE_LAYER_ID = "circle-layer-id"
         const val LINE_LAYER_ID = "line-layer-id"
+        const val AREA_OF_INTEREST_KEY = "areaOfInterest"
     }
 }
