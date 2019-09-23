@@ -16,5 +16,9 @@ class Constants {
             "pk.eyJ1Ijoid293ZGV2IiwiYSI6ImNqd2o2NWJvZDBnMHkzeXFrY2JncDA4YnAifQ.nBIwjHkMCNx5H25pCTl4Vg"
         const val regularOpacity = 0.4f
         const val HighOpacity = 1f
+        const val CIRCLE_SOURCE_ID = "circle-source-id"
+        const val LINE_SOURCE_ID = "line-source-id"
+        const val CIRCLE_LAYER_ID = "circle-layer-id"
+        const val LINE_LAYER_ID = "line-layer-id"
     }
 }
