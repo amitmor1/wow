@@ -322,59 +322,35 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         val mainMapLayoutView = view.mainMapLayout
         val currentLocationButton = view.currentLocation
         val radiusLayerButton = view.radiusLayer
-        val constraintSet = ConstraintSet()
 
         if (shouldEnable) {
             layoutInflater.inflate(R.layout.area_selection, mainMapLayoutView)
+            initUndoButton(view)
             initCancelAreaButton(view)
             initApplyAreaButton(view)
-
-            constraintSet.apply {
-                clone(mainMapLayoutView as ConstraintLayout)
-                connect(
-                    currentLocationButton.id,
-                    ConstraintSet.BOTTOM,
-                    R.id.area_mode,
-                    ConstraintSet.TOP
-                )
-                applyTo(mainMapLayoutView)
-            }
-
-            radiusLayerButton.alpha = 0.5f
-            currentLocationButton.alpha = 0.5f
-
         } else {
             mainMapLayoutView.removeView(view.findViewById(R.id.area_mode))
-            constraintSet.apply {
-                clone(mainMapLayoutView as ConstraintLayout)
-                connect(
-                    currentLocationButton.id,
-                    ConstraintSet.BOTTOM,
-                    mainMapLayoutView.id,
-                    ConstraintSet.BOTTOM
-                )
-                applyTo(mainMapLayoutView)
-            }
-
-            radiusLayerButton.alpha = 1f
-            currentLocationButton.alpha = 1f
             sharedViewModel.shouldDefineArea.value = false
         }
 
-        radiusLayerButton.isClickable = !shouldEnable
-        currentLocationButton.isClickable = !shouldEnable
+        radiusLayerButton.isEnabled = !shouldEnable
+        currentLocationButton.isEnabled = !shouldEnable
+    }
+
+    private fun initUndoButton(view: View) {
+        view.undo.setOnClickListener {
+
+        }
     }
 
     private fun initApplyAreaButton(view: View) {
-        val applyAreaButton: View = view.apply_area
-        applyAreaButton.setOnClickListener {
+        view.apply_area.setOnClickListener {
             enableAreaSelection(view, false)
         }
     }
 
     private fun initCancelAreaButton(view: View) {
-        val cancelButton: View = view.cancel_area
-        cancelButton.setOnClickListener {
+        view.cancel_area.setOnClickListener {
             enableAreaSelection(view, false)
         }
     }
