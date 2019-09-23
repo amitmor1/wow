@@ -322,30 +322,35 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         val mainMapLayoutView = view.mainMapLayout
         val currentLocationButton = view.currentLocation
         val radiusLayerButton = view.radiusLayer
-        val constraintSet = ConstraintSet()
 
         if (shouldEnable) {
             layoutInflater.inflate(R.layout.area_selection, mainMapLayoutView)
+            initUndoButton(view)
             initCancelAreaButton(view)
             initApplyAreaButton(view)
         } else {
             mainMapLayoutView.removeView(view.findViewById(R.id.area_mode))
             sharedViewModel.shouldDefineArea.value = false
         }
+
         radiusLayerButton.isEnabled = !shouldEnable
         currentLocationButton.isEnabled = !shouldEnable
     }
 
+    private fun initUndoButton(view: View) {
+        view.undo.setOnClickListener {
+
+        }
+    }
+
     private fun initApplyAreaButton(view: View) {
-        val applyAreaButton: View = view.apply_area
-        applyAreaButton.setOnClickListener {
+        view.apply_area.setOnClickListener {
             enableAreaSelection(view, false)
         }
     }
 
     private fun initCancelAreaButton(view: View) {
-        val cancelButton: View = view.cancel_area
-        cancelButton.setOnClickListener {
+        view.cancel_area.setOnClickListener {
             enableAreaSelection(view, false)
         }
     }
