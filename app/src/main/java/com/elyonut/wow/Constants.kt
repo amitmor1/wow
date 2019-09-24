@@ -2,7 +2,6 @@ package com.elyonut.wow
 
 class Constants {
     companion object {
-//        const val trainsLayerId = "trains.geojson"
 //        const val threatLayerId = "buildingRisk"
         const val threatLayerId = "construction"
         const val constructionLayerId = "construction"
@@ -21,5 +20,7 @@ class Constants {
         const val CIRCLE_LAYER_ID = "circle-layer-id"
         const val LINE_LAYER_ID = "line-layer-id"
         const val AREA_OF_INTEREST_KEY = "areaOfInterest"
+        const val AREA_LINES_KEY = "areaLines"
+        const val AREA_CIRCLES_KEY = "areaCircles"
     }
 }

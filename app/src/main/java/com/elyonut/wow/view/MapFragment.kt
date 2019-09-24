@@ -80,13 +80,19 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun initArea() {
         if (sharedViewModel.areaOfInterest != null) {
             mapViewModel.areaOfInterest.value = sharedViewModel.areaOfInterest
+            mapViewModel.lineLayerPointList = sharedViewModel.areaOfInterestLines
+            mapViewModel.circleLayerFeatureList = sharedViewModel.areaOfInterestCircles
         }
     }
 
     private fun setObservers(view: View) {
         mapViewModel.isAlertVisible.observe(this, Observer<Boolean> { showAlertDialog() })
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
-        mapViewModel.areaOfInterest.observe(this, Observer { sharedViewModel.areaOfInterest = it })
+        mapViewModel.areaOfInterest.observe(this, Observer {
+            sharedViewModel.areaOfInterest = it
+            sharedViewModel.areaOfInterestLines = mapViewModel.lineLayerPointList
+            sharedViewModel.areaOfInterestCircles = mapViewModel.circleLayerFeatureList
+        })
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {
                 requestPermissions1()
@@ -235,7 +241,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         loadedMapStyle.removeImage("marker-icon-id")
 
         if (mapViewModel.isAreaSelectionMode) {
-            mapViewModel.drawPolygonMode(map, latLng)
+            mapViewModel.drawPolygonMode(latLng)
 //            sharedViewModel.isAreaDefined = true
         } else {
             if (mapViewModel.selectLocationManual) {

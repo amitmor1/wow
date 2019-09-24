@@ -58,13 +58,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     val isLocationAdapterInitialized = MutableLiveData<Boolean>()
     var isAreaSelectionMode = false
     var areaOfInterest = MutableLiveData<Polygon>()
-    private var lineLayerPointList = ArrayList<Point>()
-    private var circleLayerFeatureList = ArrayList<Feature>()
-    private var fillLayerPointList = ArrayList<Point>()
+    var lineLayerPointList = ArrayList<Point>()
+    var circleLayerFeatureList = ArrayList<Feature>()
     private var listOfList = ArrayList<MutableList<Point>>()
     private lateinit var circleSource: GeoJsonSource
     private lateinit var lineSource: GeoJsonSource
-    private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
 
     fun onMapReady(mapboxMap: MapboxMap) {
@@ -78,10 +76,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             setThreatLayerOpacity(style, Constants.regularOpacity)
             circleSource = initCircleSource(style)
             lineSource = initLineSource(style)
-            fillSource = initFillSource(style)
             initCircleLayer(style)
             initLineLayer(style)
-            initFillLayer(style)
         }
     }
 
@@ -325,8 +321,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //        return true
 //    }
 
-    fun drawPolygonMode(mapboxMap: MapboxMap, latLng: LatLng) {
-        val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.longitude)
+    fun drawPolygonMode(latLng: LatLng) {
+        val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.latitude)
 
         // Make note of the first map click location so that it can be used to create a closed polygon later on
         if (circleLayerFeatureList.isEmpty()) {
@@ -363,33 +359,16 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
 
-//         Add the click point to the fill layer and update the display of the fill layer data
-        when {
-            circleLayerFeatureList.size < 3 -> fillLayerPointList.add(mapTargetPoint)
-            circleLayerFeatureList.size == 3 -> {
-                fillLayerPointList.add(mapTargetPoint)
-                fillLayerPointList.add(firstPointOfPolygon)
-            }
-            else -> {
-                fillLayerPointList.removeAt(fillLayerPointList.size - 1)
-                fillLayerPointList.add(mapTargetPoint);
-                fillLayerPointList.add(firstPointOfPolygon)
-            }
-        }
-
-        listOfList.add(fillLayerPointList)
-        val finalFeatureList = ArrayList<Feature>()
-        finalFeatureList.add(Feature.fromGeometry(Polygon.fromLngLats(listOfList)))
-        val newFeatureCollection = FeatureCollection.fromFeatures(finalFeatureList)
-        fillSource.setGeoJson(newFeatureCollection)
+        listOfList.add(lineLayerPointList)
     }
 
     fun saveAreaOfInterest() {
         areaOfInterest.value = Polygon.fromLngLats(listOfList)
+
     }
 
     private fun initCircleSource(loadedMapStyle: Style): GeoJsonSource {
-        val circleFeatureCollection = FeatureCollection.fromFeatures(ArrayList<Feature>())
+        val circleFeatureCollection = FeatureCollection.fromFeatures(circleLayerFeatureList)
         val circleGeoJsonSource = GeoJsonSource(Constants.CIRCLE_SOURCE_ID, circleFeatureCollection)
         loadedMapStyle.addSource(circleGeoJsonSource)
 
@@ -397,18 +376,19 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun initLineSource(loadedMapStyle: Style): GeoJsonSource {
-        val lineFeatureCollection = FeatureCollection.fromFeatures(ArrayList<Feature>())
+        val lineFeatureCollection = FeatureCollection.fromFeatures(
+            arrayOf(
+                Feature.fromGeometry(
+                    LineString.fromLngLats(
+                        lineLayerPointList
+                    )
+                )
+            )
+        )
         val lineGeoJsonSource = GeoJsonSource(Constants.LINE_SOURCE_ID, lineFeatureCollection)
         loadedMapStyle.addSource(lineGeoJsonSource)
 
         return lineGeoJsonSource
-    }
-
-    private fun initFillSource(loadedMapStyle: Style): GeoJsonSource {
-        val fillFeatureCollection = FeatureCollection.fromFeatures(ArrayList<Feature>())
-        val fillGeoJsonSource = GeoJsonSource("fillSource", fillFeatureCollection)
-        loadedMapStyle.addSource(fillGeoJsonSource)
-        return fillGeoJsonSource
     }
 
     private fun initCircleLayer(loadedMapStyle: Style) {
