@@ -415,18 +415,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         loadedMapStyle.addLayerBelow(lineLayer, Constants.CIRCLE_LAYER_ID)
     }
 
-    private fun initFillLayer(style: Style) {
-        val fillLayer = FillLayer(
-            "fillLayer",
-            "fillSource"
-        )
-        fillLayer.setProperties(
-            fillOpacity(.6f),
-            fillColor(Color.parseColor("#00e9ff"))
-        )
-        style.addLayerBelow(fillLayer, Constants.LINE_LAYER_ID)
-    }
-
     fun focusOnMyLocationClicked() {
         map.locationComponent.apply {
             cameraMode = CameraMode.TRACKING
