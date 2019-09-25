@@ -242,7 +242,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         if (mapViewModel.isAreaSelectionMode) {
             mapViewModel.drawPolygonMode(latLng)
-//            sharedViewModel.isAreaDefined = true
         } else {
             if (mapViewModel.selectLocationManual) {
 
@@ -338,6 +337,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             initUndoButton(view)
             initCancelAreaButton(view)
             initApplyAreaButton(view)
+            mapViewModel.removeAreaFromMap()
         } else {
             mainMapLayoutView.removeView(view.findViewById(R.id.area_mode))
             sharedViewModel.shouldDefineArea.value = false
@@ -363,6 +363,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun initCancelAreaButton(view: View) {
         view.cancel_area.setOnClickListener {
+            mapViewModel.cancelAreaSelection()
             enableAreaSelection(view, false)
         }
     }

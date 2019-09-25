@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity(),
 
         if (areaOfInterestJson != "") {
             val areaLinesJson = sharedPreferences.getString(Constants.AREA_LINES_KEY, "")
-            val areaCirclesJson = sharedPreferences.getString(Constants.AREA_CIRCLES_KEY, "")
+//            val areaCirclesJson = sharedPreferences.getString(Constants.AREA_CIRCLES_KEY, "")
 
             sharedViewModel.areaOfInterest =
                 gson.fromJson<Polygon>(areaOfInterestJson, Polygon::class.java)
