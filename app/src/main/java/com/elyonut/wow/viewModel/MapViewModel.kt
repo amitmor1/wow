@@ -3,9 +3,12 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
 import com.elyonut.wow.R
 import com.elyonut.wow.transformer.MapboxTransformer
@@ -15,9 +18,12 @@ import com.elyonut.wow.analysis.TopographyService
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
+import com.elyonut.wow.analysis.ThreatAnalyzer
+import com.elyonut.wow.analysis.TopographyService
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
-import com.mapbox.geojson.FeatureCollection
+import com.elyonut.wow.transformer.MapboxTransformer
+import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -29,14 +35,16 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.offline.*
 import com.mapbox.mapboxsdk.style.expressions.Expression
-import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
-import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.mapboxsdk.style.layers.*
 import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.json.JSONObject
+import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -60,21 +68,37 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var threats = MutableLiveData<ArrayList<Threat>>()
     var threatFeatures = MutableLiveData<List<Feature>>()
     val isLocationAdapterInitialized = MutableLiveData<Boolean>()
+    var isAreaSelectionMode = false
+    var areaOfInterest = MutableLiveData<Polygon>()
+    var lineLayerPointList = ArrayList<Point>()
+    private var currentLineLayerPointList = ArrayList<Point>()
+    private var currentCircleLayerFeatureList = ArrayList<Feature>()
+    private lateinit var circleSource: GeoJsonSource
+    private lateinit var lineSource: GeoJsonSource
+    private lateinit var fillSource: GeoJsonSource
+    private lateinit var firstPointOfPolygon: Point
     private val logger: ILogger = TimberLogAdapter()
 
     init {
         logger.initLogger()
     }
 
+    @SuppressLint("WrongConstant")
     fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
-        map.setStyle(getString(R.string.style_url)) { style ->
+        map.setStyle(Constants.MAPBOX_STYLE_URL) { style ->
             locationSetUp(style)
             initOfflineMap(style)
 //            setBuildingFilter(style)
             setSelectedBuildingLayer(style)
             addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.regularOpacity)
+            circleSource = initCircleSource(style)
+//            lineSource = initLineSource(style)
+            fillSource = initFillSource(style)
+            initCircleLayer(style)
+//            initLineLayer(style)
+            initFillLayer(style)
         }
     }
 
@@ -165,14 +189,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                     Expression.stop(10, Expression.color(RiskStatus.MEDIUM.color)),
                     Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
                 )
-            ), PropertyFactory.fillExtrusionOpacity(0.5f)
+            ), fillExtrusionOpacity(0.5f)
         )
     }
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
         val threatLayer = loadedMapStyle.getLayer(Constants.constructionLayerId)
         (threatLayer as FillExtrusionLayer).withProperties(
-            PropertyFactory.fillExtrusionOpacity(
+            fillExtrusionOpacity(
                 opacity
             )
         )
@@ -184,7 +208,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             FillLayer(
                 Constants.selectedBuildingLayerId,
                 Constants.selectedBuildingSourceId
-            ).withProperties(PropertyFactory.fillExtrusionOpacity(0.7f))
+            ).withProperties(fillExtrusionOpacity(0.7f))
         )
     }
 
@@ -214,7 +238,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             Constants.threatRadiusSourceId
         )
         fillLayer.setProperties(
-            PropertyFactory.fillColor(
+            fillColor(
                 Expression.step(
                     Expression.get(Constants.threatProperty),
                     Expression.color(RiskStatus.NONE.color),
@@ -223,7 +247,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                     Expression.stop(0.7, Expression.color(RiskStatus.HIGH.color))
                 )
             ),
-            PropertyFactory.fillOpacity(.4f),
+            fillOpacity(.4f),
             visibility(NONE)
         )
 
@@ -317,6 +341,169 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //
 //        return true
 //    }
+
+    fun drawPolygonMode(latLng: LatLng) {
+        val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.latitude)
+
+        if (currentCircleLayerFeatureList.isEmpty()) {
+            firstPointOfPolygon = mapTargetPoint
+        }
+
+        currentCircleLayerFeatureList.add(Feature.fromGeometry(mapTargetPoint))
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
+
+        when {
+            currentCircleLayerFeatureList.size < 3 -> currentLineLayerPointList.add(mapTargetPoint)
+            currentCircleLayerFeatureList.size == 3 -> {
+                currentLineLayerPointList.add(mapTargetPoint)
+                currentLineLayerPointList.add(firstPointOfPolygon)
+            }
+            else -> {
+                currentLineLayerPointList.removeAt(currentCircleLayerFeatureList.size - 1)
+                currentLineLayerPointList.add(mapTargetPoint)
+                currentLineLayerPointList.add(firstPointOfPolygon)
+            }
+        }
+
+//        lineSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+        fillSource.setGeoJson(makePolygonFeatureCollection(currentLineLayerPointList))
+    }
+
+    fun removeAreaFromMap() {
+        currentCircleLayerFeatureList = ArrayList()
+        currentLineLayerPointList = ArrayList()
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
+//        lineSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+        fillSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+    }
+
+    fun undo() {
+        if (currentCircleLayerFeatureList.isNotEmpty()) {
+            when {
+                currentCircleLayerFeatureList.size < 3 -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                }
+                currentCircleLayerFeatureList.size == 3 -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                }
+                else -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.add(currentLineLayerPointList[0])
+                }
+            }
+
+            currentCircleLayerFeatureList.removeAt(currentCircleLayerFeatureList.size - 1)
+            circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
+//            lineSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+            fillSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+        }
+    }
+
+    fun saveAreaOfInterest() {
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
+        lineLayerPointList = currentLineLayerPointList
+
+        if (lineLayerPointList.isEmpty()) {
+            areaOfInterest.value = null
+        } else {
+            areaOfInterest.value = Polygon.fromLngLats(listOf(lineLayerPointList))
+        }
+    }
+
+    fun cancelAreaSelection() {
+        currentCircleLayerFeatureList = ArrayList()
+        currentLineLayerPointList = ArrayList()
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
+//        lineSource.setGeoJson(makeLineFeatureCollection(lineLayerPointList))
+        fillSource.setGeoJson(makeLineFeatureCollection(lineLayerPointList))
+    }
+
+    private fun makeLineFeatureCollection(pointArrayList: ArrayList<Point>): FeatureCollection {
+        return FeatureCollection.fromFeatures(
+            arrayOf(
+                Feature.fromGeometry(
+                    LineString.fromLngLats(
+                        pointArrayList
+                    )
+                )
+            )
+        )
+    }
+
+    private fun makePolygonFeatureCollection(pointArrayList: ArrayList<Point>): FeatureCollection {
+        return FeatureCollection.fromFeatures(
+            arrayOf(
+                Feature.fromGeometry(
+                    Polygon.fromLngLats(
+                        listOf(pointArrayList)
+                    )
+                )
+            )
+        )
+    }
+
+    private fun initCircleSource(loadedMapStyle: Style): GeoJsonSource {
+        val circleFeatureCollection = FeatureCollection.fromFeatures(ArrayList())
+        val circleGeoJsonSource = GeoJsonSource(Constants.CIRCLE_SOURCE_ID, circleFeatureCollection)
+        loadedMapStyle.addSource(circleGeoJsonSource)
+
+        return circleGeoJsonSource
+    }
+
+    private fun initLineSource(loadedMapStyle: Style): GeoJsonSource {
+        val lineFeatureCollection = makeLineFeatureCollection(lineLayerPointList)
+        val lineGeoJsonSource = GeoJsonSource(Constants.LINE_SOURCE_ID, lineFeatureCollection)
+        loadedMapStyle.addSource(lineGeoJsonSource)
+
+        return lineGeoJsonSource
+    }
+
+    private fun initCircleLayer(loadedMapStyle: Style) {
+        val circleLayer = CircleLayer(
+            Constants.CIRCLE_LAYER_ID,
+            Constants.CIRCLE_SOURCE_ID
+        )
+        circleLayer.setProperties(
+            circleRadius(7f),
+            circleColor(Color.WHITE)
+        )
+        loadedMapStyle.addLayer(circleLayer)
+    }
+
+    private fun initLineLayer(loadedMapStyle: Style) {
+        val lineLayer = LineLayer(
+            Constants.LINE_LAYER_ID,
+            Constants.LINE_SOURCE_ID
+        )
+        lineLayer.setProperties(
+            lineColor(Color.RED),
+            lineWidth(5f)
+        )
+        loadedMapStyle.addLayerBelow(lineLayer, Constants.CIRCLE_LAYER_ID)
+    }
+
+    private fun initFillSource(loadedMapStyle: Style): GeoJsonSource {
+        val fillFeatureCollection = makePolygonFeatureCollection(lineLayerPointList)
+        val fillGeoJsonSource = GeoJsonSource(Constants.FILL_SOURCE_ID, fillFeatureCollection)
+        loadedMapStyle.addSource(fillGeoJsonSource)
+
+        return fillGeoJsonSource
+    }
+
+    private fun initFillLayer(loadedMapStyle: Style) {
+        val fillLayer = FillLayer(
+            Constants.FILL_LAYER_ID,
+            Constants.FILL_SOURCE_ID
+        )
+        fillLayer.setProperties(
+            fillOpacity(0.1f),
+            fillColor(Color.parseColor("#00e9ff")),
+            fillOutlineColor(Color.RED)
+        )
+        loadedMapStyle.addLayerBelow(fillLayer, Constants.LINE_SOURCE_ID)
+    }
 
     fun focusOnMyLocationClicked() {
         map.locationComponent.apply {
@@ -533,4 +720,3 @@ class FilterHandler {
         }
     }
 }
-

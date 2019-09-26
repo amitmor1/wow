@@ -17,6 +17,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val chosenLayerId = MutableLiveData<String>()
     val selectedExperimentalOption = MutableLiveData<Int>()
     val filterSelected = MutableLiveData<Boolean>()
+    val shouldDefineArea = MutableLiveData<Boolean>()
 
     fun onNavigationItemSelected(item: MenuItem): Boolean {
         var shouldCloseDrawer = true
@@ -32,6 +33,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             }
             item.groupId == R.id.nav_experiments ->
                 this.selectedExperimentalOption.value = item.itemId
+            item.itemId == R.id.define_area -> {
+                if (shouldDefineArea.value == null || !shouldDefineArea.value!!) {
+                    shouldDefineArea.value = true
+                }
+            }
         }
 
         return shouldCloseDrawer

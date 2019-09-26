@@ -9,7 +9,7 @@
             android:layout_width="5dp"
             android:layout_height="40dp"
             android:background="@color/lowRisk"
-            android:contentDescription="@string/threatlevelcolor"
+            android:contentDescription="@string/threat_level_color"
             android:layout_marginStart="16dp"/>
 
     <TextView

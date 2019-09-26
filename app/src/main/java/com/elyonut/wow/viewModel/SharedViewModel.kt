@@ -5,7 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.model.Threat
-import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.Point
+import com.mapbox.geojson.Polygon
 
 class SharedViewModel(application: Application) : AndroidViewModel(application) {
     val selectedLayerId = MutableLiveData<String>()
@@ -20,6 +22,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val shouldApplyFilter = MutableLiveData<Boolean>()
     var isStringType: Boolean = false
     lateinit var numericType: NumericFilterTypes
+    var shouldDefineArea = MutableLiveData<Boolean>()
+    var areaOfInterest: Polygon? = null
+    var areaOfInterestLines = ArrayList<Point>()
 
     fun selectExperimentalOption(itemId: Int) {
         selectedExperimentalOption.value = itemId

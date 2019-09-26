@@ -1,8 +1,11 @@
 package com.elyonut.wow.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.CheckBox
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -13,12 +16,17 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.elyonut.wow.*
+import com.elyonut.wow.Constants
+import com.elyonut.wow.ILogger
+import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.Gson
+import com.mapbox.geojson.Point
+import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
 
 class MainActivity : AppCompatActivity(),
@@ -31,9 +39,12 @@ class MainActivity : AppCompatActivity(),
     private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private val logger: ILogger = TimberLogAdapter()
+    private lateinit var sharedPreferences: SharedPreferences
+    private val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPreferences = getSharedPreferences("com.elyonut.wow.prefs", Context.MODE_PRIVATE)
         Mapbox.getInstance(applicationContext, Constants.MAPBOX_ACCESS_TOKEN)
         setContentView(R.layout.activity_main)
         logger.initLogger()
@@ -44,36 +55,68 @@ class MainActivity : AppCompatActivity(),
         sharedViewModel =
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
-        initObservers()
+        setObservers()
+        initArea()
         initToolbar()
         initNavigationMenu()
     }
 
-    private fun initObservers() {
+    private fun setObservers() {
         mainViewModel.chosenLayerId.observe(this, Observer<String> {
             mainViewModel.chosenLayerId.value?.let {
                 sharedViewModel.selectedLayerId.value = it
             }
         })
-
         mainViewModel.selectedExperimentalOption.observe(
             this,
             Observer { sharedViewModel.selectExperimentalOption(it) }
         )
-
         mainViewModel.filterSelected.observe(this, Observer {
             if (it) {
                 filterButtonClicked()
             }
         })
+        mainViewModel.shouldDefineArea.observe(this, Observer {
+            if (it) {
+                sharedViewModel.shouldDefineArea.value = it
+            }
+        })
+
+        sharedViewModel.shouldDefineArea.observe(this, Observer {
+            if (!it) {
+                mainViewModel.shouldDefineArea.value = it
+            }
+        })
+    }
+
+    private fun initArea() {
+        val areaOfInterestJson = sharedPreferences.getString(Constants.AREA_OF_INTEREST_KEY, "")
+
+        if (areaOfInterestJson != "") {
+            val areaLinesJson = sharedPreferences.getString(Constants.AREA_LINES_KEY, "")
+
+            sharedViewModel.areaOfInterest =
+                gson.fromJson<Polygon>(areaOfInterestJson, Polygon::class.java)
+            sharedViewModel.areaOfInterestLines =
+                gson.fromJson<Array<Point>>(areaLinesJson, Array<Point>::class.java)
+                    .toCollection(ArrayList())
+        } else {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.area_not_defined))
+                .setPositiveButton(getString(R.string.yes_hebrew)) { _, _ ->
+                    mainViewModel.shouldDefineArea.value = true
+                }.setNegativeButton(getString(R.string.no_thanks_hebrew)) { dialog, _ ->
+                    dialog.cancel()
+                }.show()
+        }
     }
 
     private fun filterButtonClicked() {
-        val blankFragment = FilterFragment.newInstance()
+        val filterFragment = FilterFragment.newInstance()
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.apply {
-            add(R.id.fragmentMenuParent, blankFragment).commit()
-            addToBackStack(blankFragment.javaClass.simpleName)
+            add(R.id.fragmentMenuParent, filterFragment).commit()
+            addToBackStack(filterFragment.javaClass.simpleName)
         }
     }
 
@@ -103,7 +146,6 @@ class MainActivity : AppCompatActivity(),
                 }
             }
         }
-
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -115,8 +157,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun closeDrawer() {
-        val drawer = findViewById<DrawerLayout>(R.id.parentLayout)
-        drawer.closeDrawer(GravityCompat.START)
+        findViewById<DrawerLayout>(R.id.parentLayout).closeDrawer(GravityCompat.START)
     }
 
     override fun onMapFragmentInteraction() {
@@ -135,5 +176,21 @@ class MainActivity : AppCompatActivity(),
     @SuppressWarnings("MissingPermission")
     override fun onStart() {
         super.onStart()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        var areaOfInterestJson = ""
+        var areaOfInterestLinesJson = ""
+
+        if (sharedViewModel.areaOfInterest != null) {
+            areaOfInterestJson = gson.toJson(sharedViewModel.areaOfInterest)
+            areaOfInterestLinesJson = gson.toJson(sharedViewModel.areaOfInterestLines)
+        }
+
+        sharedPreferences.edit()
+            .putString(Constants.AREA_OF_INTEREST_KEY, areaOfInterestJson)
+            .putString(Constants.AREA_LINES_KEY, areaOfInterestLinesJson)
+            .apply()
     }
 }

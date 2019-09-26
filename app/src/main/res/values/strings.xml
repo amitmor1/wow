@@ -11,22 +11,20 @@
     <string name="turn_on_location_title">הפעלת שירותי מיקום</string>
     <string name="data_type">סוג מידע</string>
     <string name="data__second_title">כותרת משנה</string>
-    <string name="image_desctiption">תמונת מהות</string>
+    <string name="type_image">תמונת מהות</string>
     <string name="time_passed">זמן שעבר</string>
     <string name="who_added">By who</string>
     <string name="status_color">status color</string>
-    <string name="readMoreHebrew">קרא עוד</string>
-    <string name="readLessHebrew">קרא פחות</string>
-<!--    <string name="grey_status">אפור</string>-->
-<!--    <string name="orange_status">כתום</string>-->
-<!--    <string name="red_status">אדום</string>-->
+    <string name="read_more_hebrew">קרא עוד</string>
+    <string name="read_less_hebrew">קרא פחות</string>
     <string name="layers_item">שכבות</string>
     <string name="layer_name">שכבת איומים</string>
     <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="threat_list">רשימת איומים</string>
     <string name="threats_on_map">איומים על המפה</string>
-    <string name="threatlevelcolor">ThreatLevelColor</string>
+    <string name="threat_level_color">Threat Level Color</string>
     <string name="threats_on_map_with_location">איומים לפי מיקום</string>
-    <string name="maxValueText">ערך מקסימלי:</string>
-    <string name="minValueText">ערך מינימלי:</string>
+    <string name="max_value_text">ערך מקסימלי:</string>
+    <string name="min_value_text">ערך מינימלי:</string>
+    <string name="area_not_defined">תחום עניין לא הוגדר, האם תרצה להגדיר כעת?</string>
 </resources>
