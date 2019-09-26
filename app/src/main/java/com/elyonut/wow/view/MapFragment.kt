@@ -350,7 +350,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun initUndoButton(view: View) {
         view.undo.setOnClickListener {
-
+            mapViewModel.undoLastStep()
         }
     }
 

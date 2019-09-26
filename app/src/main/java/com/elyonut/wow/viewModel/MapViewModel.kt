@@ -364,8 +364,25 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     fun saveAreaOfInterest() {
         areaOfInterest.value = Polygon.fromLngLats(listOfList)
-
     }
+
+    fun undoLastStep() {
+        circleLayerFeatureList.removeAt(circleLayerFeatureList.size -1)
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(circleLayerFeatureList))
+        lineLayerPointList.removeAt(lineLayerPointList.size - 1)
+        lineSource.setGeoJson(
+            FeatureCollection.fromFeatures(
+                arrayOf(
+                    Feature.fromGeometry(
+                        LineString.fromLngLats(
+                            lineLayerPointList
+                        )
+                    )
+                )
+            )
+        )
+    }
+
 
     private fun initCircleSource(loadedMapStyle: Style): GeoJsonSource {
         val circleFeatureCollection = FeatureCollection.fromFeatures(circleLayerFeatureList)
