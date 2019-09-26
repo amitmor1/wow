@@ -11,10 +11,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
 import com.elyonut.wow.R
-import com.elyonut.wow.transformer.MapboxTransformer
-import com.mapbox.geojson.Feature
-import com.elyonut.wow.analysis.ThreatAnalyzer
-import com.elyonut.wow.analysis.TopographyService
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
