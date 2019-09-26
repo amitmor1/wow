@@ -361,7 +361,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun saveAreaOfInterest() {
+    fun saveAreaOfInterest() { // Ask TZ about another generic function
         circleSource.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
         lineLayerPointList = currentLineLayerPointList
         circleLayerFeatureList = currentCircleLayerFeatureList
