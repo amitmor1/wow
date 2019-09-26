@@ -22,6 +22,5 @@ class Constants {
         const val LINE_LAYER_ID = "line-layer-id"
         const val AREA_OF_INTEREST_KEY = "areaOfInterest"
         const val AREA_LINES_KEY = "areaLines"
-        const val AREA_CIRCLES_KEY = "areaCircles"
     }
 }

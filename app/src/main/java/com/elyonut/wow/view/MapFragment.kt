@@ -81,7 +81,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         if (sharedViewModel.areaOfInterest != null) {
             mapViewModel.areaOfInterest.value = sharedViewModel.areaOfInterest
             mapViewModel.lineLayerPointList = sharedViewModel.areaOfInterestLines
-            mapViewModel.circleLayerFeatureList = sharedViewModel.areaOfInterestCircles
         }
     }
 
@@ -91,7 +90,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapViewModel.areaOfInterest.observe(this, Observer {
             sharedViewModel.areaOfInterest = it
             sharedViewModel.areaOfInterestLines = mapViewModel.lineLayerPointList
-            sharedViewModel.areaOfInterestCircles = mapViewModel.circleLayerFeatureList
         })
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {
@@ -350,7 +348,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun initUndoButton(view: View) {
         view.undo.setOnClickListener {
-
+            mapViewModel.undo()
         }
     }
 
@@ -371,7 +369,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     override fun onMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.threat_list_menu_item -> {
-
                 mapViewModel.updateThreats(mapView)
 
                 mapViewModel.threats.value?.let {
@@ -518,8 +515,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     override fun onPause() {
         super.onPause()
         mapView.onPause()
-//        SharedPreferences.Editor
-//        val preferencesEditor =
     }
 
     override fun onLowMemory() {

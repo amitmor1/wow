@@ -60,9 +60,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var areaOfInterest = MutableLiveData<Polygon>()
     var lineLayerPointList = ArrayList<Point>()
     var currentLineLayerPointList = ArrayList<Point>()
-    var circleLayerFeatureList = ArrayList<Feature>()
     var currentCircleLayerFeatureList = ArrayList<Feature>()
-    private var listOfList = ArrayList<MutableList<Point>>()
     private lateinit var circleSource: GeoJsonSource
     private lateinit var lineSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
@@ -361,10 +359,35 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun saveAreaOfInterest() { // Ask TZ about another generic function
+    fun undo() {
+        if (currentCircleLayerFeatureList.isNotEmpty()) {
+            when {
+                currentCircleLayerFeatureList.size < 3 -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                }
+                currentCircleLayerFeatureList.size == 3 -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                }
+                else -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.add(currentLineLayerPointList[0])
+                }
+            }
+
+            currentCircleLayerFeatureList.removeAt(currentCircleLayerFeatureList.size - 1)
+            circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
+            lineSource.setGeoJson(
+                makeFeatureCollection(currentLineLayerPointList)
+            )
+        }
+
+    }
+
+    fun saveAreaOfInterest() {
         circleSource.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
         lineLayerPointList = currentLineLayerPointList
-        circleLayerFeatureList = currentCircleLayerFeatureList
         areaOfInterest.value = Polygon.fromLngLats(listOf(lineLayerPointList))
     }
 
@@ -390,7 +413,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun initCircleSource(loadedMapStyle: Style): GeoJsonSource {
-        val circleFeatureCollection = FeatureCollection.fromFeatures(circleLayerFeatureList)
+        val circleFeatureCollection = FeatureCollection.fromFeatures(ArrayList())
         val circleGeoJsonSource = GeoJsonSource(Constants.CIRCLE_SOURCE_ID, circleFeatureCollection)
         loadedMapStyle.addSource(circleGeoJsonSource)
 

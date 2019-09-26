@@ -95,17 +95,12 @@ class MainActivity : AppCompatActivity(),
 
         if (areaOfInterestJson != "") {
             val areaLinesJson = sharedPreferences.getString(Constants.AREA_LINES_KEY, "")
-//            val areaCirclesJson = sharedPreferences.getString(Constants.AREA_CIRCLES_KEY, "")
 
             sharedViewModel.areaOfInterest =
                 gson.fromJson<Polygon>(areaOfInterestJson, Polygon::class.java)
             sharedViewModel.areaOfInterestLines =
                 gson.fromJson<Array<Point>>(areaLinesJson, Array<Point>::class.java)
                     .toCollection(ArrayList())
-//            sharedViewModel.areaOfInterestCircles =
-//                gson.fromJson<ArrayList<Feature>>(areaCirclesJson, Array<Feature>::class.java)
-//                    .toCollection(ArrayList())
-
         } else {
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.area_not_defined))
@@ -188,12 +183,10 @@ class MainActivity : AppCompatActivity(),
         super.onPause()
         val areaOfInterestJson = gson.toJson(sharedViewModel.areaOfInterest)
         val areaOfInterestLinesJson = gson.toJson(sharedViewModel.areaOfInterestLines)
-        val areaOfInterestCirclesJson = gson.toJson(sharedViewModel.areaOfInterestCircles)
 
         sharedPreferences.edit()
             .putString(Constants.AREA_OF_INTEREST_KEY, areaOfInterestJson)
             .putString(Constants.AREA_LINES_KEY, areaOfInterestLinesJson)
-            .putString(Constants.AREA_CIRCLES_KEY, areaOfInterestCirclesJson)
             .apply()
     }
 }

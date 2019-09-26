@@ -25,7 +25,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var shouldDefineArea = MutableLiveData<Boolean>()
     var areaOfInterest: Polygon? = null
     var areaOfInterestLines = ArrayList<Point>()
-    var areaOfInterestCircles = ArrayList<Feature>()
 
     fun selectLayer(layerId: String) {
         selectedLayerId.value = layerId
