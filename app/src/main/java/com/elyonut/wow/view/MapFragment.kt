@@ -36,6 +36,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.area_selection.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
@@ -332,9 +333,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         if (shouldEnable) {
             layoutInflater.inflate(R.layout.area_selection, mainMapLayoutView)
-            initUndoButton(view)
-            initCancelAreaButton(view)
-            initApplyAreaButton(view)
+            val areaModeView = view.findViewById<View>(R.id.area_mode)
+            initUndoButton(areaModeView)
+            initCancelAreaButton(areaModeView)
+            initApplyAreaButton(areaModeView)
             mapViewModel.removeAreaFromMap()
         } else {
             mainMapLayoutView.removeView(view.findViewById(R.id.area_mode))
@@ -355,14 +357,14 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun initApplyAreaButton(view: View) { // MVVM ? applyClicked function?
         view.apply_area.setOnClickListener {
             mapViewModel.saveAreaOfInterest()
-            enableAreaSelection(view, false)
+            enableAreaSelection(view.parent as View, false)
         }
     }
 
     private fun initCancelAreaButton(view: View) {
         view.cancel_area.setOnClickListener {
             mapViewModel.cancelAreaSelection()
-            enableAreaSelection(view, false)
+            enableAreaSelection(view.parent as View, false)
         }
     }
 

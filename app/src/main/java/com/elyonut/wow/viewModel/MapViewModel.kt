@@ -169,14 +169,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                     Expression.stop(10, Expression.color(RiskStatus.MEDIUM.color)),
                     Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
                 )
-            ), PropertyFactory.fillExtrusionOpacity(0.5f)
+            ), fillExtrusionOpacity(0.5f)
         )
     }
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
         val threatLayer = loadedMapStyle.getLayer(Constants.constructionLayerId)
         (threatLayer as FillExtrusionLayer).withProperties(
-            PropertyFactory.fillExtrusionOpacity(
+            fillExtrusionOpacity(
                 opacity
             )
         )
@@ -188,7 +188,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             FillLayer(
                 Constants.selectedBuildingLayerId,
                 Constants.selectedBuildingSourceId
-            ).withProperties(PropertyFactory.fillExtrusionOpacity(0.7f))
+            ).withProperties(fillExtrusionOpacity(0.7f))
         )
     }
 
@@ -218,7 +218,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             Constants.threatRadiusSourceId
         )
         fillLayer.setProperties(
-            PropertyFactory.fillColor(
+            fillColor(
                 Expression.step(
                     Expression.get(Constants.threatProperty),
                     Expression.color(RiskStatus.NONE.color),
@@ -227,7 +227,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                     Expression.stop(0.7, Expression.color(RiskStatus.HIGH.color))
                 )
             ),
-            PropertyFactory.fillOpacity(.4f),
+            fillOpacity(.4f),
             visibility(NONE)
         )
 
@@ -382,7 +382,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 makeFeatureCollection(currentLineLayerPointList)
             )
         }
-
     }
 
     fun saveAreaOfInterest() {
@@ -463,6 +462,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             lineWidth(5f)
         )
         loadedMapStyle.addLayerBelow(lineLayer, Constants.CIRCLE_LAYER_ID)
+
+        val layer = FillLayer("a", "b")
+        var POLY = ArrayList<ArrayList<Point>>()
+        layer.setProperties(fillOutlineColor(Color.RED))
+        loadedMapStyle.addLayer(layer)
+
     }
 
     fun focusOnMyLocationClicked() {
