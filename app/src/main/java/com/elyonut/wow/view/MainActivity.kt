@@ -16,19 +16,18 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.elyonut.wow.*
+import com.elyonut.wow.Constants
+import com.elyonut.wow.ILogger
+import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
-import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
-import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
@@ -181,8 +180,13 @@ class MainActivity : AppCompatActivity(),
 
     override fun onPause() {
         super.onPause()
-        val areaOfInterestJson = gson.toJson(sharedViewModel.areaOfInterest)
-        val areaOfInterestLinesJson = gson.toJson(sharedViewModel.areaOfInterestLines)
+        var areaOfInterestJson = ""
+        var areaOfInterestLinesJson = ""
+
+        if (sharedViewModel.areaOfInterest != null) {
+            areaOfInterestJson = gson.toJson(sharedViewModel.areaOfInterest)
+            areaOfInterestLinesJson = gson.toJson(sharedViewModel.areaOfInterestLines)
+        }
 
         sharedPreferences.edit()
             .putString(Constants.AREA_OF_INTEREST_KEY, areaOfInterestJson)

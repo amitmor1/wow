@@ -388,7 +388,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun saveAreaOfInterest() {
         circleSource.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
         lineLayerPointList = currentLineLayerPointList
-        areaOfInterest.value = Polygon.fromLngLats(listOf(lineLayerPointList))
+
+        if (lineLayerPointList.isEmpty()) {
+            areaOfInterest.value = null
+        } else {
+            areaOfInterest.value = Polygon.fromLngLats(listOf(lineLayerPointList))
+        }
     }
 
     fun cancelAreaSelection() {
