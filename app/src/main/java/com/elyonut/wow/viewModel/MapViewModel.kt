@@ -360,7 +360,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         currentLineLayerPointList = ArrayList()
         circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
 //        lineSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
-        fillSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+        fillSource.setGeoJson(makePolygonFeatureCollection(currentLineLayerPointList))
     }
 
     fun undo() {
