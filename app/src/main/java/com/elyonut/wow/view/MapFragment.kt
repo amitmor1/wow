@@ -349,20 +349,20 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     }
 
     private fun initUndoButton(view: View) {
-        view.undo.setOnClickListener {
+        view.findViewById<View>(R.id.undo).setOnClickListener {
             mapViewModel.undo()
         }
     }
 
     private fun initApplyAreaButton(view: View) { // MVVM ? applyClicked function?
-        view.apply_area.setOnClickListener {
+        view.findViewById<View>(R.id.apply_area).setOnClickListener {
             mapViewModel.saveAreaOfInterest()
             enableAreaSelection(view.parent as View, false)
         }
     }
 
     private fun initCancelAreaButton(view: View) {
-        view.cancel_area.setOnClickListener {
+        view.findViewById<View>(R.id.cancel_area).setOnClickListener {
             mapViewModel.cancelAreaSelection()
             enableAreaSelection(view.parent as View, false)
         }

@@ -370,7 +370,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         currentLineLayerPointList = ArrayList()
         circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
 //        lineSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
-        fillSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+        fillSource.setGeoJson(makePolygonFeatureCollection(currentLineLayerPointList))
     }
 
     fun undo() {
@@ -494,8 +494,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             Constants.FILL_SOURCE_ID
         )
         fillLayer.setProperties(
-            fillOpacity(0.1f),
-            fillColor(Color.parseColor("#00e9ff")),
+            fillOpacity(0.5f),
+            fillColor(Color.parseColor("#ff0000")),
             fillOutlineColor(Color.RED)
         )
         loadedMapStyle.addLayerBelow(fillLayer, Constants.LINE_SOURCE_ID)
