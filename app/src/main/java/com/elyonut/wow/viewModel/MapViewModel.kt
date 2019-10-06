@@ -32,6 +32,9 @@ import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
 
 
 private const val RECORD_REQUEST_CODE = 101
@@ -59,15 +62,16 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var isAreaSelectionMode = false
     var areaOfInterest = MutableLiveData<Polygon>()
     var lineLayerPointList = ArrayList<Point>()
-    var circleLayerFeatureList = ArrayList<Feature>()
-    private var listOfList = ArrayList<MutableList<Point>>()
+    private var currentLineLayerPointList = ArrayList<Point>()
+    private var currentCircleLayerFeatureList = ArrayList<Feature>()
     private lateinit var circleSource: GeoJsonSource
-    private lateinit var lineSource: GeoJsonSource
+    private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
 
+    @SuppressLint("WrongConstant")  // TODO why wrongconstant?!
     fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
-        map.setStyle(getString(R.string.style_url)) { style ->
+        map.setStyle(Constants.MAPBOX_STYLE_URL) { style ->
             locationSetUp(style)
 //            initOfflineMap(style)
 //            setBuildingFilter(style)
@@ -75,9 +79,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.regularOpacity)
             circleSource = initCircleSource(style)
-            lineSource = initLineSource(style)
+            fillSource = initFillSource(style)
             initCircleLayer(style)
-            initLineLayer(style)
+            initFillLayer(style)
         }
     }
 
@@ -168,14 +172,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                     Expression.stop(10, Expression.color(RiskStatus.MEDIUM.color)),
                     Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
                 )
-            ), PropertyFactory.fillExtrusionOpacity(0.5f)
+            ), fillExtrusionOpacity(0.5f)
         )
     }
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
         val threatLayer = loadedMapStyle.getLayer(Constants.constructionLayerId)
         (threatLayer as FillExtrusionLayer).withProperties(
-            PropertyFactory.fillExtrusionOpacity(
+            fillExtrusionOpacity(
                 opacity
             )
         )
@@ -187,7 +191,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             FillLayer(
                 Constants.selectedBuildingLayerId,
                 Constants.selectedBuildingSourceId
-            ).withProperties(PropertyFactory.fillExtrusionOpacity(0.7f))
+            ).withProperties(fillExtrusionOpacity(0.7f))
         )
     }
 
@@ -217,7 +221,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             Constants.threatRadiusSourceId
         )
         fillLayer.setProperties(
-            PropertyFactory.fillColor(
+            fillColor(
                 Expression.step(
                     Expression.get(Constants.threatProperty),
                     Expression.color(RiskStatus.NONE.color),
@@ -226,7 +230,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                     Expression.stop(0.7, Expression.color(RiskStatus.HIGH.color))
                 )
             ),
-            PropertyFactory.fillOpacity(.4f),
+            fillOpacity(.4f),
             visibility(NONE)
         )
 
@@ -324,88 +328,107 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun drawPolygonMode(latLng: LatLng) {
         val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.latitude)
 
-        // Make note of the first map click location so that it can be used to create a closed polygon later on
-        if (circleLayerFeatureList.isEmpty()) {
+        if (currentCircleLayerFeatureList.isEmpty()) {
             firstPointOfPolygon = mapTargetPoint
         }
 
-        // Add the click point to the circle layer and update the display of the circle layer data
-        circleLayerFeatureList.add(Feature.fromGeometry(mapTargetPoint))
-        circleSource.setGeoJson(FeatureCollection.fromFeatures(circleLayerFeatureList))
+        currentCircleLayerFeatureList.add(Feature.fromGeometry(mapTargetPoint))
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
 
-        // Add the click point to the line layer and update the display of the line layer data
         when {
-            circleLayerFeatureList.size < 3 -> lineLayerPointList.add(mapTargetPoint)
-            circleLayerFeatureList.size == 3 -> {
-                lineLayerPointList.add(mapTargetPoint)
-                lineLayerPointList.add(firstPointOfPolygon)
+            currentCircleLayerFeatureList.size < 3 -> currentLineLayerPointList.add(mapTargetPoint)
+            currentCircleLayerFeatureList.size == 3 -> {
+                currentLineLayerPointList.add(mapTargetPoint)
+                currentLineLayerPointList.add(firstPointOfPolygon)
             }
             else -> {
-                lineLayerPointList.removeAt(circleLayerFeatureList.size - 1)
-                lineLayerPointList.add(mapTargetPoint)
-                lineLayerPointList.add(firstPointOfPolygon)
+                currentLineLayerPointList.removeAt(currentCircleLayerFeatureList.size - 1)
+                currentLineLayerPointList.add(mapTargetPoint)
+                currentLineLayerPointList.add(firstPointOfPolygon)
             }
         }
 
-        lineSource.setGeoJson(
-            FeatureCollection.fromFeatures(
-                arrayOf(
-                    Feature.fromGeometry(
-                        LineString.fromLngLats(
-                            lineLayerPointList
-                        )
-                    )
-                )
-            )
-        )
+        fillSource.setGeoJson(makePolygonFeatureCollection(currentLineLayerPointList))
+    }
 
-        listOfList.add(lineLayerPointList)
+    fun removeAreaFromMap() {
+        currentCircleLayerFeatureList = ArrayList()
+        currentLineLayerPointList = ArrayList()
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
+        fillSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+    }
+
+    fun undo() {
+        if (currentCircleLayerFeatureList.isNotEmpty()) {
+            when {
+                currentCircleLayerFeatureList.size < 3 -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                }
+                currentCircleLayerFeatureList.size == 3 -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                }
+                else -> {
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.removeAt(currentLineLayerPointList.size - 1)
+                    currentLineLayerPointList.add(currentLineLayerPointList[0])
+                }
+            }
+
+            currentCircleLayerFeatureList.removeAt(currentCircleLayerFeatureList.size - 1)
+            circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
+            fillSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
+        }
     }
 
     fun saveAreaOfInterest() {
-        areaOfInterest.value = Polygon.fromLngLats(listOfList)
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
+        lineLayerPointList = currentLineLayerPointList
+
+        if (lineLayerPointList.isEmpty()) {
+            areaOfInterest.value = null
+        } else {
+            areaOfInterest.value = Polygon.fromLngLats(listOf(lineLayerPointList))
+        }
     }
 
-    fun undoLastStep() {
-        circleLayerFeatureList.removeAt(circleLayerFeatureList.size -1)
-        circleSource.setGeoJson(FeatureCollection.fromFeatures(circleLayerFeatureList))
-        lineLayerPointList.removeAt(lineLayerPointList.size - 1)
-        lineSource.setGeoJson(
-            FeatureCollection.fromFeatures(
-                arrayOf(
-                    Feature.fromGeometry(
-                        LineString.fromLngLats(
-                            lineLayerPointList
-                        )
+    fun cancelAreaSelection() {
+        currentCircleLayerFeatureList = ArrayList()
+        currentLineLayerPointList = ArrayList()
+        circleSource.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
+        fillSource.setGeoJson(makePolygonFeatureCollection(lineLayerPointList))
+    }
+
+    private fun makeLineFeatureCollection(pointArrayList: ArrayList<Point>): FeatureCollection {
+        return FeatureCollection.fromFeatures(
+            arrayOf(
+                Feature.fromGeometry(
+                    LineString.fromLngLats(
+                        pointArrayList
                     )
                 )
             )
         )
     }
 
+    private fun makePolygonFeatureCollection(pointArrayList: ArrayList<Point>): FeatureCollection {
+        return FeatureCollection.fromFeatures(
+            arrayOf(
+                Feature.fromGeometry(
+                    Polygon.fromLngLats(
+                        listOf(pointArrayList)
+                    )
+                )
+            )
+        )
+    }
 
     private fun initCircleSource(loadedMapStyle: Style): GeoJsonSource {
-        val circleFeatureCollection = FeatureCollection.fromFeatures(circleLayerFeatureList)
+        val circleFeatureCollection = FeatureCollection.fromFeatures(ArrayList())
         val circleGeoJsonSource = GeoJsonSource(Constants.CIRCLE_SOURCE_ID, circleFeatureCollection)
         loadedMapStyle.addSource(circleGeoJsonSource)
 
         return circleGeoJsonSource
-    }
-
-    private fun initLineSource(loadedMapStyle: Style): GeoJsonSource {
-        val lineFeatureCollection = FeatureCollection.fromFeatures(
-            arrayOf(
-                Feature.fromGeometry(
-                    LineString.fromLngLats(
-                        lineLayerPointList
-                    )
-                )
-            )
-        )
-        val lineGeoJsonSource = GeoJsonSource(Constants.LINE_SOURCE_ID, lineFeatureCollection)
-        loadedMapStyle.addSource(lineGeoJsonSource)
-
-        return lineGeoJsonSource
     }
 
     private fun initCircleLayer(loadedMapStyle: Style) {
@@ -420,16 +443,25 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         loadedMapStyle.addLayer(circleLayer)
     }
 
-    private fun initLineLayer(loadedMapStyle: Style) {
-        val lineLayer = LineLayer(
-            Constants.LINE_LAYER_ID,
-            Constants.LINE_SOURCE_ID
+    private fun initFillSource(loadedMapStyle: Style): GeoJsonSource {
+        val fillFeatureCollection = makePolygonFeatureCollection(lineLayerPointList)
+        val fillGeoJsonSource = GeoJsonSource(Constants.FILL_SOURCE_ID, fillFeatureCollection)
+        loadedMapStyle.addSource(fillGeoJsonSource)
+
+        return fillGeoJsonSource
+    }
+
+    private fun initFillLayer(loadedMapStyle: Style) {
+        val fillLayer = FillLayer(
+            Constants.FILL_LAYER_ID,
+            Constants.FILL_SOURCE_ID
         )
-        lineLayer.setProperties(
-            lineColor(Color.RED),
-            lineWidth(5f)
+        fillLayer.setProperties(
+            fillOpacity(0.5f),
+            fillColor(Color.parseColor("#ff0000")),
+            fillOutlineColor(Color.RED)
         )
-        loadedMapStyle.addLayerBelow(lineLayer, Constants.CIRCLE_LAYER_ID)
+        loadedMapStyle.addLayerBelow(fillLayer, Constants.CIRCLE_LAYER_ID)
     }
 
     fun focusOnMyLocationClicked() {
@@ -437,10 +469,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             cameraMode = CameraMode.TRACKING
             renderMode = RenderMode.COMPASS
         }
-    }
-
-    private fun getString(stringName: Int): String {
-        return getApplication<Application>().getString(stringName)  // constants?
     }
 
     fun clean() {

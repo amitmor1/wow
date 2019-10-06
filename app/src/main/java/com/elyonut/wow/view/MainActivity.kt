@@ -16,19 +16,18 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.elyonut.wow.*
+import com.elyonut.wow.Constants
+import com.elyonut.wow.ILogger
+import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
-import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
-import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
@@ -94,18 +93,8 @@ class MainActivity : AppCompatActivity(),
         val areaOfInterestJson = sharedPreferences.getString(Constants.AREA_OF_INTEREST_KEY, "")
 
         if (areaOfInterestJson != "") {
-            val areaLinesJson = sharedPreferences.getString(Constants.AREA_LINES_KEY, "")
-            val areaCirclesJson = sharedPreferences.getString(Constants.AREA_CIRCLES_KEY, "")
-
             sharedViewModel.areaOfInterest =
                 gson.fromJson<Polygon>(areaOfInterestJson, Polygon::class.java)
-            sharedViewModel.areaOfInterestLines =
-                gson.fromJson<Array<Point>>(areaLinesJson, Array<Point>::class.java)
-                    .toCollection(ArrayList())
-//            sharedViewModel.areaOfInterestCircles =
-//                gson.fromJson<ArrayList<Feature>>(areaCirclesJson, Array<Feature>::class.java)
-//                    .toCollection(ArrayList())
-
         } else {
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.area_not_defined))
@@ -186,14 +175,14 @@ class MainActivity : AppCompatActivity(),
 
     override fun onPause() {
         super.onPause()
-        val areaOfInterestJson = gson.toJson(sharedViewModel.areaOfInterest)
-        val areaOfInterestLinesJson = gson.toJson(sharedViewModel.areaOfInterestLines)
-        val areaOfInterestCirclesJson = gson.toJson(sharedViewModel.areaOfInterestCircles)
+        var areaOfInterestJson = ""
+
+        if (sharedViewModel.areaOfInterest != null) {
+            areaOfInterestJson = gson.toJson(sharedViewModel.areaOfInterest)
+        }
 
         sharedPreferences.edit()
             .putString(Constants.AREA_OF_INTEREST_KEY, areaOfInterestJson)
-            .putString(Constants.AREA_LINES_KEY, areaOfInterestLinesJson)
-            .putString(Constants.AREA_CIRCLES_KEY, areaOfInterestCirclesJson)
             .apply()
     }
 }

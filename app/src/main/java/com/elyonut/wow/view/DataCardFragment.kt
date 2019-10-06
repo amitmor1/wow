@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import com.elyonut.wow.OnSwipeTouchListener
 import com.elyonut.wow.R
 import com.elyonut.wow.model.Threat
@@ -65,11 +64,11 @@ class DataCardFragment : Fragment() {
             view.buildingDataCard.layoutParams =
                 dataCardViewModel.getRelativeLayoutParams(EXPENDED_CARD_SIZE_RELATION_TO_SCREEN)
             view.moreContent.visibility = View.VISIBLE
-            view.readMore.text = getString(R.string.readLessHebrew)
+            view.readMore.text = getString(R.string.read_less_hebrew)
         } else {
             view.buildingDataCard.layoutParams = dataCardViewModel.getRelativeLayoutParams(CARD_SIZE_RELATION_TO_SCREEN)
             view.moreContent.visibility = View.GONE
-            view.readMore.text = getString(R.string.readMoreHebrew)
+            view.readMore.text = getString(R.string.read_more_hebrew)
         }
     }
 

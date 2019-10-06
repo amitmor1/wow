@@ -36,7 +36,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
-import kotlinx.android.synthetic.main.area_selection.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
 private const val RECORD_REQUEST_CODE = 101
@@ -80,8 +79,15 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun initArea() {
         if (sharedViewModel.areaOfInterest != null) {
             mapViewModel.areaOfInterest.value = sharedViewModel.areaOfInterest
-            mapViewModel.lineLayerPointList = sharedViewModel.areaOfInterestLines
-            mapViewModel.circleLayerFeatureList = sharedViewModel.areaOfInterestCircles
+
+            var polygonPoints = ArrayList<Point>()
+            sharedViewModel.areaOfInterest!!.coordinates().forEach { it ->
+                it.forEach {
+                    polygonPoints.add(it)
+                }
+            }
+
+            mapViewModel.lineLayerPointList = polygonPoints
         }
     }
 
@@ -90,8 +96,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
         mapViewModel.areaOfInterest.observe(this, Observer {
             sharedViewModel.areaOfInterest = it
-            sharedViewModel.areaOfInterestLines = mapViewModel.lineLayerPointList
-            sharedViewModel.areaOfInterestCircles = mapViewModel.circleLayerFeatureList
         })
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {
@@ -242,7 +246,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         if (mapViewModel.isAreaSelectionMode) {
             mapViewModel.drawPolygonMode(latLng)
-//            sharedViewModel.isAreaDefined = true
         } else {
             if (mapViewModel.selectLocationManual) {
 
@@ -335,9 +338,11 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         if (shouldEnable) {
             layoutInflater.inflate(R.layout.area_selection, mainMapLayoutView)
-            initUndoButton(view)
-            initCancelAreaButton(view)
-            initApplyAreaButton(view)
+            val areaModeView = view.findViewById<View>(R.id.area_mode)
+            initUndoButton(areaModeView)
+            initCancelAreaButton(areaModeView)
+            initApplyAreaButton(areaModeView)
+            mapViewModel.removeAreaFromMap()
         } else {
             mainMapLayoutView.removeView(view.findViewById(R.id.area_mode))
             sharedViewModel.shouldDefineArea.value = false
@@ -349,28 +354,28 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     }
 
     private fun initUndoButton(view: View) {
-        view.undo.setOnClickListener {
-            mapViewModel.undoLastStep()
+        view.findViewById<View>(R.id.undo).setOnClickListener {
+            mapViewModel.undo()
         }
     }
 
     private fun initApplyAreaButton(view: View) { // MVVM ? applyClicked function?
-        view.apply_area.setOnClickListener {
+        view.findViewById<View>(R.id.apply_area).setOnClickListener {
             mapViewModel.saveAreaOfInterest()
-            enableAreaSelection(view, false)
+            enableAreaSelection(view.parent as View, false)
         }
     }
 
     private fun initCancelAreaButton(view: View) {
-        view.cancel_area.setOnClickListener {
-            enableAreaSelection(view, false)
+        view.findViewById<View>(R.id.cancel_area).setOnClickListener {
+            mapViewModel.cancelAreaSelection()
+            enableAreaSelection(view.parent as View, false)
         }
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.threat_list_menu_item -> {
-
                 mapViewModel.updateThreats(mapView)
 
                 mapViewModel.threats.value?.let {
@@ -517,8 +522,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     override fun onPause() {
         super.onPause()
         mapView.onPause()
-//        SharedPreferences.Editor
-//        val preferencesEditor =
     }
 
     override fun onLowMemory() {
