@@ -458,7 +458,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
         fillLayer.setProperties(
             fillOpacity(0.5f),
-            fillColor(Color.parseColor("#ff0000")),
+            fillColor(Color.parseColor("#00FFFFFF")),
             fillOutlineColor(Color.RED)
         )
         loadedMapStyle.addLayerBelow(fillLayer, Constants.CIRCLE_LAYER_ID)
