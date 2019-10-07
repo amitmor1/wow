@@ -36,7 +36,6 @@ import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 
-
 private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
@@ -79,9 +78,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.regularOpacity)
             circleSource = initCircleSource(style)
-            fillSource = initFillSource(style)
+            fillSource = initLineSource(style)
             initCircleLayer(style)
-            initFillLayer(style)
+            initLineLayer(style)
         }
     }
 
@@ -440,28 +439,30 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             circleRadius(7f),
             circleColor(Color.WHITE)
         )
+
         loadedMapStyle.addLayer(circleLayer)
     }
 
-    private fun initFillSource(loadedMapStyle: Style): GeoJsonSource {
-        val fillFeatureCollection = makePolygonFeatureCollection(lineLayerPointList)
-        val fillGeoJsonSource = GeoJsonSource(Constants.FILL_SOURCE_ID, fillFeatureCollection)
-        loadedMapStyle.addSource(fillGeoJsonSource)
+    private fun initLineSource(loadedMapStyle: Style): GeoJsonSource {
+        val lineFeatureCollection = makePolygonFeatureCollection(lineLayerPointList)
+        val lineGeoJsonSource = GeoJsonSource(Constants.LINE_SOURCE_ID, lineFeatureCollection)
+        loadedMapStyle.addSource(lineGeoJsonSource)
 
-        return fillGeoJsonSource
+        return lineGeoJsonSource
     }
 
-    private fun initFillLayer(loadedMapStyle: Style) {
-        val fillLayer = FillLayer(
-            Constants.FILL_LAYER_ID,
-            Constants.FILL_SOURCE_ID
+    private fun initLineLayer(loadedMapStyle: Style) {
+        val lineLayer = LineLayer(
+            Constants.LINE_LAYER_ID,
+            Constants.LINE_SOURCE_ID
         )
-        fillLayer.setProperties(
-            fillOpacity(0.5f),
-            fillColor(Color.parseColor("#00FFFFFF")),
-            fillOutlineColor(Color.RED)
+
+        lineLayer.setProperties(
+            lineColor(Color.parseColor("#494949")),
+            lineWidth(2.5f)
         )
-        loadedMapStyle.addLayerBelow(fillLayer, Constants.CIRCLE_LAYER_ID)
+
+        loadedMapStyle.addLayerBelow(lineLayer, Constants.CIRCLE_LAYER_ID)
     }
 
     fun focusOnMyLocationClicked() {
