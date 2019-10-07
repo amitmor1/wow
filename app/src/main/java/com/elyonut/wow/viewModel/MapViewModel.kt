@@ -36,7 +36,6 @@ import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 
-
 private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
@@ -459,7 +458,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
 
         lineLayer.setProperties(
-            lineColor(Color.parseColor("#000000")),
+            lineColor(Color.parseColor("#494949")),
             lineWidth(2.5f)
         )
 
