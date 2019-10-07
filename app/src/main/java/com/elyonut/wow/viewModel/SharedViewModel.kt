@@ -25,15 +25,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var shouldDefineArea = MutableLiveData<Boolean>()
     var areaOfInterest: Polygon? = null
 
-    fun selectLayer(layerId: String) {
-        selectedLayerId.value = layerId
-    }
-
     fun selectExperimentalOption(itemId: Int) {
         selectedExperimentalOption.value = itemId
-    }
-
-    fun applyFilter(shouldApply: Boolean) {
-        shouldApplyFilter.value = shouldApply
     }
 }

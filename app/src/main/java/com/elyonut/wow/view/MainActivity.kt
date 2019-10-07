@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(),
     private fun setObservers() {
         mainViewModel.chosenLayerId.observe(this, Observer<String> {
             mainViewModel.chosenLayerId.value?.let {
-                sharedViewModel.selectLayer(it)
+                sharedViewModel.selectedLayerId.value = it
             }
         })
         mainViewModel.selectedExperimentalOption.observe(

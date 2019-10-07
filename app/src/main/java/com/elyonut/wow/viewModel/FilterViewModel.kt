@@ -23,9 +23,6 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
     var numberFilterOptions: List<String>
     var isStringType = MutableLiveData<Boolean>()
     var numericTypeChosen = MutableLiveData<NumericFilterTypes>()
-    val isGreaterChosen = MutableLiveData<Boolean>()
-    val isLowerChosen = MutableLiveData<Boolean>()
-    val isSpecificChosen = MutableLiveData<Boolean>()
     val shouldApplyFilter = MutableLiveData<Boolean>()
 
     init {
@@ -42,6 +39,7 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
         propertiesHashMap = layerManager.getLayerProperties(layerId)
         propertiesList = propertiesHashMap.keys.toList()
         chosenProperty.value = propertiesList.first()
+
         return propertiesList
     }
 
@@ -59,7 +57,6 @@ class FilterViewModel(application: Application) : AndroidViewModel(application) 
             } else if (propertyType.isSubclassOf(java.lang.String::class)) {
                 onNumberItemSelected(0)
                 isStringType.value = true
-
             }
         }
     }

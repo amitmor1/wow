@@ -17,11 +17,17 @@ import java.lang.ref.WeakReference
 private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
 private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
-class LocationAdapter(private var context: Context, var locationComponent: LocationComponent, var analyzer: IAnalyze):
+class LocationAdapter(
+    private var context: Context,
+    var locationComponent: LocationComponent,
+    var analyzer: IAnalyze
+) :
     ILocationManager {
     private var lastUpdatedLocation: Location? = null
-    private var locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    private var locationEngine: LocationEngine = LocationEngineProvider.getBestLocationEngine(context)
+    private var locationManager =
+        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private var locationEngine: LocationEngine =
+        LocationEngineProvider.getBestLocationEngine(context)
     private var callback = LocationUpdatesCallback(this)
     private val riskStatus = MutableLiveData<RiskStatus>()
 
@@ -60,14 +66,16 @@ class LocationAdapter(private var context: Context, var locationComponent: Locat
 
     private class LocationUpdatesCallback(locationAdapter: LocationAdapter) :
         LocationEngineCallback<LocationEngineResult> {
-        private var locationAdapterWeakReference: WeakReference<LocationAdapter> = WeakReference(locationAdapter)
+        private var locationAdapterWeakReference: WeakReference<LocationAdapter> =
+            WeakReference(locationAdapter)
 
         override fun onSuccess(result: LocationEngineResult?) {
 
             val location: Location = result?.lastLocation ?: return
             locationAdapterWeakReference.get()?.lastUpdatedLocation = location
             locationAdapterWeakReference.get()?.locationComponent?.forceLocationUpdate(location)
-            locationAdapterWeakReference.get()?.riskStatus?.value = locationAdapterWeakReference.get()?.analyzer?.calcThreatStatus(result.lastLocation!!)!!
+            locationAdapterWeakReference.get()?.riskStatus?.value =
+                locationAdapterWeakReference.get()?.analyzer?.calcThreatStatus(result.lastLocation!!)!!
         }
 
         override fun onFailure(exception: java.lang.Exception) {

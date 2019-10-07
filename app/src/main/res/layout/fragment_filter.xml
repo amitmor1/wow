@@ -16,6 +16,10 @@
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
+        <include layout="@layout/nav_header_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
         <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
