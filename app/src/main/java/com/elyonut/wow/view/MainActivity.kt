@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(),
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
         setObservers()
-        initArea()
+        initAreaOfInterest()
         initToolbar()
         initNavigationMenu()
     }
@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity(),
         })
     }
 
-    private fun initArea() {
+    private fun initAreaOfInterest() {
         val areaOfInterestJson = sharedPreferences.getString(Constants.AREA_OF_INTEREST_KEY, "")
 
         if (areaOfInterestJson != "") {
