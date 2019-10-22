@@ -8,5 +8,5 @@ interface ILocationManager {
     fun isGpsEnabled(): Boolean
     fun cleanLocation()
     fun getCurrentLocation() : Location?
-    fun getRiskStatus(): LiveData<RiskStatus>?
+    fun getRiskStatus(): LiveData<Pair<RiskStatus, String?>>?
 }

@@ -29,7 +29,7 @@ class LocationAdapter(
     private var locationEngine: LocationEngine =
         LocationEngineProvider.getBestLocationEngine(context)
     private var callback = LocationUpdatesCallback(this)
-    private val riskStatus = MutableLiveData<RiskStatus>()
+    private val riskStatus = MutableLiveData<Pair<RiskStatus, String?>>()
 
     override fun isGpsEnabled(): Boolean {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -43,7 +43,7 @@ class LocationAdapter(
         return lastUpdatedLocation
     }
 
-    override fun getRiskStatus(): LiveData<RiskStatus> {
+    override fun getRiskStatus(): LiveData<Pair<RiskStatus, String?>> {
         return riskStatus
     }
 

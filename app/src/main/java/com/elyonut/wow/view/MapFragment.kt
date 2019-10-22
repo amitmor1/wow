@@ -111,6 +111,16 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             Observer<Boolean> { observeRiskStatus(it) }
         )
 
+        mapViewModel.isInsideThreatArea.observe(this, Observer<Boolean> {
+            sharedViewModel.alertsManager.sendNotification(
+                getString(R.string.inside_threat_notification_title),
+                getString(R.string.inside_threat_notification_content) + mapViewModel.threatID,
+                R.drawable.ic_warning_black,
+                Constants.INSIDE_THREAT_ALERT_ID
+            )
+
+        })
+
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             it?.let { mapViewModel.layerSelected(it) }
         })
@@ -135,7 +145,9 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized)
-            mapViewModel.riskStatus.observe(this, Observer<RiskStatus> { changeStatus(it) })
+            mapViewModel.riskStatus.observe(
+                this,
+                Observer<Pair<RiskStatus, String?>> { changeStatus(it.first) })
     }
 
     private fun filter(shouldApplyFilter: Boolean) {

@@ -13,16 +13,17 @@ private const val MY_RISK_RADIUS = 0.3
 
 class AnalyzeManager(private val layerManager: LayerManager) : IAnalyze {
 
-    override fun calcThreatStatus(location: Location): RiskStatus {
+    override fun calcThreatStatus(location: Location): Pair<RiskStatus, String?> {
         val allFeatures = layerManager.getLayer(Constants.threatLayerId)
         var threatLocation: LatLng
-//        var riskStatus = StatusTypes.LOW_RISK
         var riskStatus = RiskStatus.LOW
+        var threatID: String? = ""
 
         run loop@{
             allFeatures?.forEach {
                 val threatLat = it.properties?.get("latitude")
                 val threatLng = it.properties?.get("longitude")
+                threatID = it.id
 
                 if (threatLat != null && threatLng != null) {
                     threatLocation = LatLng(threatLat.asDouble, threatLng.asDouble)
@@ -43,6 +44,6 @@ class AnalyzeManager(private val layerManager: LayerManager) : IAnalyze {
             }
         }
 
-        return riskStatus
+        return Pair(riskStatus, threatID)
     }
 }

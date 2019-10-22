@@ -55,7 +55,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
     var noPermissionsToast = MutableLiveData<Toast>()
-    lateinit var riskStatus: LiveData<RiskStatus>
+    lateinit var riskStatus: LiveData<Pair<RiskStatus, String?>>
     var threats = MutableLiveData<ArrayList<Threat>>()
     var threatFeatures = MutableLiveData<List<Feature>>()
     val isLocationAdapterInitialized = MutableLiveData<Boolean>()
@@ -67,6 +67,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var circleSource: GeoJsonSource
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
+    var isInsideThreatArea = MutableLiveData<Boolean>()
+    var threatID: String? = ""
 
     @SuppressLint("WrongConstant")  // TODO why wrongconstant?!
     fun onMapReady(mapboxMap: MapboxMap) {
@@ -75,6 +77,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             locationSetUp(style)
 //            initOfflineMap(style)
 //            setBuildingFilter(style)
+            isInsideThreatArea.value = false
             setSelectedBuildingLayer(style)
             addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.regularOpacity)
@@ -132,10 +135,18 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         riskStatus = locationAdapter!!.getRiskStatus()!!
         isLocationAdapterInitialized.value = true
         riskStatus.observeForever {
-            if (riskStatus.value == RiskStatus.HIGH || riskStatus.value == RiskStatus.MEDIUM) {
+            if (riskStatus.value?.first == RiskStatus.HIGH || riskStatus.value?.first == RiskStatus.MEDIUM) {
                 setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
             } else {
                 setThreatLayerOpacity(loadedMapStyle, Constants.regularOpacity)
+            }
+
+            if (riskStatus.value?.first == RiskStatus.HIGH) {
+
+                if (!(isInsideThreatArea.value != null && isInsideThreatArea.value!!)) {
+                    threatID = riskStatus.value?.second
+                    isInsideThreatArea.value = true
+                }
             }
         }
     }
