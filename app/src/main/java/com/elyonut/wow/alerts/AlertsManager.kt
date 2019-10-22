@@ -10,12 +10,14 @@ import android.content.Intent
 import android.app.PendingIntent
 import com.elyonut.wow.R
 import android.graphics.*
+import com.elyonut.wow.Constants
+import kotlin.random.Random
 
 
 class AlertsManager(var context: Context) {
-    private val PRIMARY_CHANNEL_ID = "primary_notification_channel"
 
     private var mNotifyManager: NotificationManager? = null
+    private var notificationIds = HashMap<String, Int>()
 
     init {
         createNotificationChannel()
@@ -27,7 +29,7 @@ class AlertsManager(var context: Context) {
 
             // Create a NotificationChannel
             val notificationChannel = NotificationChannel(
-                PRIMARY_CHANNEL_ID,
+                Constants.PRIMARY_CHANNEL_ID,
                 "Notification", NotificationManager
                     .IMPORTANCE_HIGH
             )
@@ -40,22 +42,47 @@ class AlertsManager(var context: Context) {
         }
     }
 
-    fun sendNotification(notificationTitle: String, notificationText: String, notificationIcon: Int, notificationID: Int) {
+    fun sendNotification(
+        notificationTitle: String,
+        notificationText: String,
+        notificationIcon: Int,
+        threatID: String
+    ) {
+        var notificationID = notificationIds[threatID]
+        if (notificationID == null) {
+            notificationID = generateNotificationID(threatID)
+        }
+
         val notificationIntent = Intent(context, MainActivity::class.java)
         val notificationPendingIntent = PendingIntent.getActivity(
             context,
             notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val notifyBuilder= NotificationCompat.Builder(context, PRIMARY_CHANNEL_ID)
+        val notifyBuilder = NotificationCompat.Builder(context, Constants.PRIMARY_CHANNEL_ID)
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
             .setSmallIcon(notificationIcon)
             .setContentIntent(notificationPendingIntent)
             .setAutoCancel(true)
-            .addAction(R.drawable.ic_check_black, context.getString(R.string.notification_accepted), notificationPendingIntent)
-            .addAction(R.drawable.ic_gps_fixed_black, context.getString(R.string.goto_location), notificationPendingIntent)
-            .setLargeIcon(getCircleBitmap(BitmapFactory.decodeResource(context.resources, R.drawable.sunflower)))
+            .addAction(
+                R.drawable.ic_check_black,
+                context.getString(R.string.notification_accepted),
+                notificationPendingIntent
+            )
+            .addAction(
+                R.drawable.ic_gps_fixed_black,
+                context.getString(R.string.goto_location),
+                notificationPendingIntent
+            )
+            .setLargeIcon(
+                getCircleBitmap(
+                    BitmapFactory.decodeResource(
+                        context.resources,
+                        R.drawable.sunflower
+                    )
+                )
+            )
 
         mNotifyManager?.notify(notificationID, notifyBuilder.build())
     }
@@ -83,5 +110,15 @@ class AlertsManager(var context: Context) {
         bitmap.recycle()
 
         return output
+    }
+
+    private fun generateNotificationID(threatID: String): Int {
+        var newID = Random.nextInt()
+        while (notificationIds.containsValue(newID)) {
+            newID = Random.nextInt()
+        }
+
+        notificationIds[threatID] = newID
+        return newID
     }
 }

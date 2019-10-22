@@ -12,6 +12,8 @@ import com.elyonut.wow.RiskStatus
 import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
 import java.lang.ref.WeakReference
+import java.util.*
+import kotlin.collections.ArrayList
 
 // Const values
 private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
@@ -29,7 +31,7 @@ class LocationAdapter(
     private var locationEngine: LocationEngine =
         LocationEngineProvider.getBestLocationEngine(context)
     private var callback = LocationUpdatesCallback(this)
-    private val riskStatus = MutableLiveData<Pair<RiskStatus, String?>>()
+    private val riskStatusDetails = MutableLiveData<Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>>>()
 
     override fun isGpsEnabled(): Boolean {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -43,8 +45,8 @@ class LocationAdapter(
         return lastUpdatedLocation
     }
 
-    override fun getRiskStatus(): LiveData<Pair<RiskStatus, String?>> {
-        return riskStatus
+    override fun getRiskStatusDetails(): LiveData<Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>>> {
+        return riskStatusDetails
     }
 
     @SuppressLint("MissingPermission")
@@ -74,8 +76,8 @@ class LocationAdapter(
             val location: Location = result?.lastLocation ?: return
             locationAdapterWeakReference.get()?.lastUpdatedLocation = location
             locationAdapterWeakReference.get()?.locationComponent?.forceLocationUpdate(location)
-            locationAdapterWeakReference.get()?.riskStatus?.value =
-                locationAdapterWeakReference.get()?.analyzer?.calcThreatStatus(result.lastLocation!!)!!
+            locationAdapterWeakReference.get()?.riskStatusDetails?.value =
+                locationAdapterWeakReference.get()?.analyzer?.calcRiskStatus(result.lastLocation!!)!!
         }
 
         override fun onFailure(exception: java.lang.Exception) {

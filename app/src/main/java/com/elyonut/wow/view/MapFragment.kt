@@ -37,6 +37,7 @@ import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_map.view.*
+import kotlin.random.Random
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -112,13 +113,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         )
 
         mapViewModel.isInsideThreatArea.observe(this, Observer<Boolean> {
-            sharedViewModel.alertsManager.sendNotification(
-                getString(R.string.inside_threat_notification_title),
-                getString(R.string.inside_threat_notification_content) + mapViewModel.threatID,
-                R.drawable.ic_warning_black,
-                Constants.INSIDE_THREAT_ALERT_ID
-            )
-
+            sendNotification()
         })
 
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
@@ -143,11 +138,22 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         })
     }
 
+    private fun sendNotification() {
+        mapViewModel.threatIdsByStatus[RiskStatus.HIGH]?.forEach {
+            sharedViewModel.alertsManager.sendNotification(
+                getString(R.string.inside_threat_notification_title),
+                getString(R.string.inside_threat_notification_content) + it,
+                R.drawable.threat_notification_icon,
+                it
+            )
+        }
+    }
+
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized)
-            mapViewModel.riskStatus.observe(
+            mapViewModel.riskStatusDetails.observe(
                 this,
-                Observer<Pair<RiskStatus, String?>> { changeStatus(it.first) })
+                Observer<Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>>> { changeStatus(it.first) })
     }
 
     private fun filter(shouldApplyFilter: Boolean) {
@@ -518,8 +524,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onDestroy() {
         super.onDestroy()
-        if (mapViewModel.riskStatus.hasObservers()) {
-            mapViewModel.riskStatus.removeObservers(this)
+        if (mapViewModel.riskStatusDetails.hasObservers()) {
+            mapViewModel.riskStatusDetails.removeObservers(this)
         }
         mapViewModel.clean()
         map.removeOnMapClickListener(this)

@@ -54,7 +54,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
     var noPermissionsToast = MutableLiveData<Toast>()
-    lateinit var riskStatus: LiveData<Pair<RiskStatus, String?>>
+    lateinit var riskStatusDetails: LiveData<Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>>>
     var threats = MutableLiveData<ArrayList<Threat>>()
     var threatFeatures = MutableLiveData<List<Feature>>()
     val isLocationAdapterInitialized = MutableLiveData<Boolean>()
@@ -67,7 +67,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
     var isInsideThreatArea = MutableLiveData<Boolean>()
-    var threatID: String? = ""
+    var threatIdsByStatus = HashMap<RiskStatus, ArrayList<String>>()
 
     @SuppressLint("WrongConstant")  // TODO why wrongconstant?!
     fun onMapReady(mapboxMap: MapboxMap) {
@@ -131,20 +131,19 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun initRiskStatus(loadedMapStyle: Style) {
-        riskStatus = locationAdapter!!.getRiskStatus()!!
+        riskStatusDetails = locationAdapter!!.getRiskStatusDetails()
         isLocationAdapterInitialized.value = true
-        riskStatus.observeForever {
-            if (riskStatus.value?.first == RiskStatus.HIGH || riskStatus.value?.first == RiskStatus.MEDIUM) {
+        riskStatusDetails.observeForever {
+            if (riskStatusDetails.value?.first == RiskStatus.HIGH || riskStatusDetails.value?.first == RiskStatus.MEDIUM) {
                 setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
             } else {
                 setThreatLayerOpacity(loadedMapStyle, Constants.regularOpacity)
             }
 
-            if (riskStatus.value?.first == RiskStatus.HIGH) {
-
-                if (!(isInsideThreatArea.value != null && isInsideThreatArea.value!!)) {
-                    threatID = riskStatus.value?.second
+            if (riskStatusDetails.value?.first == RiskStatus.HIGH) {
+                if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {
                     isInsideThreatArea.value = true
+                    threatIdsByStatus = riskStatusDetails.value?.second!!
                 }
             }
         }

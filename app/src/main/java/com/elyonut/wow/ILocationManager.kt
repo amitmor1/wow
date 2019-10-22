@@ -2,11 +2,13 @@ package com.elyonut.wow
 
 import android.location.Location
 import androidx.lifecycle.LiveData
+import java.util.*
+import kotlin.collections.ArrayList
 
 interface ILocationManager {
     fun startLocationService()
     fun isGpsEnabled(): Boolean
     fun cleanLocation()
     fun getCurrentLocation() : Location?
-    fun getRiskStatus(): LiveData<Pair<RiskStatus, String?>>?
+    fun getRiskStatusDetails(): LiveData<Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>>>
 }
