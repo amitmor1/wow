@@ -24,7 +24,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     lateinit var numericType: NumericFilterTypes
     var shouldDefineArea = MutableLiveData<Boolean>()
     var areaOfInterest: Polygon? = null
-    var areaOfInterestLines = ArrayList<Point>()
 
     fun selectExperimentalOption(itemId: Int) {
         selectedExperimentalOption.value = itemId

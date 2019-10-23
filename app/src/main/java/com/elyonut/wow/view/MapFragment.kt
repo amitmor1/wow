@@ -36,8 +36,6 @@ import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.android.synthetic.main.area_selection.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
 private const val RECORD_REQUEST_CODE = 101
@@ -81,7 +79,15 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun initArea() {
         if (sharedViewModel.areaOfInterest != null) {
             mapViewModel.areaOfInterest.value = sharedViewModel.areaOfInterest
-            mapViewModel.lineLayerPointList = sharedViewModel.areaOfInterestLines
+
+            var polygonPoints = ArrayList<Point>()
+            sharedViewModel.areaOfInterest!!.coordinates().forEach { it ->
+                it.forEach {
+                    polygonPoints.add(it)
+                }
+            }
+
+            mapViewModel.lineLayerPointList = polygonPoints
         }
     }
 
@@ -90,7 +96,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapViewModel.noPermissionsToast.observe(this, Observer<Toast> { showToast() })
         mapViewModel.areaOfInterest.observe(this, Observer {
             sharedViewModel.areaOfInterest = it
-            sharedViewModel.areaOfInterestLines = mapViewModel.lineLayerPointList
         })
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {

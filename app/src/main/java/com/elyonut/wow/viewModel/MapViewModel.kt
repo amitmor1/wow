@@ -10,18 +10,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
-import com.elyonut.wow.R
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
 import com.elyonut.wow.analysis.ThreatAnalyzer
 import com.elyonut.wow.analysis.TopographyService
-import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -29,18 +26,15 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.offline.*
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.layers.*
 import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import org.json.JSONObject
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
-
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -70,31 +64,23 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private var currentLineLayerPointList = ArrayList<Point>()
     private var currentCircleLayerFeatureList = ArrayList<Feature>()
     private lateinit var circleSource: GeoJsonSource
-    private lateinit var lineSource: GeoJsonSource
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
-    private val logger: ILogger = TimberLogAdapter()
 
-    init {
-        logger.initLogger()
-    }
-
-    @SuppressLint("WrongConstant")
+    @SuppressLint("WrongConstant")  // TODO why wrongconstant?!
     fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
         map.setStyle(Constants.MAPBOX_STYLE_URL) { style ->
             locationSetUp(style)
-            initOfflineMap(style)
+//            initOfflineMap(style)
 //            setBuildingFilter(style)
             setSelectedBuildingLayer(style)
             addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.regularOpacity)
             circleSource = initCircleSource(style)
-//            lineSource = initLineSource(style)
-            fillSource = initFillSource(style)
+            fillSource = initLineSource(style)
             initCircleLayer(style)
-//            initLineLayer(style)
-            initFillLayer(style)
+            initLineLayer(style)
         }
     }
 
@@ -361,7 +347,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-//        lineSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
         fillSource.setGeoJson(makePolygonFeatureCollection(currentLineLayerPointList))
     }
 
@@ -369,8 +354,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         currentCircleLayerFeatureList = ArrayList()
         currentLineLayerPointList = ArrayList()
         circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
-//        lineSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
-        fillSource.setGeoJson(makePolygonFeatureCollection(currentLineLayerPointList))
+        fillSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
     }
 
     fun undo() {
@@ -392,7 +376,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
             currentCircleLayerFeatureList.removeAt(currentCircleLayerFeatureList.size - 1)
             circleSource.setGeoJson(FeatureCollection.fromFeatures(currentCircleLayerFeatureList))
-//            lineSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
             fillSource.setGeoJson(makeLineFeatureCollection(currentLineLayerPointList))
         }
     }
@@ -412,8 +395,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         currentCircleLayerFeatureList = ArrayList()
         currentLineLayerPointList = ArrayList()
         circleSource.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
-//        lineSource.setGeoJson(makeLineFeatureCollection(lineLayerPointList))
-        fillSource.setGeoJson(makeLineFeatureCollection(lineLayerPointList))
+        fillSource.setGeoJson(makePolygonFeatureCollection(lineLayerPointList))
     }
 
     private fun makeLineFeatureCollection(pointArrayList: ArrayList<Point>): FeatureCollection {
@@ -448,14 +430,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         return circleGeoJsonSource
     }
 
-    private fun initLineSource(loadedMapStyle: Style): GeoJsonSource {
-        val lineFeatureCollection = makeLineFeatureCollection(lineLayerPointList)
-        val lineGeoJsonSource = GeoJsonSource(Constants.LINE_SOURCE_ID, lineFeatureCollection)
-        loadedMapStyle.addSource(lineGeoJsonSource)
-
-        return lineGeoJsonSource
-    }
-
     private fun initCircleLayer(loadedMapStyle: Style) {
         val circleLayer = CircleLayer(
             Constants.CIRCLE_LAYER_ID,
@@ -465,7 +439,16 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             circleRadius(7f),
             circleColor(Color.WHITE)
         )
+
         loadedMapStyle.addLayer(circleLayer)
+    }
+
+    private fun initLineSource(loadedMapStyle: Style): GeoJsonSource {
+        val lineFeatureCollection = makePolygonFeatureCollection(lineLayerPointList)
+        val lineGeoJsonSource = GeoJsonSource(Constants.LINE_SOURCE_ID, lineFeatureCollection)
+        loadedMapStyle.addSource(lineGeoJsonSource)
+
+        return lineGeoJsonSource
     }
 
     private fun initLineLayer(loadedMapStyle: Style) {
@@ -473,32 +456,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             Constants.LINE_LAYER_ID,
             Constants.LINE_SOURCE_ID
         )
+
         lineLayer.setProperties(
-            lineColor(Color.RED),
-            lineWidth(5f)
+            lineColor(Color.parseColor("#494949")),
+            lineWidth(2.5f)
         )
+
         loadedMapStyle.addLayerBelow(lineLayer, Constants.CIRCLE_LAYER_ID)
-    }
-
-    private fun initFillSource(loadedMapStyle: Style): GeoJsonSource {
-        val fillFeatureCollection = makePolygonFeatureCollection(lineLayerPointList)
-        val fillGeoJsonSource = GeoJsonSource(Constants.FILL_SOURCE_ID, fillFeatureCollection)
-        loadedMapStyle.addSource(fillGeoJsonSource)
-
-        return fillGeoJsonSource
-    }
-
-    private fun initFillLayer(loadedMapStyle: Style) {
-        val fillLayer = FillLayer(
-            Constants.FILL_LAYER_ID,
-            Constants.FILL_SOURCE_ID
-        )
-        fillLayer.setProperties(
-            fillOpacity(0.5f),
-            fillColor(Color.parseColor("#ff0000")),
-            fillOutlineColor(Color.RED)
-        )
-        loadedMapStyle.addLayerBelow(fillLayer, Constants.LINE_SOURCE_ID)
     }
 
     fun focusOnMyLocationClicked() {
@@ -508,28 +472,27 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun getString(stringName: Int): String {
-        return getApplication<Application>().getString(stringName)
-    }
-
     fun clean() {
         locationAdapter?.cleanLocation()
     }
 
     fun updateThreats(mapView: MapView) {
+        val ta = ThreatAnalyzer(mapView, map)
         val location = locationAdapter?.getCurrentLocation()
         val currentLocation = LatLng(location!!.latitude, location.longitude)
-        threats.value = ThreatAnalyzer(mapView, map).getThreats(currentLocation)
+        threats.value = ta.getThreats(currentLocation)
     }
 
     fun updateThreatFeatures(mapView: MapView) {
+        val ta = ThreatAnalyzer(mapView, map)
         val location = locationAdapter?.getCurrentLocation()
         val currentLocation = LatLng(location!!.latitude, location.longitude)
-        threatFeatures.value = ThreatAnalyzer(mapView, map).getThreatFeatures(currentLocation)
+        threatFeatures.value = ta.getThreatFeatures(currentLocation)
     }
 
     fun updateThreatFeatures(mapView: MapView, latLng: LatLng) {
-        threatFeatures.value = ThreatAnalyzer(mapView, map).getThreatFeatures(latLng)
+        val ta = ThreatAnalyzer(mapView, map)
+        threatFeatures.value = ta.getThreatFeatures(latLng)
     }
 
     fun buildingThreatToCurrentLocation(mapView: MapView, building: Feature): Threat {
@@ -538,98 +501,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val topographyService = TopographyService(map)
         val isLOS = topographyService.isLOS(currentLocation, building)
 
-        return ThreatAnalyzer(mapView, map).featureToThreat(building, currentLocation, isLOS)
+        val ta = ThreatAnalyzer(mapView, map)
+
+        return ta.featureToThreat(building, currentLocation, isLOS)
     }
-
-    private fun initOfflineMap(loadedMapStyle: Style) {
-        val offlineManager = OfflineManager.getInstance(getApplication())
-        val definition = getDefinition(loadedMapStyle)
-        val metadata = getMetadata()
-        val callback = getOfflineRegionCallback()
-
-        if (metadata != null) {
-            offlineManager.createOfflineRegion(
-                definition,
-                metadata,
-                callback
-            )
-        }
-    }
-
-    private fun getOfflineRegionCallback(): OfflineManager.CreateOfflineRegionCallback {
-
-        return object : OfflineManager.CreateOfflineRegionCallback {
-            override fun onCreate(offlineRegion: OfflineRegion?) {
-                offlineRegion?.setDownloadState(OfflineRegion.STATE_ACTIVE)
-                offlineRegion?.setObserver(getObserver())
-            }
-
-            override fun onError(error: String?) {
-                error?.let { logger.error(it) }
-            }
-        }
-    }
-
-    private fun getObserver(): OfflineRegion.OfflineRegionObserver {
-
-        return object : OfflineRegion.OfflineRegionObserver {
-            override fun onStatusChanged(status: OfflineRegionStatus) {
-                val percentage = if (status.requiredResourceCount >= 0)
-                    100.0 * status.completedResourceCount / status.requiredResourceCount else 0.0
-
-                if (status.isComplete) {
-                    logger.debug("Region downloaded successfully.")
-                } else if (status.isRequiredResourceCountPrecise) {
-                    logger.debug(percentage.toString())
-                }
-            }
-
-            override fun onError(error: OfflineRegionError) {
-                logger.error("onError reason: " + error.reason)
-                logger.error("onError message: %s" + error.message)
-            }
-
-            override fun mapboxTileCountLimitExceeded(limit: Long) {
-                logger.error("Mapbox tile count limit exceeded: $limit")
-            }
-
-        }
-    }
-
-    private fun getDefinition(loadedMapStyle: Style): OfflineRegionDefinition {
-
-        // Create a bounding box for the offline region
-        val latLngBounds = LatLngBounds.Builder()
-            .include(LatLng(32.1826, 35.0110)) // Northeast
-            .include(LatLng(31.9291, 34.5808)) // Southwest
-            .build()
-
-        return OfflineTilePyramidRegionDefinition(
-            loadedMapStyle.url,
-            latLngBounds,
-            10.0,
-            20.0,
-            getApplication<Application>().resources.displayMetrics.density
-        )
-    }
-
-    private fun getMetadata(): ByteArray? {
-        var metadata: ByteArray? = null
-        try {
-            val jsonObject = JSONObject()
-            jsonObject.put(
-                getString(R.string.json_field_region_name),
-                getString(R.string.region_name)
-            )
-            val json = jsonObject.toString()
-            metadata = json.toByteArray(charset(getString(R.string.charset)))
-        } catch (exception: Exception) {
-            logger.error("Failed to encode metadata: " + exception.message)
-        } finally {
-            return metadata
-        }
-    }
-
 }
 
 class FilterHandler {

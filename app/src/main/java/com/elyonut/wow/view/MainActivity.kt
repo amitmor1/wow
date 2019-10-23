@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(),
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
         setObservers()
-        initArea()
+        initAreaOfInterest()
         initToolbar()
         initNavigationMenu()
     }
@@ -89,17 +89,12 @@ class MainActivity : AppCompatActivity(),
         })
     }
 
-    private fun initArea() {
+    private fun initAreaOfInterest() {
         val areaOfInterestJson = sharedPreferences.getString(Constants.AREA_OF_INTEREST_KEY, "")
 
         if (areaOfInterestJson != "") {
-            val areaLinesJson = sharedPreferences.getString(Constants.AREA_LINES_KEY, "")
-
             sharedViewModel.areaOfInterest =
                 gson.fromJson<Polygon>(areaOfInterestJson, Polygon::class.java)
-            sharedViewModel.areaOfInterestLines =
-                gson.fromJson<Array<Point>>(areaLinesJson, Array<Point>::class.java)
-                    .toCollection(ArrayList())
         } else {
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.area_not_defined))
@@ -181,16 +176,13 @@ class MainActivity : AppCompatActivity(),
     override fun onPause() {
         super.onPause()
         var areaOfInterestJson = ""
-        var areaOfInterestLinesJson = ""
 
         if (sharedViewModel.areaOfInterest != null) {
             areaOfInterestJson = gson.toJson(sharedViewModel.areaOfInterest)
-            areaOfInterestLinesJson = gson.toJson(sharedViewModel.areaOfInterestLines)
         }
 
         sharedPreferences.edit()
             .putString(Constants.AREA_OF_INTEREST_KEY, areaOfInterestJson)
-            .putString(Constants.AREA_LINES_KEY, areaOfInterestLinesJson)
             .apply()
     }
 }
