@@ -1,8 +1,6 @@
 package com.elyonut.wow.analysis
 
-import com.elyonut.wow.App
 import com.elyonut.wow.Constants
-import com.elyonut.wow.R
 import com.elyonut.wow.model.Coordinate
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -144,7 +142,7 @@ class TopographyService {
     ): Feature? {
 
         val point = mapboxMap.projection.toScreenLocation(location)
-        val features = mapboxMap.queryRenderedFeatures(point, Constants.buildingsLayerId)
+        val features = mapboxMap.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
 
         if (features.isNullOrEmpty())
             return null
