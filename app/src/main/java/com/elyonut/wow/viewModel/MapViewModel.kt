@@ -82,7 +82,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //            setThreatLayerOpacity(
 //                style,
 //                Constants.REGULAR_OPACITY,
-//                Constants.SELECTED_BUILDING_SOURCE_ID
+//                Constants.THREAT_LAYER_ID
 //            )
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
@@ -138,32 +138,32 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         riskStatusDetails = locationAdapter!!.getRiskStatusDetails()
         isLocationAdapterInitialized.value = true
         riskStatusDetails.observeForever {
-            if (riskStatusDetails.value?.first == RiskStatus.HIGH || riskStatusDetails.value?.first == RiskStatus.MEDIUM) {
-                val features = ArrayList<Feature>()
-                riskStatusDetails.value?.second?.get(RiskStatus.HIGH)?.forEach { id ->
-                    val currentThreat = threatFeatures.value?.find { threatFeature ->
-                        threatFeature.id() == id
-                    }
-
-                    if (currentThreat != null) {
-                        features.add(currentThreat)
-                    }
-                }
-                val currentThreateningBuildingSource =
-                    loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
-                currentThreateningBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features as MutableList<Feature>))
-                setThreatLayerOpacity(
-                    loadedMapStyle,
-                    Constants.HIGH_OPACITY,
-                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
-                )
-            } else {
-                setThreatLayerOpacity(
-                    loadedMapStyle,
-                    Constants.REGULAR_OPACITY,
-                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
-                )
-            }
+//            if (riskStatusDetails.value?.first == RiskStatus.HIGH || riskStatusDetails.value?.first == RiskStatus.MEDIUM) {
+//                val features = ArrayList<Feature>()
+//                riskStatusDetails.value?.second?.get(RiskStatus.HIGH)?.forEach { id ->
+//                    val currentThreat = threatFeatures.value?.find { threatFeature -> //threatFeatures ???
+//                        threatFeature.id() == id
+//                    }
+//
+//                    if (currentThreat != null) {
+//                        features.add(currentThreat)
+//                    }
+//                }
+//                val currentThreateningBuildingSource =
+//                    loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+//                currentThreateningBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features as MutableList<Feature>))
+//                setThreatLayerOpacity(
+//                    loadedMapStyle,
+//                    Constants.HIGH_OPACITY,
+//                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+//                )
+//            } else {
+//                setThreatLayerOpacity(
+//                    loadedMapStyle,
+//                    Constants.REGULAR_OPACITY,
+//                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+//                )
+//            }
 
             if (riskStatusDetails.value?.first == RiskStatus.HIGH) {
                 if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {

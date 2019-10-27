@@ -180,6 +180,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 intArrayOf(android.R.attr.state_enabled)
             ), intArrayOf(status.color)
         )
+
     }
 
     private fun showDescriptionFragment() {
