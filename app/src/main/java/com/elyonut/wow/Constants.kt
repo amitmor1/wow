@@ -5,7 +5,7 @@ class Constants {
         //        const val THREAT_LAYER_ID = "buildingRisk"
         const val THREAT_LAYER_ID = "construction"
         const val CONSTRUCTION_LAYER_ID = "construction" //????
-        const val BUILDINGS_LAYER_ID = "construction" //????
+        const val BUILDINGS_LAYER_ID = "building" //????
         const val THREAT_RADIUS_SOURCE_ID = "threat-radius-source"
         const val THREAT_RADIUS_LAYER_ID = "threat-radius-layer"
         const val SELECTED_BUILDING_SOURCE_ID = "selected-Building-source"

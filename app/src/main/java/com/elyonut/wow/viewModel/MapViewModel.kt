@@ -196,19 +196,19 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun setBuildingFilter(loadedMapStyle: Style) {
-        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
-        (buildingLayer as FillExtrusionLayer).withProperties(
-            fillExtrusionColor(
-                Expression.step(
-                    (Expression.get("height")), Expression.color(RiskStatus.NONE.color),
-                    Expression.stop(3, Expression.color(RiskStatus.LOW.color)),
-                    Expression.stop(10, Expression.color(RiskStatus.MEDIUM.color)),
-                    Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
-                )
-            ), fillExtrusionOpacity(0.5f)
-        )
-    }
+//    private fun setBuildingFilter(loadedMapStyle: Style) {
+//        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
+//        (buildingLayer as FillExtrusionLayer).withProperties(
+//            fillExtrusionColor(
+//                Expression.step(
+//                    (Expression.get("height")), Expression.color(RiskStatus.NONE.color),
+//                    Expression.stop(3, Expression.color(RiskStatus.LOW.color)),
+//                    Expression.stop(10, Expression.color(RiskStatus.MEDIUM.color)),
+//                    Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
+//                )
+//            ), fillExtrusionOpacity(0.5f)
+//        )
+//    }
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float, layerId: String) {
         val threatLayer = loadedMapStyle.getLayer(layerId)
@@ -308,7 +308,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             visibility(NONE)
         )
 
-        loadedStyle.addLayerBelow(fillLayer, Constants.BUILDINGS_LAYER_ID)
+//        loadedStyle.addLayerBelow(fillLayer, Constants.BUILDINGS_LAYER_ID)???????????????????????
+        loadedStyle.addLayer(fillLayer)
     }
 
     fun showRadiusLayerButtonClicked(layerId: String) {

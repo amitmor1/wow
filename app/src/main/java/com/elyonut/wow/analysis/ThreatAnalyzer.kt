@@ -92,7 +92,7 @@ class ThreatAnalyzer(private var mapView: MapView, private var mapboxMap: Mapbox
             mapView.bottom.toFloat()
         )
 
-        val features = mapboxMap.queryRenderedFeatures(rectF, Constants.BUILDINGS_LAYER_ID)
+        val features = mapboxMap.queryRenderedFeatures(rectF, Constants.BUILDINGS_LAYER_ID) //???
         //val uniqueFeatures = features.distinctBy { it.id() }
         return features
 

@@ -142,7 +142,7 @@ class TopographyService {
     ): Feature? {
 
         val point = mapboxMap.projection.toScreenLocation(location)
-        val features = mapboxMap.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
+        val features = mapboxMap.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID) //????
 
         if (features.isNullOrEmpty())
             return null

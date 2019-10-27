@@ -293,7 +293,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
             } else {
                 val point = map.projection.toScreenLocation(latLng)
-                val features = map.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
+//                val features = map.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
+                val features = map.queryRenderedFeatures(point, Constants.THREAT_LAYER_ID)
 
                 if (features.size > 0) {
                     val selectedBuildingSource =
