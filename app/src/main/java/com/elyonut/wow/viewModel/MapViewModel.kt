@@ -77,13 +77,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //            initOfflineMap(style)
 //            setBuildingFilter(style)
             isInsideThreatArea.value = false
-            setSelectedBuildingLayer(style)
+            addLayers(style)
             addRadiusLayer(style)
-            setThreatLayerOpacity(
-                style,
-                Constants.REGULAR_OPACITY,
-                Constants.SELECTED_BUILDING_SOURCE_ID
-            )
+//            setThreatLayerOpacity(
+//                style,
+//                Constants.REGULAR_OPACITY,
+//                Constants.SELECTED_BUILDING_SOURCE_ID
+//            )
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
             initCircleLayer(style)
@@ -212,7 +212,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float, layerId: String) {
         val threatLayer = loadedMapStyle.getLayer(layerId)
-        (threatLayer as FillExtrusionLayer).withProperties(
+        (threatLayer as FillExtrusionLayer?)?.withProperties(
             fillExtrusionOpacity(
                 opacity
             )
