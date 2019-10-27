@@ -79,11 +79,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             isInsideThreatArea.value = false
             addLayers(style)
             addRadiusLayer(style)
-//            setThreatLayerOpacity(
-//                style,
-//                Constants.REGULAR_OPACITY,
-//                Constants.SELECTED_BUILDING_SOURCE_ID
-//            )
+            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY, Constants.CONSTRUCTION_LAYER_ID)
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
             initCircleLayer(style)
