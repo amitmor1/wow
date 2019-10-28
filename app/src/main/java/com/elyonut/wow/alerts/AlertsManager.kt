@@ -10,7 +10,10 @@ import android.content.Intent
 import android.app.PendingIntent
 import com.elyonut.wow.R
 import android.graphics.*
+import android.provider.Settings
 import com.elyonut.wow.Constants
+import com.elyonut.wow.NotificationReceiver
+import com.elyonut.wow.viewModel.MapViewModel
 import kotlin.random.Random
 
 
@@ -59,6 +62,13 @@ class AlertsManager(var context: Context) {
             notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val zoomLocationIntent = Intent(context, NotificationReceiver::class.java).apply {
+            action = "ZOOM_LOCATION"
+            putExtra("threatID", threatID)
+        }
+        val zoomLocationPendingIntent: PendingIntent =
+            PendingIntent.getBroadcast(context, 0, zoomLocationIntent, 0)
+
         val notifyBuilder = NotificationCompat.Builder(context, Constants.PRIMARY_CHANNEL_ID)
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
@@ -73,7 +83,7 @@ class AlertsManager(var context: Context) {
             .addAction(
                 R.drawable.ic_gps_fixed_black,
                 context.getString(R.string.goto_location),
-                notificationPendingIntent
+                zoomLocationPendingIntent
             )
             .setLargeIcon(
                 getCircleBitmap(

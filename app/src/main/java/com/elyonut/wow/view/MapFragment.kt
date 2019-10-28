@@ -32,6 +32,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.view.MenuItem
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
@@ -51,6 +52,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private lateinit var threatStatusView: View
     private lateinit var threatStatusColorView: View
     private var listenerMap: OnMapFragmentInteractionListener? = null
+    private var notificationReceiver = NotificationReceiver()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,6 +72,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initArea()
+        observeReceiver()
         setObservers(view)
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
@@ -113,8 +116,16 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         )
 
         mapViewModel.isInsideThreatArea.observe(this, Observer<Boolean> {
-            sendNotification()
+            if (it) {
+                sendNotification()
+            }
         })
+
+//        mapViewModel.shouldZoomToLocation.observe(this, Observer<Boolean> {
+//             if (it) {
+//                 mapViewModel.setZoomLocation(notificationReceiver.featureID)
+//             }
+//        })
 
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             it?.let { mapViewModel.layerSelected(it) }
@@ -136,6 +147,22 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 enableAreaSelection(view, it)
             }
         })
+    }
+
+    private fun observeReceiver() {
+//        mapViewModel.shouldZoomToLocation = notificationReceiver.getShouldZoomToLocation()
+//        mapViewModel.shouldZoomToLocation.observeForever {
+//            if (it) {
+//                mapViewModel.setZoomLocation(notificationReceiver.featureID)
+//            }
+//        }
+
+//        notificationReceiver.shouldZoomToLocation.observe(this, Observer<Boolean> {
+//            if (it) {
+//                mapViewModel.setZoomLocation(notificationReceiver.featureID)
+//            }
+//        })
+
     }
 
     private fun sendNotification() {

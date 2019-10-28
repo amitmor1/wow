@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.text.BoringLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.elyonut.wow.*
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
@@ -35,6 +37,8 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -68,6 +72,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var firstPointOfPolygon: Point
     var isInsideThreatArea = MutableLiveData<Boolean>()
     var threatIdsByStatus = HashMap<RiskStatus, ArrayList<String>>()
+    lateinit var shouldZoomToLocation: LiveData<Boolean>
+    var notificationReceiver = NotificationReceiver()
 
     @SuppressLint("WrongConstant")  // TODO why wrongconstant?!
     fun onMapReady(mapboxMap: MapboxMap) {
@@ -84,6 +90,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             fillSource = initLineSource(style)
             initCircleLayer(style)
             initLineLayer(style)
+            observeLocation()
         }
     }
 
@@ -127,7 +134,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
         locationAdapter!!.startLocationService()
         initRiskStatus(loadedMapStyle)
-
     }
 
     private fun initRiskStatus(loadedMapStyle: Style) {
@@ -142,9 +148,29 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
             if (riskStatusDetails.value?.first == RiskStatus.HIGH) {
                 if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {
-                    isInsideThreatArea.value = true
                     threatIdsByStatus = riskStatusDetails.value?.second!!
+                    isInsideThreatArea.value = true
                 }
+            }
+            else {
+                isInsideThreatArea.value = false
+            }
+
+            threatIdsByStatus = riskStatusDetails.value?.second!!
+        }
+    }
+
+    private fun observeLocation() {
+//        shouldZoomToLocation = notificationReceiver.getShouldZoomToLocation()
+//        shouldZoomToLocation.observeForever {
+//            if (it) {
+//                setZoomLocation(notificationReceiver.featureID)
+//            }
+//        }
+
+        notificationReceiver.getShouldZoomToLocation().observeForever {
+            if (it) {
+                setZoomLocation(notificationReceiver.featureID)
             }
         }
     }
@@ -514,6 +540,21 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val ta = ThreatAnalyzer(mapView, map)
 
         return ta.featureToThreat(building, currentLocation, isLOS)
+    }
+
+    fun setZoomLocation(ID: String) {
+        var location = layerManager.getFeatureLocation(ID)
+
+        var position = CameraPosition.Builder()
+            .target( LatLng(location.latitude, location.longitude))
+            .zoom(17.0)
+//            .bearing(180.0)
+            .tilt(30.0)
+            .build()
+
+        map.animateCamera(
+            CameraUpdateFactory
+        .newCameraPosition(position), 7000)
     }
 }
 
