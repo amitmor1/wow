@@ -9,17 +9,15 @@
                 android:id="@+id/appBarParent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+
                 app:layout_constraintBottom_toTopOf="parent">
 
                 <androidx.appcompat.widget.Toolbar
                         android:id="@+id/toolbar"
                         android:layout_width="match_parent"
                         android:layout_height="?attr/actionBarSize"
-                        android:background="?attr/colorPrimary"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:popupTheme="@style/Theme.AppCompat.Light"
                         app:title="WoW" />
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -39,12 +37,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:background="#ffffff"
-                app:itemIconTint="#000000"
-                app:itemTextColor="#000000"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:menu="@menu/bottom_navigation_manu" />
+                app:menu="@menu/bottom_navigation_menu" />
 
 
 </androidx.appcompat.widget.LinearLayoutCompat>

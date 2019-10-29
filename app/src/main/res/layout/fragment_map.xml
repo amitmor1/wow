@@ -46,7 +46,6 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
                 android:src="@drawable/ic_my_location_black"
-                app:backgroundTint="@color/color_gray"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
 
@@ -58,10 +57,8 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="8dp"
                 android:src="@drawable/ic_layers_black"
-                app:backgroundTint="#4d79ff"
                 app:layout_constraintBottom_toTopOf="@+id/currentLocation"
-                app:layout_constraintEnd_toEndOf="@+id/mainMapView"
-                tools:backgroundTint="#4d79ff" />
+                app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
 
         <com.mapbox.mapboxsdk.maps.MapView
                 android:id="@+id/mainMapView"
