@@ -56,7 +56,7 @@
                 android:layout_margin="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="8dp"
-                android:src="@drawable/ic_layers_black"
+                android:src="@drawable/bullseye"
                 app:layout_constraintBottom_toTopOf="@+id/currentLocation"
                 app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
 
