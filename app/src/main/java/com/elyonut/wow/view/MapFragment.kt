@@ -37,6 +37,7 @@ import android.view.MenuItem
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
@@ -53,7 +54,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private lateinit var threatStatusColorView: View
     private var listenerMap: OnMapFragmentInteractionListener? = null
 
-    private lateinit var broadcastReceiver:BroadcastReceiver
+    private lateinit var broadcastReceiver: BroadcastReceiver
     var filter = IntentFilter("ZOOM_LOCATION")
 
     override fun onCreateView(
@@ -152,7 +153,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
 
     private fun sendNotification() {
-        mapViewModel.threatIdsByStatus[RiskStatus.HIGH]?.forEach {
+        mapViewModel.threatIdsByStatus[ThreatLevel.High]?.forEach {
             sharedViewModel.alertsManager.sendNotification(
                 getString(R.string.inside_threat_notification_title),
                 getString(R.string.inside_threat_notification_content) + it,
@@ -166,6 +167,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         if (isLocationAdapterInitialized)
             mapViewModel.riskStatus.observe(this, Observer<RiskStatus> {
                 changeStatus(it)
+
+                if (it == RiskStatus.HIGH) {
+                    mapViewModel.checkRiskStatus()
+                }
             })
 
 //            mapViewModel.riskStatusDetails.observe(

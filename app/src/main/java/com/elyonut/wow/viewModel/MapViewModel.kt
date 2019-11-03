@@ -18,6 +18,7 @@ import com.elyonut.wow.adapter.PermissionsAdapter
 import com.elyonut.wow.analysis.ThreatAnalyzer
 import com.elyonut.wow.analysis.TopographyService
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -71,7 +72,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
     var isInsideThreatArea = MutableLiveData<Boolean>()
-    var threatIdsByStatus = HashMap<RiskStatus, ArrayList<String>>()
+    var threatIdsByStatus = HashMap<ThreatLevel, ArrayList<String>>()
     var riskStatus = MutableLiveData<RiskStatus>()
 
     @SuppressLint("WrongConstant")
@@ -166,24 +167,26 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
 
-            if (riskStatusDetails.value?.first == RiskStatus.HIGH) {
-                if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {
-                    threatIdsByStatus = riskStatusDetails.value?.second!!
-                    isInsideThreatArea.value = true
-                }
-            }
-            else {
-                isInsideThreatArea.value = false
-            }
-
-            threatIdsByStatus = riskStatusDetails.value?.second!!
+//            if (riskStatusDetails.value?.first == RiskStatus.HIGH) {
+//                if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {
+//                    threatIdsByStatus = riskStatusDetails.value?.second!!
+//                    isInsideThreatArea.value = true
+//                }
+//            }
+//            else {
+//                isInsideThreatArea.value = false
+//            }
+//
+//            threatIdsByStatus = riskStatusDetails.value?.second!!
         }
     }
 
     fun checkRiskStatus() {
+        var ids = getThreatIds()
+
         if (riskStatus.value == RiskStatus.HIGH) {
-            if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {
-                threatIdsByStatus = riskStatusDetails.value?.second!!
+            if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != ids)) {
+                threatIdsByStatus = ids
                 isInsideThreatArea.value = true
             }
         }
@@ -191,7 +194,17 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             isInsideThreatArea.value = false
         }
 
-        threatIdsByStatus = riskStatusDetails.value?.second!!
+        threatIdsByStatus = ids
+    }
+
+    private fun getThreatIds(): HashMap<ThreatLevel, ArrayList<String>> {
+        var ids = HashMap<ThreatLevel, ArrayList<String>>()
+
+        threats.value?.forEach {
+            ids[it.level]?.add(it.feature.id()!!)
+        }
+
+        return ids
     }
 
 
