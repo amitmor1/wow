@@ -34,7 +34,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.view.MenuItem
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
@@ -90,8 +89,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         return view
     }
-
-
 
     private fun initArea() {
         if (sharedViewModel.areaOfInterest != null) {
@@ -167,9 +164,13 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized)
-            mapViewModel.riskStatusDetails.observe(
-                this,
-                Observer<Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>>> { changeStatus(it.first) })
+            mapViewModel.riskStatus.observe(this, Observer<RiskStatus> {
+                changeStatus(it)
+            })
+
+//            mapViewModel.riskStatusDetails.observe(
+//                this,
+//                Observer<Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>>> { changeStatus(it.first) })
     }
 
     private fun filter(shouldApplyFilter: Boolean) {

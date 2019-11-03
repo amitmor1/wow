@@ -72,8 +72,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var firstPointOfPolygon: Point
     var isInsideThreatArea = MutableLiveData<Boolean>()
     var threatIdsByStatus = HashMap<RiskStatus, ArrayList<String>>()
+    var riskStatus = MutableLiveData<RiskStatus>()
 
-    @SuppressLint("WrongConstant")  // TODO why wrongconstant?!
+    @SuppressLint("WrongConstant")
     fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
         map.setStyle(Constants.MAPBOX_STYLE_URL) { style ->
@@ -131,7 +132,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         locationAdapter!!.startLocationService()
-        initRiskStatus(loadedMapStyle)
+//        initRiskStatus(loadedMapStyle)
     }
 
     private fun initRiskStatus(loadedMapStyle: Style) {
@@ -177,6 +178,20 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
             threatIdsByStatus = riskStatusDetails.value?.second!!
         }
+    }
+
+    fun checkRiskStatus() {
+        if (riskStatus.value == RiskStatus.HIGH) {
+            if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {
+                threatIdsByStatus = riskStatusDetails.value?.second!!
+                isInsideThreatArea.value = true
+            }
+        }
+        else {
+            isInsideThreatArea.value = false
+        }
+
+        threatIdsByStatus = riskStatusDetails.value?.second!!
     }
 
 
