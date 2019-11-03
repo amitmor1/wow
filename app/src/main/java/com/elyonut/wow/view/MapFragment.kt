@@ -40,14 +40,7 @@ import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.view.MenuItem
-import androidx.lifecycle.ViewModelProviders
-import com.elyonut.wow.*
-import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
-import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
 private const val RECORD_REQUEST_CODE = 101
@@ -90,7 +83,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                when (intent?.action) {
+                when (intent.action) {
                     "ZOOM_LOCATION" -> mapViewModel.setZoomLocation(intent.getStringExtra("threatID"))
                 }
             }
@@ -144,7 +137,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
         })
 
-	sharedViewModel.selectedLayerId.observe(this, Observer<String> {
+	    sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             it?.let { mapViewModel.layerSelected(it) }
         })
         sharedViewModel.selectedExperimentalOption.observe(
@@ -164,7 +157,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
         })
     }
-
 
     private fun sendNotification() {
         mapViewModel.threatIdsByStatus[ThreatLevel.High]?.forEach {
@@ -306,7 +298,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         loadedMapStyle.removeSource("source-marker-click")
         loadedMapStyle.removeImage("marker-icon-id")
         val selectedBuildingSource =
-            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
 
 	if (mapViewModel.isAreaSelectionMode) {
@@ -348,7 +340,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         } else {
 
             val point = map.projection.toScreenLocation(latLng)
-            val features = map.queryRenderedFeatures(point, Constants.buildingsLayerId)
+            val features = map.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
 
             if (features.size > 0) {
                 selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))

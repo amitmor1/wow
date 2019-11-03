@@ -1,5 +1,6 @@
 package com.elyonut.wow.analysis
 
+import com.elyonut.wow.App
 import com.elyonut.wow.Constants
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.FeatureModel

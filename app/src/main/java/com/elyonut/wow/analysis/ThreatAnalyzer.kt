@@ -15,7 +15,7 @@ import java.io.InputStream
 
 class ThreatAnalyzer(var mapboxMap: MapboxMap, private var topographyService: TopographyService) {
     fun getThreatFeaturesBuildings(currentLocation: LatLng, boundingBox: RectF): List<Feature> {
-        val features = getFeaturesFromMapbox(mapboxMap, Constants.buildingsLayerId, boundingBox)
+        val features = getFeaturesFromMapbox(mapboxMap, Constants.BUILDINGS_LAYER_ID, boundingBox)
         return filterWithLOS(features, currentLocation)
     }
 

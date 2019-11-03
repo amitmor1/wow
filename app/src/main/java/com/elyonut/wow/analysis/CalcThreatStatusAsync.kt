@@ -27,7 +27,7 @@ class CalcThreatStatusAsync(
 
     override fun doInBackground(vararg locations: LatLng): RiskData {
         val latLng = locations[0]
-        val allFeatures = mapViewModel.layerManager.getLayer(Constants.threatLayerId)
+        val allFeatures = mapViewModel.layerManager.getLayer(Constants.THREAT_LAYER_ID)
         var riskStatus = RiskStatus.LOW
         var threatFeaturesConstruction: List<FeatureModel> = ArrayList()
         if (allFeatures != null) {
@@ -77,15 +77,17 @@ class CalcThreatStatusAsync(
 
             }
             val selectedBuildingSource: GeoJsonSource? = if (isManualSelection){
-                mapViewModel.threatAnalyzer.mapboxMap.style?.getSourceAs(Constants.selectedBuildingSourceId)
+                mapViewModel.threatAnalyzer.mapboxMap.style?.getSourceAs(Constants.SELECTED_BUILDING_SOURCE_ID)
             } else{
                 mapViewModel.threatAnalyzer.mapboxMap.style?.getSourceAs(Constants.activeThreatsSourceId)
             }
             selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+            mapViewModel.threats.postValue(modelThreatList)
             mapViewModel.riskStatus.postValue(result.riskStatus)
-            if(!isManualSelection){
-                mapViewModel.threats.postValue(modelThreatList)
-            }
+//            if(!isManualSelection){
+//                mapViewModel.threats.postValue(modelThreatList)
+//            }
+
         }
     }
 

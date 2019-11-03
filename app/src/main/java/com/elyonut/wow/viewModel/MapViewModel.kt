@@ -7,12 +7,10 @@ import android.graphics.Color
 import android.graphics.RectF
 import android.location.Location
 import android.os.AsyncTask
-import android.text.BoringLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.elyonut.wow.*
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
@@ -97,7 +95,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             setSelectedBuildingLayer(style)
             setActiveThreatsLayer(style)
             // addRadiusLayer(style)
-            setThreatLayerOpacity(style, Constants.regularOpacity)
+            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
             initCircleLayer(style)
@@ -164,7 +162,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //            if (riskStatus.value == RiskStatus.HIGH || riskStatus.value == RiskStatus.MEDIUM) {
 //                setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
 //            } else {
-//                setThreatLayerOpacity(loadedMapStyle, Constants.regularOpacity)
+//                setThreatLayerOpacity(loadedMapStyle, Constants.REGULAR_OPACITY)
 //            }
 //        }
 //    }
@@ -187,6 +185,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun getThreatIds(): HashMap<ThreatLevel, ArrayList<String>> {
         var ids = HashMap<ThreatLevel, ArrayList<String>>()
+
+        ids[ThreatLevel.Low] = ArrayList()
+        ids[ThreatLevel.Medium] = ArrayList()
+        ids[ThreatLevel.High] = ArrayList()
 
         threats.value?.forEach {
             ids[it.level]?.add(it.feature.id()!!)
@@ -219,7 +221,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setBuildingFilter(loadedMapStyle: Style) {
-        val buildingLayer = loadedMapStyle.getLayer(Constants.buildingsLayerId)
+        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
         (buildingLayer as FillExtrusionLayer).withProperties(
             fillExtrusionColor(
                 Expression.step(
@@ -599,25 +601,16 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setZoomLocation(ID: String) {
-        var location = layerManager.getFeatureLocation(ID)
+        val location = layerManager.getFeatureLocation(ID)
+        val position = CameraPosition.Builder()
+        .target(LatLng(location.latitude, location.longitude))
+        .zoom(17.0)
+        .build()
 
-//        map.cameraPosition = CameraPosition.Builder()
-//            .target(LatLng(location.latitude, location.longitude))
-//            .zoom(17.0)
-//            .build()
-
-
-//        val position = CameraPosition.Builder()
-//        .target(LatLng(location.latitude, location.longitude)) // Sets the new camera position
-//        .zoom(17.0) // Sets the zoom
-////        .bearing(180) // Rotate the camera
-////        .tilt(30) // Set the camera tilt
-//        .build() // Creates a CameraPosition from the builder
-//
-//        map.cameraPosition.target.latitude = location.latitude
-//        map.cameraPosition.target.longitude = location.longitude
-//        map.moveCamera(CameraUpdateFactory
-//        .newCameraPosition(position))
+        map.locationComponent.cameraMode = CameraMode.NONE
+        map.easeCamera(
+            CameraUpdateFactory
+        .newCameraPosition(position))
     }
 }
 

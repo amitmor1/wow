@@ -220,7 +220,7 @@
         "type": "antitank_long",
         "height": 142,
         "latitude": 32.090533,
-        "lon": 34.796034,
+        "longitude": 34.796034,
         "echelon": "squad",
         "namestr": "נט ארוך יו"
       },
@@ -353,6 +353,8 @@
       "properties": {
         "type": "infantry",
         "height": 8,
+        "latitude": 32.0854,
+        "longitude": 34.7946,
         "echelon": "squad",
         "namestr": "חיר זבונטיסקי"
       },
