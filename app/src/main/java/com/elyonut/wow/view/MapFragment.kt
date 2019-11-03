@@ -1,8 +1,10 @@
 package com.elyonut.wow.view
 
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -52,6 +54,9 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private lateinit var threatStatusColorView: View
     private var listenerMap: OnMapFragmentInteractionListener? = null
 
+    private lateinit var broadcastReceiver:BroadcastReceiver
+    var filter = IntentFilter("ZOOM_LOCATION")
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -74,14 +79,25 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
 
+
+        broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                when (intent?.action) {
+                    "ZOOM_LOCATION" -> mapViewModel.setZoomLocation(intent.getStringExtra("threatID"))
+                }
+            }
+        }
+
         return view
     }
+
+
 
     private fun initArea() {
         if (sharedViewModel.areaOfInterest != null) {
             mapViewModel.areaOfInterest.value = sharedViewModel.areaOfInterest
 
-            var polygonPoints = ArrayList<Point>()
+            val polygonPoints = ArrayList<Point>()
             sharedViewModel.areaOfInterest!!.coordinates().forEach { it ->
                 it.forEach {
                     polygonPoints.add(it)
@@ -115,7 +131,13 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                     initLocationObserver()
                 }
             })
-	    
+
+        mapViewModel.isInsideThreatArea.observe(this, Observer<Boolean> {
+            if (it) {
+                sendNotification()
+            }
+        })
+
 	sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             it?.let { mapViewModel.layerSelected(it) }
         })
@@ -138,12 +160,28 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         })
     }
 
+
+    private fun sendNotification() {
+        mapViewModel.threatIdsByStatus[RiskStatus.HIGH]?.forEach {
+            sharedViewModel.alertsManager.sendNotification(
+                getString(R.string.inside_threat_notification_title),
+                getString(R.string.inside_threat_notification_content) + it,
+                R.drawable.threat_notification_icon,
+                it
+            )
+        }
+    }
+
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized) {
             val riskStatusObserver = Observer<RiskStatus> { newStatus -> changeStatus(newStatus) }
             mapViewModel.riskStatus.observe(this, riskStatusObserver)
         }
 
+//        if (isLocationAdapterInitialized)
+//            mapViewModel.riskStatusDetails.observe(
+//                this,
+//                Observer<Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>>> { changeStatus(it.first) })
     }
 
     private fun filter(shouldApplyFilter: Boolean) {
@@ -241,7 +279,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun initShowRadiusLayerButton(view: View) {
         val radiusLayerButton: View = view.findViewById(R.id.radiusLayer)
         radiusLayerButton.setOnClickListener {
-            mapViewModel.showRadiusLayerButtonClicked(Constants.threatRadiusLayerId)
+            mapViewModel.showRadiusLayerButtonClicked(Constants.THREAT_RADIUS_LAYER_ID)
         }
     }
 
@@ -259,7 +297,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         loadedMapStyle.removeSource("source-marker-click")
         loadedMapStyle.removeImage("marker-icon-id")
         val selectedBuildingSource =
-            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
 
 	if (mapViewModel.isAreaSelectionMode) {
@@ -301,7 +339,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         } else {
 
             val point = map.projection.toScreenLocation(latLng)
-            val features = map.queryRenderedFeatures(point, Constants.buildingsLayerId)
+            val features = map.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
 
             if (features.size > 0) {
                 selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
@@ -350,7 +388,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
         }
     }
-    
+
     private fun enableAreaSelection(view: View, shouldEnable: Boolean) {
         val mainMapLayoutView = view.mainMapLayout
         val currentLocationButton = view.currentLocation
@@ -452,7 +490,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         loadedMapStyle.removeSource("threat-source")
 
         val selectedBuildingSource =
-            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
     }
 
@@ -481,6 +519,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onResume() {
         super.onResume()
+        activity?.registerReceiver(broadcastReceiver, filter)
         mapView.onResume()
     }
 
@@ -501,6 +540,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onPause() {
         super.onPause()
+        activity?.unregisterReceiver(broadcastReceiver)
         mapView.onPause()
     }
 

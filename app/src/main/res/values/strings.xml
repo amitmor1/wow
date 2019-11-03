@@ -30,4 +30,8 @@
     <string name="max_value_text">ערך מקסימלי:</string>
     <string name="min_value_text">ערך מינימלי:</string>
     <string name="area_not_defined">תחום עניין לא הוגדר, האם תרצה להגדיר כעת?</string>
+    <string name="notification_accepted">דיווח התקבל</string>
+    <string name="goto_location">עבור לנ.צ</string>
+    <string name="inside_threat_notification_title">איום</string>
+    <string name="inside_threat_notification_content">אתה נמצא בתוך איום מספר - </string>
 </resources>

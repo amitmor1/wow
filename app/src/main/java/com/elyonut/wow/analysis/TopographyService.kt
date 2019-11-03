@@ -269,7 +269,7 @@ class TopographyService {
     ): Feature? {
 
         val point = mapboxMap.projection.toScreenLocation(location)
-        val features = mapboxMap.queryRenderedFeatures(point, Constants.buildingsLayerId)
+        val features = mapboxMap.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID) //????
 
         if (features.isNullOrEmpty())
             return null
@@ -347,16 +347,16 @@ class TopographyService {
                     )
                 } as MutableList<Coordinate>
             }
-            "MultiLineString" -> {
-                geometry = featureGeometry as MultiLineString
-                TODO("not implemented")
-            }
-            "MultiPoint" -> {
-                geometry = featureGeometry as MultiPoint
-                TODO("not implemented")
-            }
+//            "MultiLineString" -> {
+//                geometry = featureGeometry as MultiLineString
+//                TODO("not implemented")
+//            }
+//            "MultiPoint" -> {
+//                geometry = featureGeometry as MultiPoint
+//                TODO("not implemented")
+//            }
             else -> {
-                geometry = featureGeometry as CoordinateContainer<*>
+//                geometry = featureGeometry as CoordinateContainer<*>
             }
         }
 

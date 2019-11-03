@@ -11,7 +11,6 @@ import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
 import java.lang.ref.WeakReference
 
-
 // Const values
 private const val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
 private const val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5

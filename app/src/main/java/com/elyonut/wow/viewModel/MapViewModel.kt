@@ -69,7 +69,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var circleSource: GeoJsonSource
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
-    
+    var isInsideThreatArea = MutableLiveData<Boolean>()
+    var threatIdsByStatus = HashMap<RiskStatus, ArrayList<String>>()
+
     private lateinit var topographyService: TopographyService
     lateinit var threatAnalyzer: ThreatAnalyzer
     private var calcThreatsTask: CalcThreatStatusAsync? = null
@@ -88,7 +90,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             setSelectedBuildingLayer(style)
             setActiveThreatsLayer(style)
             // addRadiusLayer(style)
-            setThreatLayerOpacity(style, Constants.regularOpacity)
+            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
             initCircleLayer(style)
@@ -148,6 +150,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+
     @SuppressLint("ShowToast")
     fun onRequestPermissionsResult(
         requestCode: Int,
@@ -171,7 +174,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setBuildingFilter(loadedMapStyle: Style) {
-        val buildingLayer = loadedMapStyle.getLayer(Constants.buildingsLayerId)
+        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
         (buildingLayer as FillExtrusionLayer).withProperties(
             fillExtrusionColor(
                 Expression.step(
@@ -204,12 +207,27 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
-        loadedMapStyle.addSource(GeoJsonSource(Constants.selectedBuildingSourceId))
+    private fun setLayer(
+        loadedMapStyle: Style,
+        sourceId: String,
+        layerId: String,
+        opacity: Float = Constants.REGULAR_OPACITY
+    ) {
+        loadedMapStyle.addSource(GeoJsonSource(sourceId))
         loadedMapStyle.addLayer(
             FillLayer(
-                Constants.selectedBuildingLayerId,
-                Constants.selectedBuildingSourceId
+                layerId,
+                sourceId
+            ).withProperties(fillExtrusionOpacity(opacity))
+        )
+    }
+
+    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
+        loadedMapStyle.addSource(GeoJsonSource(Constants.SELECTED_BUILDING_SOURCE_ID))
+        loadedMapStyle.addLayer(
+            FillLayer(
+                Constants.SELECTED_BUILDING_LAYER_ID,
+                Constants.SELECTED_BUILDING_SOURCE_ID
             ).withProperties(fillExtrusionOpacity(0.7f),
                 fillColor(Color.parseColor("#870485")))
         )
@@ -222,7 +240,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun createRadiusSource(loadedStyle: Style) {
         val circleGeoJsonSource =
-            GeoJsonSource(Constants.threatRadiusSourceId, getThreatRadiuses())
+            GeoJsonSource(Constants.THREAT_RADUIS_SOURCE_ID, getThreatRadiuses())
         loadedStyle.addSource(circleGeoJsonSource)
     }
 
@@ -237,8 +255,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun createRadiusLayer(loadedStyle: Style) {
         val fillLayer = FillLayer(
-            Constants.threatRadiusLayerId,
-            Constants.threatRadiusSourceId
+            Constants.THREAT_RADIUS_LAYER_ID,
+            Constants.THREAT_RADUIS_SOURCE_ID
         )
         fillLayer.setProperties(
             fillColor(
@@ -254,7 +272,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             visibility(NONE)
         )
 
-        loadedStyle.addLayerBelow(fillLayer, Constants.buildingsLayerId)
+        loadedStyle.addLayerBelow(fillLayer, Constants.BUILDINGS_LAYER_ID)
     }
 
     fun showRadiusLayerButtonClicked(layerId: String) {
@@ -321,7 +339,29 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun removeFilter(style: Style, layerId: String) {
         FilterHandler.removeFilter(style, layerId)
     }
-    
+
+//    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
+////        model.onMapClick()
+//        val loadedMapStyle = mapboxMap.style
+//
+//        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+//            return false
+//        }
+//
+//        val point = mapboxMap.projection.toScreenLocation(latLng)
+//        val features =
+//            mapboxMap.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+//
+//        if (features.size > 0) {
+//            selectedBuildingId.value = features.first().id()
+//            val selectedBuildingSource =
+//                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+//            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+//        }
+//
+//        return true
+//    }
+
     fun drawPolygonMode(latLng: LatLng) {
         val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.latitude)
 
@@ -512,6 +552,27 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         return threatAnalyzer.featureToThreat(building, currentLocation, isLOS)
     }
 
+    fun setZoomLocation(ID: String) {
+        var location = layerManager.getFeatureLocation(ID)
+
+//        map.cameraPosition = CameraPosition.Builder()
+//            .target(LatLng(location.latitude, location.longitude))
+//            .zoom(17.0)
+//            .build()
+
+
+//        val position = CameraPosition.Builder()
+//        .target(LatLng(location.latitude, location.longitude)) // Sets the new camera position
+//        .zoom(17.0) // Sets the zoom
+////        .bearing(180) // Rotate the camera
+////        .tilt(30) // Set the camera tilt
+//        .build() // Creates a CameraPosition from the builder
+//
+//        map.cameraPosition.target.latitude = location.latitude
+//        map.cameraPosition.target.longitude = location.longitude
+//        map.moveCamera(CameraUpdateFactory
+//        .newCameraPosition(position))
+    }
 }
 
 class FilterHandler {
