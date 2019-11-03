@@ -1,13 +1,11 @@
 package com.elyonut.wow.alerts
 
-import android.app.NotificationManager
+import android.app.*
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
-import android.app.NotificationChannel
 import androidx.core.app.NotificationCompat
 import com.elyonut.wow.view.MainActivity
 import android.content.Intent
-import android.app.PendingIntent
 import com.elyonut.wow.R
 import android.graphics.*
 import android.provider.Settings
@@ -21,6 +19,7 @@ class AlertsManager(var context: Context) {
 
     private var mNotifyManager: NotificationManager? = null
     private var notificationIds = HashMap<String, Int>()
+//    val notificationReceiver = NotificationReceiver()
 
     init {
         createNotificationChannel()
@@ -62,12 +61,13 @@ class AlertsManager(var context: Context) {
             notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val zoomLocationIntent = Intent(context, NotificationReceiver::class.java).apply {
-            action = "ZOOM_LOCATION"
+        val zoomLocationIntent = Intent("ZOOM_LOCATION").apply {
+
             putExtra("threatID", threatID)
         }
+
         val zoomLocationPendingIntent: PendingIntent =
-            PendingIntent.getBroadcast(context, 0, zoomLocationIntent, 0)
+            PendingIntent.getBroadcast(context, notificationID, zoomLocationIntent, 0)
 
         val notifyBuilder = NotificationCompat.Builder(context, Constants.PRIMARY_CHANNEL_ID)
             .setContentTitle(notificationTitle)
@@ -93,6 +93,8 @@ class AlertsManager(var context: Context) {
                     )
                 )
             )
+
+        notifyBuilder.build().flags.and(Notification.FLAG_AUTO_CANCEL)
 
         mNotifyManager?.notify(notificationID, notifyBuilder.build())
     }

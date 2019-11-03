@@ -72,8 +72,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var firstPointOfPolygon: Point
     var isInsideThreatArea = MutableLiveData<Boolean>()
     var threatIdsByStatus = HashMap<RiskStatus, ArrayList<String>>()
-    lateinit var shouldZoomToLocation: LiveData<Boolean>
-    var notificationReceiver = NotificationReceiver()
 
     @SuppressLint("WrongConstant")  // TODO why wrongconstant?!
     fun onMapReady(mapboxMap: MapboxMap) {
@@ -90,7 +88,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             fillSource = initLineSource(style)
             initCircleLayer(style)
             initLineLayer(style)
-            observeLocation()
+
         }
     }
 
@@ -160,20 +158,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun observeLocation() {
-//        shouldZoomToLocation = notificationReceiver.getShouldZoomToLocation()
-//        shouldZoomToLocation.observeForever {
-//            if (it) {
-//                setZoomLocation(notificationReceiver.featureID)
-//            }
-//        }
-
-        notificationReceiver.getShouldZoomToLocation().observeForever {
-            if (it) {
-                setZoomLocation(notificationReceiver.featureID)
-            }
-        }
-    }
 
     @SuppressLint("ShowToast")
     fun onRequestPermissionsResult(
@@ -545,17 +529,25 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun setZoomLocation(ID: String) {
         var location = layerManager.getFeatureLocation(ID)
 
-        var position = CameraPosition.Builder()
-            .target( LatLng(location.latitude, location.longitude))
-            .zoom(17.0)
-//            .bearing(180.0)
-            .tilt(30.0)
-            .build()
+//        map.cameraPosition = CameraPosition.Builder()
+//            .target(LatLng(location.latitude, location.longitude))
+//            .zoom(17.0)
+//            .build()
 
-        map.animateCamera(
-            CameraUpdateFactory
-        .newCameraPosition(position), 7000)
+
+//        val position = CameraPosition.Builder()
+//        .target(LatLng(location.latitude, location.longitude)) // Sets the new camera position
+//        .zoom(17.0) // Sets the zoom
+////        .bearing(180) // Rotate the camera
+////        .tilt(30) // Set the camera tilt
+//        .build() // Creates a CameraPosition from the builder
+//
+//        map.cameraPosition.target.latitude = location.latitude
+//        map.cameraPosition.target.longitude = location.longitude
+//        map.moveCamera(CameraUpdateFactory
+//        .newCameraPosition(position))
     }
+
 }
 
 class FilterHandler {

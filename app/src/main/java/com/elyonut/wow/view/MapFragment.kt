@@ -1,8 +1,10 @@
 package com.elyonut.wow.view
 
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.provider.Settings
@@ -52,7 +54,9 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private lateinit var threatStatusView: View
     private lateinit var threatStatusColorView: View
     private var listenerMap: OnMapFragmentInteractionListener? = null
-    private var notificationReceiver = NotificationReceiver()
+
+    private lateinit var broadcastReceiver:BroadcastReceiver
+    var filter = IntentFilter("ZOOM_LOCATION")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -72,13 +76,23 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initArea()
-        observeReceiver()
         setObservers(view)
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
 
+
+        broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                when (intent?.action) {
+                    "ZOOM_LOCATION" -> mapViewModel.setZoomLocation(intent.getStringExtra("threatID"))
+                }
+            }
+        }
+
         return view
     }
+
+
 
     private fun initArea() {
         if (sharedViewModel.areaOfInterest != null) {
@@ -121,12 +135,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
         })
 
-//        mapViewModel.shouldZoomToLocation.observe(this, Observer<Boolean> {
-//             if (it) {
-//                 mapViewModel.setZoomLocation(notificationReceiver.featureID)
-//             }
-//        })
-
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             it?.let { mapViewModel.layerSelected(it) }
         })
@@ -149,21 +157,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         })
     }
 
-    private fun observeReceiver() {
-//        mapViewModel.shouldZoomToLocation = notificationReceiver.getShouldZoomToLocation()
-//        mapViewModel.shouldZoomToLocation.observeForever {
-//            if (it) {
-//                mapViewModel.setZoomLocation(notificationReceiver.featureID)
-//            }
-//        }
-
-//        notificationReceiver.shouldZoomToLocation.observe(this, Observer<Boolean> {
-//            if (it) {
-//                mapViewModel.setZoomLocation(notificationReceiver.featureID)
-//            }
-//        })
-
-    }
 
     private fun sendNotification() {
         mapViewModel.threatIdsByStatus[RiskStatus.HIGH]?.forEach {
@@ -546,6 +539,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onResume() {
         super.onResume()
+        activity?.registerReceiver(broadcastReceiver, filter)
         mapView.onResume()
     }
 
@@ -566,6 +560,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onPause() {
         super.onPause()
+        activity?.unregisterReceiver(broadcastReceiver)
         mapView.onPause()
     }
 

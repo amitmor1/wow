@@ -8,11 +8,11 @@ import androidx.lifecycle.MutableLiveData
 
 class NotificationReceiver: BroadcastReceiver() {
     lateinit var featureID: String
-     var shouldZoomToLocation = MutableLiveData<Boolean>()
+    var shouldZoomToLocation = MutableLiveData<Boolean>()
 
-//    init {
-//        shouldZoomToLocation.value = false
-//    }
+    init {
+        shouldZoomToLocation.value = false
+    }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         when (intent?.action) {
@@ -29,3 +29,4 @@ class NotificationReceiver: BroadcastReceiver() {
         shouldZoomToLocation.value = true
     }
 }
+
