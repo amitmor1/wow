@@ -40,7 +40,7 @@ private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
-    var selectLocationManual: Boolean = false // Why is it here? never changes
+    var selectLocationManual: Boolean = false // Why is it here? never changes in the view model
     private lateinit var map: MapboxMap
     private val tempDB = TempDB(application)
     private val permissions: IPermissions =
@@ -79,11 +79,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             isInsideThreatArea.value = false
             addLayers(style)
             addRadiusLayer(style)
-//            setThreatLayerOpacity(
-//                style,
-//                Constants.REGULAR_OPACITY,
-//                Constants.THREAT_LAYER_ID
-//            )
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
             initCircleLayer(style)
@@ -138,32 +133,35 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         riskStatusDetails = locationAdapter!!.getRiskStatusDetails()
         isLocationAdapterInitialized.value = true
         riskStatusDetails.observeForever {
-//            if (riskStatusDetails.value?.first == RiskStatus.HIGH || riskStatusDetails.value?.first == RiskStatus.MEDIUM) {
-//                val features = ArrayList<Feature>()
-//                riskStatusDetails.value?.second?.get(RiskStatus.HIGH)?.forEach { id ->
-//                    val currentThreat = threatFeatures.value?.find { threatFeature -> //threatFeatures ???
-//                        threatFeature.id() == id
-//                    }
-//
-//                    if (currentThreat != null) {
-//                        features.add(currentThreat)
-//                    }
-//                }
-//                val currentThreateningBuildingSource =
-//                    loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
-//                currentThreateningBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features as MutableList<Feature>))
-//                setThreatLayerOpacity(
+            if (riskStatusDetails.value?.first == RiskStatus.HIGH || riskStatusDetails.value?.first == RiskStatus.MEDIUM) {
+                val features = ArrayList<Feature>()
+                riskStatusDetails.value?.second?.get(RiskStatus.HIGH)?.forEach { id ->
+                    val c = loadedMapStyle.getSourceAs<GeoJsonSource>("construction")
+                    val v = c?.querySourceFeatures(Expression.all())
+                    val currentThreat = threatFeatures.value?.find { threatFeature ->
+                        //threatFeatures ???
+                        threatFeature.id() == id
+                    }
+
+                    if (currentThreat != null) {
+                        features.add(currentThreat)
+                    }
+                }
+                val currentThreateningBuildingSource =
+                    loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+                currentThreateningBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features as MutableList<Feature>))
+//                setLayerOpacity(
 //                    loadedMapStyle,
 //                    Constants.HIGH_OPACITY,
-//                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+//                    Constants.CURRENT_THREATENING_BUILDINGS_LAYER_ID
 //                )
-//            } else {
-//                setThreatLayerOpacity(
+            } else {
+//                setLayerOpacity(
 //                    loadedMapStyle,
 //                    Constants.REGULAR_OPACITY,
-//                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+//                    Constants.CURRENT_THREATENING_BUILDINGS_LAYER_ID
 //                )
-//            }
+            }
 
             if (riskStatusDetails.value?.first == RiskStatus.HIGH) {
                 if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {
@@ -174,29 +172,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    @SuppressLint("ShowToast")
-    fun onRequestPermissionsResult(
-        requestCode: Int,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            RECORD_REQUEST_CODE -> {
-
-                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    noPermissionsToast.value =
-                        Toast.makeText(
-                            getApplication(),
-                            R.string.permission_not_granted,
-                            Toast.LENGTH_LONG
-                        )
-                } else {
-                    startLocationService((map.style!!))
-                }
-            }
-        }
-    }
-
-//    private fun setBuildingFilter(loadedMapStyle: Style) {
+    //    private fun setBuildingFilter(loadedMapStyle: Style) {
 //        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
 //        (buildingLayer as FillExtrusionLayer).withProperties(
 //            fillExtrusionColor(
@@ -208,16 +184,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //                )
 //            ), fillExtrusionOpacity(0.5f)
 //        )
-//    }
-
-    private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float, layerId: String) {
-        val threatLayer = loadedMapStyle.getLayer(layerId)
-        (threatLayer as FillExtrusionLayer?)?.withProperties(
-            fillExtrusionOpacity(
-                opacity
-            )
-        )
-    }
 
     private fun addLayers(loadedMapStyle: Style) {
         setLayer(
@@ -245,19 +211,52 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             FillLayer(
                 layerId,
                 sourceId
-            ).withProperties(fillExtrusionOpacity(opacity))
+            ).withProperties(fillExtrusionOpacity(opacity), fillColor(Color.RED))
         )
     }
 
-    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
-        loadedMapStyle.addSource(GeoJsonSource(Constants.SELECTED_BUILDING_SOURCE_ID))
-        loadedMapStyle.addLayer(
-            FillLayer(
-                Constants.SELECTED_BUILDING_LAYER_ID,
-                Constants.SELECTED_BUILDING_SOURCE_ID
-            ).withProperties(fillExtrusionOpacity(0.7f))
+    @SuppressLint("ShowToast")
+    fun onRequestPermissionsResult(
+        requestCode: Int,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            RECORD_REQUEST_CODE -> {
+
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    noPermissionsToast.value =
+                        Toast.makeText(
+                            getApplication(),
+                            R.string.permission_not_granted,
+                            Toast.LENGTH_LONG
+                        )
+                } else {
+                    startLocationService((map.style!!))
+                }
+            }
+        }
+    }
+
+//    }
+
+    private fun setLayerOpacity(loadedMapStyle: Style, opacity: Float, layerId: String) {
+        val layer = loadedMapStyle.getLayer(layerId)
+        (layer as FillExtrusionLayer?)?.withProperties(
+            fillExtrusionOpacity(
+                opacity
+            )
         )
     }
+
+//    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
+//        loadedMapStyle.addSource(GeoJsonSource(Constants.SELECTED_BUILDING_SOURCE_ID))
+//        loadedMapStyle.addLayer(
+//            FillLayer(
+//                Constants.SELECTED_BUILDING_LAYER_ID,
+//                Constants.SELECTED_BUILDING_SOURCE_ID
+//            ).withProperties(fillExtrusionOpacity(0.7f))
+//        )
+//    }
 
 //    private fun setCurrentThreateningBuildingLayer(loadedMapStyle: Style) {
 //        loadedMapStyle.addSource(GeoJsonSource(Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID))

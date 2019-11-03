@@ -80,7 +80,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         if (sharedViewModel.areaOfInterest != null) {
             mapViewModel.areaOfInterest.value = sharedViewModel.areaOfInterest
 
-            var polygonPoints = ArrayList<Point>()
+            val polygonPoints = ArrayList<Point>()
             sharedViewModel.areaOfInterest!!.coordinates().forEach { it ->
                 it.forEach {
                     polygonPoints.add(it)
@@ -110,15 +110,12 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             this,
             Observer<Boolean> { observeRiskStatus(it) }
         )
-
         mapViewModel.isInsideThreatArea.observe(this, Observer<Boolean> {
             sendNotification()
         })
-
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             it?.let { mapViewModel.layerSelected(it) }
         })
-
         sharedViewModel.selectedExperimentalOption.observe(
             this,
             Observer<Int> { applyExperimentalOption(it) }
@@ -294,7 +291,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
             } else {
                 val point = map.projection.toScreenLocation(latLng)
-//                val features = map.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
                 val features = map.queryRenderedFeatures(point, Constants.THREAT_LAYER_ID)
 
                 if (features.size > 0) {
