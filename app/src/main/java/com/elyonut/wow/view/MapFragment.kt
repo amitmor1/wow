@@ -40,7 +40,6 @@ import com.elyonut.wow.*
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_map.view.*
-import kotlin.random.Random
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -262,7 +261,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun initShowRadiusLayerButton(view: View) {
         val radiusLayerButton: View = view.findViewById(R.id.radiusLayer)
         radiusLayerButton.setOnClickListener {
-            mapViewModel.showRadiusLayerButtonClicked(Constants.threatRadiusLayerId)
+            mapViewModel.showRadiusLayerButtonClicked(Constants.THREAT_RADIUS_LAYER_ID)
         }
     }
 
@@ -314,11 +313,12 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
             } else {
                 val point = map.projection.toScreenLocation(latLng)
-                val features = map.queryRenderedFeatures(point, Constants.buildingsLayerId)
+//                val features = map.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
+                val features = map.queryRenderedFeatures(point, Constants.THREAT_LAYER_ID)
 
                 if (features.size > 0) {
                     val selectedBuildingSource =
-                        loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+                        loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
                     selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
 
                     val threat = mapViewModel.buildingThreatToCurrentLocation(mapView, features[0])
@@ -510,7 +510,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         loadedMapStyle.removeSource("threat-source")
 
         val selectedBuildingSource =
-            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+            loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
     }
 

@@ -81,9 +81,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //            initOfflineMap(style)
 //            setBuildingFilter(style)
             isInsideThreatArea.value = false
-            setSelectedBuildingLayer(style)
+            addLayers(style)
             addRadiusLayer(style)
-            setThreatLayerOpacity(style, Constants.regularOpacity)
+            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY, Constants.CONSTRUCTION_LAYER_ID)
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
             initCircleLayer(style)
@@ -139,9 +139,30 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         isLocationAdapterInitialized.value = true
         riskStatusDetails.observeForever {
             if (riskStatusDetails.value?.first == RiskStatus.HIGH || riskStatusDetails.value?.first == RiskStatus.MEDIUM) {
-                setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
+                val features = ArrayList<Feature>()
+                riskStatusDetails.value?.second?.get(RiskStatus.HIGH)?.forEach { id ->
+                    val currentThreat = threatFeatures.value?.find { threatFeature ->
+                        threatFeature.id() == id
+                    }
+
+                    if (currentThreat != null) {
+                        features.add(currentThreat)
+                    }
+                }
+                val currentThreateningBuildingSource =
+                    loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+                currentThreateningBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features as MutableList<Feature>))
+                setThreatLayerOpacity(
+                    loadedMapStyle,
+                    Constants.HIGH_OPACITY,
+                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+                )
             } else {
-                setThreatLayerOpacity(loadedMapStyle, Constants.regularOpacity)
+                setThreatLayerOpacity(
+                    loadedMapStyle,
+                    Constants.REGULAR_OPACITY,
+                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+                )
             }
 
             if (riskStatusDetails.value?.first == RiskStatus.HIGH) {
@@ -181,38 +202,78 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun setBuildingFilter(loadedMapStyle: Style) {
-        val buildingLayer = loadedMapStyle.getLayer(Constants.buildingsLayerId)
-        (buildingLayer as FillExtrusionLayer).withProperties(
-            PropertyFactory.fillExtrusionColor(
-                Expression.step(
-                    (Expression.get("height")), Expression.color(RiskStatus.NONE.color),
-                    Expression.stop(3, Expression.color(RiskStatus.LOW.color)),
-                    Expression.stop(10, Expression.color(RiskStatus.MEDIUM.color)),
-                    Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
-                )
-            ), fillExtrusionOpacity(0.5f)
-        )
-    }
+//    private fun setBuildingFilter(loadedMapStyle: Style) {
+//        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
+//        (buildingLayer as FillExtrusionLayer).withProperties(
+//            fillExtrusionColor(
+//                Expression.step(
+//                    (Expression.get("height")), Expression.color(RiskStatus.NONE.color),
+//                    Expression.stop(3, Expression.color(RiskStatus.LOW.color)),
+//                    Expression.stop(10, Expression.color(RiskStatus.MEDIUM.color)),
+//                    Expression.stop(100, Expression.color(RiskStatus.HIGH.color))
+//                )
+//            ), fillExtrusionOpacity(0.5f)
+//        )
+//    }
 
-    private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
-        val threatLayer = loadedMapStyle.getLayer(Constants.constructionLayerId)
-        (threatLayer as FillExtrusionLayer).withProperties(
+    private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float, layerId: String) {
+        val threatLayer = loadedMapStyle.getLayer(layerId)
+        (threatLayer as FillExtrusionLayer?)?.withProperties(
             fillExtrusionOpacity(
                 opacity
             )
         )
     }
 
-    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
-        loadedMapStyle.addSource(GeoJsonSource(Constants.selectedBuildingSourceId))
+    private fun addLayers(loadedMapStyle: Style) {
+        setLayer(
+            loadedMapStyle,
+            Constants.SELECTED_BUILDING_SOURCE_ID,
+            Constants.SELECTED_BUILDING_LAYER_ID,
+            0.7f
+        )
+        setLayer(
+            loadedMapStyle,
+            Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID,
+            Constants.CURRENT_THREATENING_BUILDINGS_LAYER_ID,
+            Constants.HIGH_OPACITY
+        )
+    }
+
+    private fun setLayer(
+        loadedMapStyle: Style,
+        sourceId: String,
+        layerId: String,
+        opacity: Float = Constants.REGULAR_OPACITY
+    ) {
+        loadedMapStyle.addSource(GeoJsonSource(sourceId))
         loadedMapStyle.addLayer(
             FillLayer(
-                Constants.selectedBuildingLayerId,
-                Constants.selectedBuildingSourceId
+                layerId,
+                sourceId
+            ).withProperties(fillExtrusionOpacity(opacity))
+        )
+    }
+
+    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
+        loadedMapStyle.addSource(GeoJsonSource(Constants.SELECTED_BUILDING_SOURCE_ID))
+        loadedMapStyle.addLayer(
+            FillLayer(
+                Constants.SELECTED_BUILDING_LAYER_ID,
+                Constants.SELECTED_BUILDING_SOURCE_ID
             ).withProperties(fillExtrusionOpacity(0.7f))
         )
     }
+
+//    private fun setCurrentThreateningBuildingLayer(loadedMapStyle: Style) {
+//        loadedMapStyle.addSource(GeoJsonSource(Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID))
+//        loadedMapStyle.addLayer(
+//            FillLayer(
+//                Constants.CURRENT_THREATENING_BUILDINGS_LAYER_ID,
+//                Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+//            ).withProperties(fillExtrusionOpacity(Constants.HIGH_OPACITY))
+//        )
+//    }
 
     private fun addRadiusLayer(loadedStyle: Style) {
         createRadiusSource(loadedStyle)
@@ -221,7 +282,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun createRadiusSource(loadedStyle: Style) {
         val circleGeoJsonSource =
-            GeoJsonSource(Constants.threatRadiusSourceId, getThreatRadiuses())
+            GeoJsonSource(Constants.THREAT_RADIUS_SOURCE_ID, getThreatRadiuses())
         loadedStyle.addSource(circleGeoJsonSource)
     }
 
@@ -236,13 +297,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun createRadiusLayer(loadedStyle: Style) {
         val fillLayer = FillLayer(
-            Constants.threatRadiusLayerId,
-            Constants.threatRadiusSourceId
+            Constants.THREAT_RADIUS_LAYER_ID,
+            Constants.THREAT_RADIUS_SOURCE_ID
         )
         fillLayer.setProperties(
             fillColor(
                 Expression.step(
-                    Expression.get(Constants.threatProperty),
+                    Expression.get(Constants.THREAT_PROPERTY),
                     Expression.color(RiskStatus.NONE.color),
                     Expression.stop(0, Expression.color(RiskStatus.LOW.color)),
                     Expression.stop(0.4, Expression.color(RiskStatus.MEDIUM.color)),
@@ -253,7 +314,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             visibility(NONE)
         )
 
-        loadedStyle.addLayerBelow(fillLayer, Constants.buildingsLayerId)
+//        loadedStyle.addLayerBelow(fillLayer, Constants.BUILDINGS_LAYER_ID)???????????????????????
+        loadedStyle.addLayer(fillLayer)
     }
 
     fun showRadiusLayerButtonClicked(layerId: String) {
@@ -337,7 +399,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //        if (features.size > 0) {
 //            selectedBuildingId.value = features.first().id()
 //            val selectedBuildingSource =
-//                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.selectedBuildingSourceId)
+//                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
 //            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
 //        }
 //
