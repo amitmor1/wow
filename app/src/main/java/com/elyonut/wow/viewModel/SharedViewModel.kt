@@ -5,8 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.model.Threat
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
 
 class SharedViewModel(application: Application) : AndroidViewModel(application) {

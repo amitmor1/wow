@@ -12,7 +12,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 private const val MY_RISK_RADIUS = 0.3
 
 class AnalyzeManager(private val layerManager: LayerManager) : IAnalyze {
-
     override fun calcThreatStatus(location: Location): RiskStatus {
         val allFeatures = layerManager.getLayer(Constants.threatLayerId)
         var threatLocation: LatLng

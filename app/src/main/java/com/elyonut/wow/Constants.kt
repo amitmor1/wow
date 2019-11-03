@@ -3,15 +3,18 @@ package com.elyonut.wow
 class Constants {
     companion object {
 //        const val threatLayerId = "buildingRisk"
-        const val threatLayerId = "construction"
-        const val constructionLayerId = "construction"
+        const val threatLayerId = "construction2"
+        const val constructionLayerId = "construction2"
         const val buildingsLayerId = "building"
         const val threatProperty = "risk"
         const val threatRadiusSourceId = "THREAT_RADIUS_SOURCE"
         const val threatRadiusLayerId = "THREAT_RADIUS_LAYER"
         const val selectedBuildingSourceId = "SELECTED_BUILDING_SOURCE"
         const val selectedBuildingLayerId = "SELECTED_BUILDING_LAYER"
-        const val MAPBOX_STYLE_URL = "mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl"
+	    // const val MAPBOX_STYLE_URL = "mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl"
+	    const val MAPBOX_STYLE_URL = "mapbox://styles/wowdev/ck2abkdff0mc91clfa04mr7ff"
+        const val activeThreatsSourceId = "ACTIVE_THREATS_SOURCE"
+        const val activeThreatsLayerId = "ACTIVE_THREATS_LAYER"
         const val MAPBOX_ACCESS_TOKEN =
             "pk.eyJ1Ijoid293ZGV2IiwiYSI6ImNqd2o2NWJvZDBnMHkzeXFrY2JncDA4YnAifQ.nBIwjHkMCNx5H25pCTl4Vg"
         const val regularOpacity = 0.4f

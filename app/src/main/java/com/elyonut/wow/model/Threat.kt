@@ -18,6 +18,7 @@ class Threat() : Parcelable {
     lateinit var feature: Feature
     var isLos: Boolean = false
     var azimuth: Double = 0.0
+    var type: String = ""
 
 
     constructor(parcel: Parcel) : this() {
@@ -31,7 +32,7 @@ class Threat() : Parcelable {
         feature = Feature.fromJson(parcel.readString())
         isLos = parcel.readInt() == 1
         azimuth = parcel.readDouble()
-
+        type = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -45,6 +46,7 @@ class Threat() : Parcelable {
         parcel.writeString(feature.toJson())
         parcel.writeInt(if (isLos) 1 else 0)
         parcel.writeDouble(azimuth)
+        parcel.writeString(type)
     }
 
     override fun describeContents(): Int {

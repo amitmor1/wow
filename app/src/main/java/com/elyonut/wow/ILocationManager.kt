@@ -7,6 +7,5 @@ interface ILocationManager {
     fun startLocationService()
     fun isGpsEnabled(): Boolean
     fun cleanLocation()
-    fun getCurrentLocation() : Location?
-    fun getRiskStatus(): LiveData<RiskStatus>?
+    fun getCurrentLocation() : LiveData<Location?>
 }

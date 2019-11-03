@@ -12,7 +12,8 @@ class TempDB(var context: Context) {
 
         // threat features
         val gson = GsonBuilder().create()
-        var buffer = BufferedReader(InputStreamReader(context.assets.open("constructionFeatures.geojson")))
+        var buffer = BufferedReader(InputStreamReader(context.assets.open("constructionFeatures2.geojson")))
+//        var buffer = BufferedReader(InputStreamReader(context.assets.open("constructionFeatures.geojson")))
         var features = gson.fromJson(buffer, Array<FeatureModel>::class.java)
         var layerModel = LayerModel(Constants.threatLayerId, "threat", features.toList())
         val layersList = ArrayList<LayerModel>()
