@@ -1,6 +1,5 @@
 package com.elyonut.wow.analysis
 
-import com.elyonut.wow.App
 import com.elyonut.wow.Constants
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.FeatureModel
@@ -269,7 +268,7 @@ class TopographyService {
     ): Feature? {
 
         val point = mapboxMap.projection.toScreenLocation(location)
-        val features = mapboxMap.queryRenderedFeatures(point, Constants.buildingsLayerId)
+        val features = mapboxMap.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID) //????
 
         if (features.isNullOrEmpty())
             return null

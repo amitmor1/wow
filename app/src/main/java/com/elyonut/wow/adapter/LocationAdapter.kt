@@ -10,6 +10,8 @@ import com.elyonut.wow.ILocationManager
 import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
 import java.lang.ref.WeakReference
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 // Const values

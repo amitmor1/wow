@@ -24,5 +24,6 @@ class Constants {
         const val CIRCLE_LAYER_ID = "circle-layer-id"
         const val LINE_LAYER_ID = "line-layer-id"
         const val AREA_OF_INTEREST_KEY = "areaOfInterest"
+        const val PRIMARY_CHANNEL_ID = "primary_notification_channel"
     }
 }

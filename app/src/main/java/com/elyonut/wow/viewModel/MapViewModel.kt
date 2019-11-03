@@ -7,10 +7,12 @@ import android.graphics.Color
 import android.graphics.RectF
 import android.location.Location
 import android.os.AsyncTask
+import android.text.BoringLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.elyonut.wow.*
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
@@ -21,6 +23,7 @@ import com.elyonut.wow.analysis.ThreatAnalyzer
 import com.elyonut.wow.analysis.TopographyService
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -37,6 +40,11 @@ import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -69,7 +77,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var circleSource: GeoJsonSource
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
-    
+    var isInsideThreatArea = MutableLiveData<Boolean>()
+    var threatIdsByStatus = HashMap<ThreatLevel, ArrayList<String>>()
     private lateinit var topographyService: TopographyService
     lateinit var threatAnalyzer: ThreatAnalyzer
     private var calcThreatsTask: CalcThreatStatusAsync? = null
@@ -148,6 +157,45 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+//    private fun initRiskStatus(loadedMapStyle: Style) {
+//        riskStatus = locationAdapter!!.getRiskStatus()!!
+//        isLocationAdapterInitialized.value = true
+//        riskStatus.observeForever {
+//            if (riskStatus.value == RiskStatus.HIGH || riskStatus.value == RiskStatus.MEDIUM) {
+//                setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
+//            } else {
+//                setThreatLayerOpacity(loadedMapStyle, Constants.regularOpacity)
+//            }
+//        }
+//    }
+
+    fun checkRiskStatus() {
+        var ids = getThreatIds()
+
+        if (riskStatus.value == RiskStatus.HIGH) {
+            if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != ids)) {
+                threatIdsByStatus = ids
+                isInsideThreatArea.value = true
+            }
+        }
+        else {
+            isInsideThreatArea.value = false
+        }
+
+        threatIdsByStatus = ids
+    }
+
+    private fun getThreatIds(): HashMap<ThreatLevel, ArrayList<String>> {
+        var ids = HashMap<ThreatLevel, ArrayList<String>>()
+
+        threats.value?.forEach {
+            ids[it.level]?.add(it.feature.id()!!)
+        }
+
+        return ids
+    }
+
+
     @SuppressLint("ShowToast")
     fun onRequestPermissionsResult(
         requestCode: Int,
@@ -194,6 +242,21 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    private fun setLayer(
+        loadedMapStyle: Style,
+        sourceId: String,
+        layerId: String,
+        opacity: Float = Constants.REGULAR_OPACITY
+    ) {
+        loadedMapStyle.addSource(GeoJsonSource(sourceId))
+        loadedMapStyle.addLayer(
+            FillLayer(
+                layerId,
+                sourceId
+            ).withProperties(fillExtrusionOpacity(opacity))
+        )
+    }
+
     private fun setActiveThreatsLayer(loadedMapStyle: Style) {
         loadedMapStyle.addSource(GeoJsonSource(Constants.activeThreatsSourceId))
         loadedMapStyle.addLayer(
@@ -205,11 +268,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
-        loadedMapStyle.addSource(GeoJsonSource(Constants.selectedBuildingSourceId))
+        loadedMapStyle.addSource(GeoJsonSource(Constants.SELECTED_BUILDING_SOURCE_ID))
         loadedMapStyle.addLayer(
             FillLayer(
-                Constants.selectedBuildingLayerId,
-                Constants.selectedBuildingSourceId
+                Constants.SELECTED_BUILDING_LAYER_ID,
+                Constants.SELECTED_BUILDING_SOURCE_ID
             ).withProperties(fillExtrusionOpacity(0.7f),
                 fillColor(Color.parseColor("#870485")))
         )
@@ -222,7 +285,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun createRadiusSource(loadedStyle: Style) {
         val circleGeoJsonSource =
-            GeoJsonSource(Constants.threatRadiusSourceId, getThreatRadiuses())
+            GeoJsonSource(Constants.THREAT_RADIUS_SOURCE_ID, getThreatRadiuses())
         loadedStyle.addSource(circleGeoJsonSource)
     }
 
@@ -237,13 +300,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun createRadiusLayer(loadedStyle: Style) {
         val fillLayer = FillLayer(
-            Constants.threatRadiusLayerId,
-            Constants.threatRadiusSourceId
+            Constants.THREAT_RADIUS_LAYER_ID,
+            Constants.THREAT_RADIUS_SOURCE_ID
         )
         fillLayer.setProperties(
             fillColor(
                 Expression.step(
-                    Expression.get(Constants.threatProperty),
+                    Expression.get(Constants.THREAT_PROPERTY),
                     Expression.color(RiskStatus.NONE.color),
                     Expression.stop(0, Expression.color(RiskStatus.LOW.color)),
                     Expression.stop(0.4, Expression.color(RiskStatus.MEDIUM.color)),
@@ -254,7 +317,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             visibility(NONE)
         )
 
-        loadedStyle.addLayerBelow(fillLayer, Constants.buildingsLayerId)
+        loadedStyle.addLayer(fillLayer)
     }
 
     fun showRadiusLayerButtonClicked(layerId: String) {
@@ -321,7 +384,30 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun removeFilter(style: Style, layerId: String) {
         FilterHandler.removeFilter(style, layerId)
     }
-    
+
+
+//    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
+////        model.onMapClick()
+//        val loadedMapStyle = mapboxMap.style
+//
+//        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+//            return false
+//        }
+//
+//        val point = mapboxMap.projection.toScreenLocation(latLng)
+//        val features =
+//            mapboxMap.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+//
+//        if (features.size > 0) {
+//            selectedBuildingId.value = features.first().id()
+//            val selectedBuildingSource =
+//                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+//            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+//        }
+//
+//        return true
+//    }
+
     fun drawPolygonMode(latLng: LatLng) {
         val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.latitude)
 
@@ -512,6 +598,27 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         return threatAnalyzer.featureToThreat(building, currentLocation, isLOS)
     }
 
+    fun setZoomLocation(ID: String) {
+        var location = layerManager.getFeatureLocation(ID)
+
+//        map.cameraPosition = CameraPosition.Builder()
+//            .target(LatLng(location.latitude, location.longitude))
+//            .zoom(17.0)
+//            .build()
+
+
+//        val position = CameraPosition.Builder()
+//        .target(LatLng(location.latitude, location.longitude)) // Sets the new camera position
+//        .zoom(17.0) // Sets the zoom
+////        .bearing(180) // Rotate the camera
+////        .tilt(30) // Set the camera tilt
+//        .build() // Creates a CameraPosition from the builder
+//
+//        map.cameraPosition.target.latitude = location.latitude
+//        map.cameraPosition.target.longitude = location.longitude
+//        map.moveCamera(CameraUpdateFactory
+//        .newCameraPosition(position))
+    }
 }
 
 class FilterHandler {
