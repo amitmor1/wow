@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.text.BoringLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.elyonut.wow.*
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
@@ -35,12 +37,14 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 
 private const val RECORD_REQUEST_CODE = 101
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
 
-    var selectLocationManual: Boolean = false // Why is it here? never changes in the view model
+    var selectLocationManual: Boolean = false // Why is it here? never changes
     private lateinit var map: MapboxMap
     private val tempDB = TempDB(application)
     private val permissions: IPermissions =
@@ -79,10 +83,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             isInsideThreatArea.value = false
             addLayers(style)
             addRadiusLayer(style)
+            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY, Constants.CONSTRUCTION_LAYER_ID)
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
             initCircleLayer(style)
             initLineLayer(style)
+
         }
     }
 
@@ -126,7 +132,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
         locationAdapter!!.startLocationService()
         initRiskStatus(loadedMapStyle)
-
     }
 
     private fun initRiskStatus(loadedMapStyle: Style) {
@@ -136,10 +141,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             if (riskStatusDetails.value?.first == RiskStatus.HIGH || riskStatusDetails.value?.first == RiskStatus.MEDIUM) {
                 val features = ArrayList<Feature>()
                 riskStatusDetails.value?.second?.get(RiskStatus.HIGH)?.forEach { id ->
-                    val c = loadedMapStyle.getSourceAs<GeoJsonSource>("construction")
-                    val v = c?.querySourceFeatures(Expression.all())
                     val currentThreat = threatFeatures.value?.find { threatFeature ->
-                        //threatFeatures ???
                         threatFeature.id() == id
                     }
 
@@ -150,29 +152,57 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 val currentThreateningBuildingSource =
                     loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
                 currentThreateningBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features as MutableList<Feature>))
-//                setLayerOpacity(
-//                    loadedMapStyle,
-//                    Constants.HIGH_OPACITY,
-//                    Constants.CURRENT_THREATENING_BUILDINGS_LAYER_ID
-//                )
+                setThreatLayerOpacity(
+                    loadedMapStyle,
+                    Constants.HIGH_OPACITY,
+                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+                )
             } else {
-//                setLayerOpacity(
-//                    loadedMapStyle,
-//                    Constants.REGULAR_OPACITY,
-//                    Constants.CURRENT_THREATENING_BUILDINGS_LAYER_ID
-//                )
+                setThreatLayerOpacity(
+                    loadedMapStyle,
+                    Constants.REGULAR_OPACITY,
+                    Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID
+                )
             }
 
             if (riskStatusDetails.value?.first == RiskStatus.HIGH) {
                 if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != riskStatusDetails.value?.second!!)) {
-                    isInsideThreatArea.value = true
                     threatIdsByStatus = riskStatusDetails.value?.second!!
+                    isInsideThreatArea.value = true
+                }
+            }
+            else {
+                isInsideThreatArea.value = false
+            }
+
+            threatIdsByStatus = riskStatusDetails.value?.second!!
+        }
+    }
+
+
+    @SuppressLint("ShowToast")
+    fun onRequestPermissionsResult(
+        requestCode: Int,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            RECORD_REQUEST_CODE -> {
+
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    noPermissionsToast.value =
+                        Toast.makeText(
+                            getApplication(),
+                            R.string.permission_not_granted,
+                            Toast.LENGTH_LONG
+                        )
+                } else {
+                    startLocationService((map.style!!))
                 }
             }
         }
     }
 
-    //    private fun setBuildingFilter(loadedMapStyle: Style) {
+//    private fun setBuildingFilter(loadedMapStyle: Style) {
 //        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
 //        (buildingLayer as FillExtrusionLayer).withProperties(
 //            fillExtrusionColor(
@@ -184,6 +214,16 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 //                )
 //            ), fillExtrusionOpacity(0.5f)
 //        )
+//    }
+
+    private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float, layerId: String) {
+        val threatLayer = loadedMapStyle.getLayer(layerId)
+        (threatLayer as FillExtrusionLayer?)?.withProperties(
+            fillExtrusionOpacity(
+                opacity
+            )
+        )
+    }
 
     private fun addLayers(loadedMapStyle: Style) {
         setLayer(
@@ -211,52 +251,19 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             FillLayer(
                 layerId,
                 sourceId
-            ).withProperties(fillExtrusionOpacity(opacity), fillColor(Color.RED))
+            ).withProperties(fillExtrusionOpacity(opacity))
         )
     }
 
-    @SuppressLint("ShowToast")
-    fun onRequestPermissionsResult(
-        requestCode: Int,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            RECORD_REQUEST_CODE -> {
-
-                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    noPermissionsToast.value =
-                        Toast.makeText(
-                            getApplication(),
-                            R.string.permission_not_granted,
-                            Toast.LENGTH_LONG
-                        )
-                } else {
-                    startLocationService((map.style!!))
-                }
-            }
-        }
-    }
-
-//    }
-
-    private fun setLayerOpacity(loadedMapStyle: Style, opacity: Float, layerId: String) {
-        val layer = loadedMapStyle.getLayer(layerId)
-        (layer as FillExtrusionLayer?)?.withProperties(
-            fillExtrusionOpacity(
-                opacity
-            )
+    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
+        loadedMapStyle.addSource(GeoJsonSource(Constants.SELECTED_BUILDING_SOURCE_ID))
+        loadedMapStyle.addLayer(
+            FillLayer(
+                Constants.SELECTED_BUILDING_LAYER_ID,
+                Constants.SELECTED_BUILDING_SOURCE_ID
+            ).withProperties(fillExtrusionOpacity(0.7f))
         )
     }
-
-//    private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
-//        loadedMapStyle.addSource(GeoJsonSource(Constants.SELECTED_BUILDING_SOURCE_ID))
-//        loadedMapStyle.addLayer(
-//            FillLayer(
-//                Constants.SELECTED_BUILDING_LAYER_ID,
-//                Constants.SELECTED_BUILDING_SOURCE_ID
-//            ).withProperties(fillExtrusionOpacity(0.7f))
-//        )
-//    }
 
 //    private fun setCurrentThreateningBuildingLayer(loadedMapStyle: Style) {
 //        loadedMapStyle.addSource(GeoJsonSource(Constants.CURRENT_THREATENING_BUILDINGS_SOURCE_ID))
@@ -580,6 +587,29 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
         return ta.featureToThreat(building, currentLocation, isLOS)
     }
+
+    fun setZoomLocation(ID: String) {
+        var location = layerManager.getFeatureLocation(ID)
+
+//        map.cameraPosition = CameraPosition.Builder()
+//            .target(LatLng(location.latitude, location.longitude))
+//            .zoom(17.0)
+//            .build()
+
+
+//        val position = CameraPosition.Builder()
+//        .target(LatLng(location.latitude, location.longitude)) // Sets the new camera position
+//        .zoom(17.0) // Sets the zoom
+////        .bearing(180) // Rotate the camera
+////        .tilt(30) // Set the camera tilt
+//        .build() // Creates a CameraPosition from the builder
+//
+//        map.cameraPosition.target.latitude = location.latitude
+//        map.cameraPosition.target.longitude = location.longitude
+//        map.moveCamera(CameraUpdateFactory
+//        .newCameraPosition(position))
+    }
+
 }
 
 class FilterHandler {

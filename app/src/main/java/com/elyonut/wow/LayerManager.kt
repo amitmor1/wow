@@ -1,6 +1,7 @@
 package com.elyonut.wow
 
 import com.elyonut.wow.model.FeatureModel
+import com.elyonut.wow.model.LatLngModel
 import com.elyonut.wow.model.LayerModel
 import com.google.gson.JsonPrimitive
 import kotlin.reflect.KClass
@@ -21,19 +22,15 @@ class LayerManager(tempDB: TempDB) {
     }
 
     fun getLayerProperties(id: String): HashMap<String, KClass<*>> {
-//        val propertiesList = ArrayList<PropertyModel>()
         val currentLayer = getLayer(id)
-
         val propertiesHashMap = HashMap<String, KClass<*>>()
 
         // Temp- until we have a real DB and real data
         currentLayer?.first()?.properties?.entrySet()?.forEach {
             if ((it.value as JsonPrimitive).isNumber) {
                 propertiesHashMap[it.key] = Number::class
-//                propertiesList.add(PropertyModel(it.key, Number::class))
             } else if ((it.value as JsonPrimitive).isString) {
                 propertiesHashMap[it.key] = String::class
-//                propertiesList.add(PropertyModel(it.key, String::class))
             }
         }
 
@@ -68,5 +65,14 @@ class LayerManager(tempDB: TempDB) {
         }
 
         return maxValue
+    }
+
+    fun getFeatureLocation(featureID: String): LatLngModel {
+        var feature: FeatureModel? = null
+        layersList?.forEach { it ->
+            feature = it.features.find { it.id == featureID }
+        }
+
+        return LatLngModel(feature?.properties?.get("latitude")!!.asDouble, feature?.properties?.get("longitude")!!.asDouble)
     }
 }

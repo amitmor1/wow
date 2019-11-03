@@ -1,6 +1,7 @@
 package com.elyonut.wow.view
 
 import android.content.Context
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
@@ -18,6 +19,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.elyonut.wow.Constants
 import com.elyonut.wow.ILogger
+import com.elyonut.wow.NotificationReceiver
 import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
@@ -25,7 +27,6 @@ import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
-import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
 
@@ -184,5 +185,9 @@ class MainActivity : AppCompatActivity(),
         sharedPreferences.edit()
             .putString(Constants.AREA_OF_INTEREST_KEY, areaOfInterestJson)
             .apply()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

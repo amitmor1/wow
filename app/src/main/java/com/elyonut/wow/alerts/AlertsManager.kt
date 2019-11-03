@@ -1,16 +1,17 @@
 package com.elyonut.wow.alerts
 
-import android.app.NotificationManager
+import android.app.*
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
-import android.app.NotificationChannel
 import androidx.core.app.NotificationCompat
 import com.elyonut.wow.view.MainActivity
 import android.content.Intent
-import android.app.PendingIntent
 import com.elyonut.wow.R
 import android.graphics.*
+import android.provider.Settings
 import com.elyonut.wow.Constants
+import com.elyonut.wow.NotificationReceiver
+import com.elyonut.wow.viewModel.MapViewModel
 import kotlin.random.Random
 
 
@@ -18,6 +19,7 @@ class AlertsManager(var context: Context) {
 
     private var mNotifyManager: NotificationManager? = null
     private var notificationIds = HashMap<String, Int>()
+//    val notificationReceiver = NotificationReceiver()
 
     init {
         createNotificationChannel()
@@ -59,6 +61,14 @@ class AlertsManager(var context: Context) {
             notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        val zoomLocationIntent = Intent("ZOOM_LOCATION").apply {
+
+            putExtra("threatID", threatID)
+        }
+
+        val zoomLocationPendingIntent: PendingIntent =
+            PendingIntent.getBroadcast(context, notificationID, zoomLocationIntent, 0)
+
         val notifyBuilder = NotificationCompat.Builder(context, Constants.PRIMARY_CHANNEL_ID)
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
@@ -73,7 +83,7 @@ class AlertsManager(var context: Context) {
             .addAction(
                 R.drawable.ic_gps_fixed_black,
                 context.getString(R.string.goto_location),
-                notificationPendingIntent
+                zoomLocationPendingIntent
             )
             .setLargeIcon(
                 getCircleBitmap(
@@ -83,6 +93,8 @@ class AlertsManager(var context: Context) {
                     )
                 )
             )
+
+        notifyBuilder.build().flags.and(Notification.FLAG_AUTO_CANCEL)
 
         mNotifyManager?.notify(notificationID, notifyBuilder.build())
     }
