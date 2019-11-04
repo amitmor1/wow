@@ -16,7 +16,6 @@ class AlertsManager(var context: Context) {
 
     private var mNotifyManager: NotificationManager? = null
     private var notificationIds = HashMap<String, Int>()
-//    val notificationReceiver = NotificationReceiver()
 
     init {
         createNotificationChannel()

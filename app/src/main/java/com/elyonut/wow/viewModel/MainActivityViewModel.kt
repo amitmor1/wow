@@ -16,6 +16,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val selectedExperimentalOption = MutableLiveData<Int>()
     val filterSelected = MutableLiveData<Boolean>()
     val shouldDefineArea = MutableLiveData<Boolean>()
+    val shouldOpenAlertsFragment = MutableLiveData<Boolean>()
 
     fun onNavigationItemSelected(item: MenuItem): Boolean {
         var shouldCloseDrawer = true
@@ -35,6 +36,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 if (shouldDefineArea.value == null || !shouldDefineArea.value!!) {
                     shouldDefineArea.value = true
                 }
+            }
+            item.itemId == R.id.alerts -> {
+                shouldOpenAlertsFragment.value = true
             }
         }
 

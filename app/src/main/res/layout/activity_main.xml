@@ -14,6 +14,17 @@
         layout="@layout/app_bar_main"
         android:layout_height="match_parent" />
 
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent" android:layout_height="fill_parent"
+            android:orientation="vertical" android:id="@+id/fragment_container">
+
+    </LinearLayout>
+    </FrameLayout>
+
     <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigationView"
             android:layout_width="wrap_content"
@@ -21,6 +32,7 @@
             android:layout_gravity="start"
             app:headerLayout="@layout/nav_header_main"
             app:menu="@menu/activity_main_drawer" >
+
             <FrameLayout
                 android:id="@+id/fragmentMenuParent"
                 android:layout_width="match_parent"

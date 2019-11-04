@@ -160,13 +160,21 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun sendNotification() {
         mapViewModel.threatIdsByStatus[ThreatLevel.High]?.forEach {
+            val message = getString(R.string.inside_threat_notification_content) + it
+
             sharedViewModel.alertsManager.sendNotification(
                 getString(R.string.inside_threat_notification_title),
-                getString(R.string.inside_threat_notification_content) + it,
+                message,
                 R.drawable.threat_notification_icon,
                 it
             )
+
+            updateAlertsContainer(message)
         }
+    }
+
+    private fun updateAlertsContainer(message: String) {
+        sharedViewModel.alertMessage.value = message
     }
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {

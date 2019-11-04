@@ -2,7 +2,7 @@
     <string name="app_name">WoW</string>
 
     <string name="style_url">mapbox://styles/wowdev/ck2abkdff0mc91clfa04mr7ff</string>
-<!--    <string name="style_url">mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl</string>-->
+    <!--    <string name="style_url">mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl</string>-->
     <string name="permission_not_granted">Can\'t find location, permission not granted</string>
     <string name="json_field_region_name">region_name</string>
     <string name="region_name">Tel Aviv Yafo erea</string>
@@ -34,4 +34,7 @@
     <string name="goto_location">עבור לנ.צ</string>
     <string name="inside_threat_notification_title">איום</string>
     <string name="inside_threat_notification_content">אתה נמצא בתוך איום מספר - </string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

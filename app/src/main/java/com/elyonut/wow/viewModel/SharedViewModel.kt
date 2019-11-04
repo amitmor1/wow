@@ -24,6 +24,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var shouldDefineArea = MutableLiveData<Boolean>()
     var areaOfInterest: Polygon? = null
     val alertsManager =  AlertsManager(application)
+    val alertMessage = MutableLiveData<String>()
 
     fun selectExperimentalOption(itemId: Int) {
         selectedExperimentalOption.value = itemId

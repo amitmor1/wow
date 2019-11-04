@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+            android:id="@+id/alerts"
             android:icon="@drawable/ic_notification"
-            android:title="התראות"></item>
+            android:title="התראות"/>
     <item
             android:icon="@drawable/ic_pencil"
-            android:title="תחום עניין"></item>
+            android:title="תחום עניין"
+            android:id="@+id/define_area"></item>
     <item
         android:icon="@drawable/ic_left_arrow"
         android:title="ניווט"></item>

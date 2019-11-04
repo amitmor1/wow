@@ -23,6 +23,7 @@ import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.mapbox.geojson.Polygon
@@ -33,13 +34,16 @@ class MainActivity : AppCompatActivity(),
     NavigationView.OnNavigationItemSelectedListener,
     ThreatFragment.OnListFragmentInteractionListener,
     MainMapFragment.OnMapFragmentInteractionListener,
-    FilterFragment.OnFragmentInteractionListener {
+    FilterFragment.OnFragmentInteractionListener,
+    BottomNavigationView.OnNavigationItemSelectedListener,
+    AlertsFragment.OnFragmentInteractionListener {
 
     private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private val logger: ILogger = TimberLogAdapter()
     private lateinit var sharedPreferences: SharedPreferences
     private val gson = Gson()
+    private val alertsFragmentInstance = AlertsFragment.newInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +62,7 @@ class MainActivity : AppCompatActivity(),
         initAreaOfInterest()
         initToolbar()
         initNavigationMenu()
+        initBottomNavigationView()
     }
 
     private fun setObservers() {
@@ -81,10 +86,20 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
+        mainViewModel.shouldOpenAlertsFragment.observe(this, Observer<Boolean> {
+            if (it) {
+                openAlertsFragment()
+            }
+        })
+
         sharedViewModel.shouldDefineArea.observe(this, Observer {
             if (!it) {
                 mainViewModel.shouldDefineArea.value = it
             }
+        })
+
+        sharedViewModel.alertMessage.observe(this, Observer<String> {
+            updateAlerts(it)
         })
     }
 
@@ -142,6 +157,11 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
+    private fun initBottomNavigationView() {
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.setOnNavigationItemSelectedListener(this)
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         if (mainViewModel.onNavigationItemSelected(item)) {
             closeDrawer()
@@ -152,6 +172,19 @@ class MainActivity : AppCompatActivity(),
 
     private fun closeDrawer() {
         findViewById<DrawerLayout>(R.id.parentLayout).closeDrawer(GravityCompat.START)
+    }
+
+    private fun openAlertsFragment() {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+
+        fragmentTransaction.apply {
+            add(R.id.fragment_container, alertsFragmentInstance).commit()
+            addToBackStack(alertsFragmentInstance.javaClass.simpleName)
+        }
+    }
+
+    private fun updateAlerts(message: String) {
+        alertsFragmentInstance.addAlert(message, R.drawable.sunflower)
     }
 
     override fun onMapFragmentInteraction() {
@@ -165,6 +198,9 @@ class MainActivity : AppCompatActivity(),
 
     override fun onListFragmentInteraction(item: Threat?) {
         sharedViewModel.selectedThreatItem.value = item
+    }
+
+    override fun onAlertsFragmentInteraction() {
     }
 
     @SuppressWarnings("MissingPermission")
@@ -189,3 +225,4 @@ class MainActivity : AppCompatActivity(),
         super.onDestroy()
     }
 }
+
