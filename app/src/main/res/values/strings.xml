@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">WoW</string>
-    <string name="style_url">mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl</string>
+
+    <string name="style_url">mapbox://styles/wowdev/ck2abkdff0mc91clfa04mr7ff</string>
+<!--    <string name="style_url">mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl</string>-->
     <string name="permission_not_granted">Can\'t find location, permission not granted</string>
     <string name="json_field_region_name">region_name</string>
     <string name="region_name">Tel Aviv Yafo erea</string>
@@ -23,8 +25,13 @@
     <string name="threat_list">רשימת איומים</string>
     <string name="threats_on_map">איומים על המפה</string>
     <string name="threat_level_color">Threat Level Color</string>
-    <string name="threats_on_map_with_location">איומים לפי מיקום</string>
+    <string name="threats_on_map_with_location_buildings">מבנים שולטים על נקודה</string>
+    <string name="threats_on_map_with_location">איומים על נקודה</string>
     <string name="max_value_text">ערך מקסימלי:</string>
     <string name="min_value_text">ערך מינימלי:</string>
     <string name="area_not_defined">תחום עניין לא הוגדר, האם תרצה להגדיר כעת?</string>
+    <string name="notification_accepted">דיווח התקבל</string>
+    <string name="goto_location">עבור לנ.צ</string>
+    <string name="inside_threat_notification_title">איום</string>
+    <string name="inside_threat_notification_content">אתה נמצא בתוך איום מספר - </string>
 </resources>

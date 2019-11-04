@@ -2,14 +2,12 @@ package com.elyonut.wow.viewModel
 
 import android.app.Application
 import android.view.MenuItem
-import android.view.View
-import android.widget.CheckBox
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.R
 import com.elyonut.wow.TempDB
 import com.elyonut.wow.model.LayerModel
-import com.google.android.material.navigation.NavigationView
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 

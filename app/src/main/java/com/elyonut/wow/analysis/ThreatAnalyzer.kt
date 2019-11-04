@@ -3,55 +3,49 @@ package com.elyonut.wow.analysis
 import android.graphics.RectF
 import com.elyonut.wow.App
 import com.elyonut.wow.Constants
-import com.elyonut.wow.R
 import com.elyonut.wow.model.*
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
-import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.turf.TurfMeasurement
 import java.io.InputStream
 
 
-class ThreatAnalyzer(private var mapView: MapView, private var mapboxMap: MapboxMap) {
-    private var topographyService: TopographyService = TopographyService(mapboxMap)
-
-    fun getThreats(currentLocation: LatLng): ArrayList<Threat> {
-
-        val features = getFeaturesFromMapbox(mapView, mapboxMap)
-        val filterWithLOS = filterWithLOS(features, currentLocation)
-
-        val res = filterWithLOS.mapIndexed { index, it ->
-            featureToThreat(it, currentLocation, true, index)
-        }.sortedBy { it.distanceMeters }
-
-        return ArrayList(res)
-    }
-
-    fun getThreatFeatures(currentLocation: LatLng): List<Feature> {
-        val features = getFeaturesFromMapbox(mapView, mapboxMap)
+class ThreatAnalyzer(var mapboxMap: MapboxMap, private var topographyService: TopographyService) {
+    fun getThreatFeaturesBuildings(currentLocation: LatLng, boundingBox: RectF): List<Feature> {
+        val features = getFeaturesFromMapbox(mapboxMap, Constants.BUILDINGS_LAYER_ID, boundingBox)
         return filterWithLOS(features, currentLocation)
     }
 
-
+    fun getThreatFeaturesConstruction(currentLocation: LatLng, featureModels: List<FeatureModel>): List<FeatureModel> {
+        return filterWithLOSModelFeatures(featureModels, currentLocation)
+    }
 
     private fun filterWithLOS(
         buildingFeatureCollection: List<Feature>,
         currentLocation: LatLng
     ): List<Feature> {
-        return buildingFeatureCollection.filter { topographyService.isLOS(currentLocation, it) }
+        val currentLocationCoord = Coordinate(currentLocation.latitude, currentLocation.longitude)
+        return buildingFeatureCollection.filter { topographyService.isThreat(currentLocationCoord, it) }
     }
 
-    public fun featureToThreat(feature: Feature, currentLocation: LatLng, isLos: Boolean, index: Int = 1): Threat {
+    private fun filterWithLOSModelFeatures(
+        buildingFeatureCollection: List<FeatureModel>,
+        currentLocation: LatLng
+    ): List<FeatureModel> {
+        val currentLocationCoord = Coordinate(currentLocation.latitude, currentLocation.longitude)
+        return buildingFeatureCollection.filter { topographyService.isThreat(currentLocationCoord, it) }
+    }
+
+    fun featureToThreat(feature: Feature, currentLocation: LatLng, isLos: Boolean, index: Int = 1): Threat {
         val threat = Threat()
         // threat.radius = feature.getNumberProperty("radius").toDouble()
         val height = feature.getNumberProperty("height").toDouble()
         threat.level = getThreatLevel(height)
 
-        val geometryCoordinates = topographyService.getCoordinates(feature.geometry()!!)
+        val geometryCoordinates = topographyService.getGeometryCoordinates(feature.geometry()!!)
         val featureLatitude = geometryCoordinates[0].latitude
         val featureLongitude = geometryCoordinates[0].longitude
         val featureLocation = LatLng(featureLatitude, featureLongitude)
@@ -84,21 +78,15 @@ class ThreatAnalyzer(private var mapView: MapView, private var mapboxMap: Mapbox
     }
 
     private fun getFeaturesFromMapbox(
-        mapView: MapView,
-        mapboxMap: MapboxMap
+        mapboxMap: MapboxMap,
+        layerId: String,
+        boundingBox: RectF
     ): List<Feature> {
-        val rectF = RectF(
-            mapView.left.toFloat(),
-            mapView.top.toFloat(),
-            mapView.right.toFloat(),
-            mapView.bottom.toFloat()
-        )
-
-        val features = mapboxMap.queryRenderedFeatures(rectF, Constants.buildingsLayerId)
-        //val uniqueFeatures = features.distinctBy { it.id() }
+        val features = mapboxMap.queryRenderedFeatures(boundingBox, layerId)
         return features
 
     }
+
 
     private fun getFeatures(): FeatureCollection {
         val stream: InputStream = App.resourses.assets.open("features.geojson")
