@@ -155,18 +155,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
-//    private fun initRiskStatus(loadedMapStyle: Style) {
-//        riskStatus = locationAdapter!!.getRiskStatus()!!
-//        isLocationAdapterInitialized.value = true
-//        riskStatus.observeForever {
-//            if (riskStatus.value == RiskStatus.HIGH || riskStatus.value == RiskStatus.MEDIUM) {
-//                setThreatLayerOpacity(loadedMapStyle, Constants.HighOpacity)
-//            } else {
-//                setThreatLayerOpacity(loadedMapStyle, Constants.REGULAR_OPACITY)
-//            }
-//        }
-//    }
-
     fun checkRiskStatus() {
         var ids = getThreatIds()
 
