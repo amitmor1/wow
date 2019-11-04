@@ -20,7 +20,6 @@ class Threat() : Parcelable {
     var azimuth: Double = 0.0
     var type: String = ""
 
-
     constructor(parcel: Parcel) : this() {
         name = parcel.readString()
         description = parcel.readString()

@@ -347,16 +347,16 @@ class TopographyService {
                     )
                 } as MutableList<Coordinate>
             }
-            "MultiLineString" -> {
-                geometry = featureGeometry as MultiLineString
-                TODO("not implemented")
-            }
-            "MultiPoint" -> {
-                geometry = featureGeometry as MultiPoint
-                TODO("not implemented")
-            }
+//            "MultiLineString" -> {
+//                geometry = featureGeometry as MultiLineString
+//                TODO("not implemented")
+//            }
+//            "MultiPoint" -> {
+//                geometry = featureGeometry as MultiPoint
+//                TODO("not implemented")
+//            }
             else -> {
-                geometry = featureGeometry as CoordinateContainer<*>
+//                geometry = featureGeometry as CoordinateContainer<*>
             }
         }
 
