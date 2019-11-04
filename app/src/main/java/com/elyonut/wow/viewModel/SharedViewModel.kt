@@ -3,7 +3,6 @@ package com.elyonut.wow.viewModel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.elyonut.wow.NotificationReceiver
 import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.alerts.AlertsManager
 import com.elyonut.wow.model.Threat

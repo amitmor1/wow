@@ -8,10 +8,7 @@ import com.elyonut.wow.view.MainActivity
 import android.content.Intent
 import com.elyonut.wow.R
 import android.graphics.*
-import android.provider.Settings
 import com.elyonut.wow.Constants
-import com.elyonut.wow.NotificationReceiver
-import com.elyonut.wow.viewModel.MapViewModel
 import kotlin.random.Random
 
 

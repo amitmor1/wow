@@ -1,7 +1,6 @@
 package com.elyonut.wow.view
 
 import android.content.Context
-import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
@@ -19,7 +18,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.elyonut.wow.Constants
 import com.elyonut.wow.ILogger
-import com.elyonut.wow.NotificationReceiver
 import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Threat
