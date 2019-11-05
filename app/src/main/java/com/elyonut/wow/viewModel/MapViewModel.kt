@@ -588,8 +588,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         return threatAnalyzer.featureToThreat(building, currentLocation, isLOS)
     }
 
-    fun setZoomLocation(ID: String) {
-        val location = layerManager.getFeatureLocation(ID)
+    fun setZoomLocation(threatID: String) {
+        val location = layerManager.getFeatureLocation(threatID)
         val position = CameraPosition.Builder()
         .target(LatLng(location.latitude, location.longitude))
         .zoom(17.0)
@@ -599,6 +599,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         map.easeCamera(
             CameraUpdateFactory
         .newCameraPosition(position))
+    }
+
+    fun getFeatureName(threatID: String): String {
+        return layerManager.getFeatureName(threatID)
     }
 }
 

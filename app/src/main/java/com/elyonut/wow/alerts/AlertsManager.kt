@@ -14,7 +14,7 @@ import kotlin.random.Random
 
 class AlertsManager(var context: Context) {
 
-    private var mNotifyManager: NotificationManager? = null
+    private var notificationManager: NotificationManager? = null
     private var notificationIds = HashMap<String, Int>()
 
     init {
@@ -22,7 +22,7 @@ class AlertsManager(var context: Context) {
     }
 
     private fun createNotificationChannel() {
-        mNotifyManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
+        notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager?
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 
             // Create a NotificationChannel
@@ -36,8 +36,12 @@ class AlertsManager(var context: Context) {
             notificationChannel.lightColor = Color.RED
             notificationChannel.enableVibration(true)
 //            notificationChannel.description = "Notification from Mascot"
-            mNotifyManager?.createNotificationChannel(notificationChannel)
+            notificationManager?.createNotificationChannel(notificationChannel)
         }
+    }
+
+    fun cancelNotification(notificationID: Int) {
+        notificationManager?.cancel(notificationID)
     }
 
     fun sendNotification(
@@ -46,35 +50,21 @@ class AlertsManager(var context: Context) {
         notificationIcon: Int,
         threatID: String
     ) {
-        var notificationID = notificationIds[threatID]
-        if (notificationID == null) {
-            notificationID = generateNotificationID(threatID)
-        }
-
-        val notificationIntent = Intent(context, MainActivity::class.java)
-        val notificationPendingIntent = PendingIntent.getActivity(
-            context,
-            notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val zoomLocationIntent = Intent("ZOOM_LOCATION").apply {
-
-            putExtra("threatID", threatID)
-        }
-
-        val zoomLocationPendingIntent: PendingIntent =
-            PendingIntent.getBroadcast(context, notificationID, zoomLocationIntent, 0)
+        val notificationID = getNotificationID(threatID)
+//        val notificationPendingIntent = createMainPendingIntent(notificationID)
+        val zoomLocationPendingIntent = createActionPendingIntent(notificationID, threatID, Constants.ZOOM_LOCATION_ACTION)
+        val alertAcceptedPendingIntent = createActionPendingIntent(notificationID, threatID, Constants.ALERT_ACCEPTED_ACTION)
 
         val notifyBuilder = NotificationCompat.Builder(context, Constants.PRIMARY_CHANNEL_ID)
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
             .setSmallIcon(notificationIcon)
-            .setContentIntent(notificationPendingIntent)
+//            .setContentIntent(notificationPendingIntent)
             .setAutoCancel(true)
             .addAction(
                 R.drawable.ic_check_black,
                 context.getString(R.string.notification_accepted),
-                notificationPendingIntent
+                alertAcceptedPendingIntent
             )
             .addAction(
                 R.drawable.ic_gps_fixed_black,
@@ -92,7 +82,35 @@ class AlertsManager(var context: Context) {
 
         notifyBuilder.build().flags.and(Notification.FLAG_AUTO_CANCEL)
 
-        mNotifyManager?.notify(notificationID, notifyBuilder.build())
+        notificationManager?.notify(notificationID, notifyBuilder.build())
+    }
+
+    private fun getNotificationID(threatID: String): Int {
+        var notificationID = notificationIds[threatID]
+
+        if (notificationID == null) {
+            notificationID = generateNotificationID(threatID)
+        }
+
+        return notificationID
+    }
+
+    private fun createMainPendingIntent(notificationID: Int): PendingIntent {
+        val notificationIntent = Intent(context, MainActivity::class.java)
+
+        return PendingIntent.getActivity(
+            context,
+            notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun createActionPendingIntent(notificationID: Int, threatID: String, action: String): PendingIntent {
+        val actionIntent = Intent(action).apply {
+            putExtra("threatID", threatID)
+            putExtra("notificationID", notificationID)
+        }
+
+        return PendingIntent.getBroadcast(context, notificationID, actionIntent, 0)
     }
 
     private fun getCircleBitmap(bitmap: Bitmap): Bitmap {

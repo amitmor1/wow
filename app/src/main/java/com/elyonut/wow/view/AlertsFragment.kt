@@ -11,34 +11,34 @@ import android.widget.ListView
 import com.elyonut.wow.AlertsListAdapter
 
 import com.elyonut.wow.R
+import com.elyonut.wow.model.AlertModel
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
-class AlertsFragment : Fragment() {
+class AlertsFragment(var allAlerts: ArrayList<AlertModel>) : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
     private lateinit var alertsList: ListView
-    private var alertsMessages = ArrayList<String>()
-    private var alertsImages = ArrayList<Int>()
     private var alertsAdapter:AlertsListAdapter? = null
-
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//
-//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_alerts, container, false)
-        alertsAdapter = AlertsListAdapter(context!!,alertsMessages, alertsImages)
+        alertsAdapter = AlertsListAdapter(context!!, allAlerts)
         alertsList = view.findViewById(R.id.alerts_list)
         alertsList.adapter = alertsAdapter
 
         return view
     }
 
-    fun addAlert(message: String, image: Int) {
-        alertsMessages.add(message)
-        alertsImages.add(image)
+    fun addAlert(alert: AlertModel) {
+        allAlerts.add(AlertModel(alert.id, alert.message, alert.image, alert.time))
+        alertsAdapter?.notifyDataSetChanged()
+    }
+
+    fun setAlertAccepted() {
         alertsAdapter?.notifyDataSetChanged()
     }
 
@@ -62,8 +62,8 @@ class AlertsFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() =
-            AlertsFragment().apply {
+        fun newInstance(allAlerts: ArrayList<AlertModel>) =
+            AlertsFragment(allAlerts).apply {
 
             }
     }

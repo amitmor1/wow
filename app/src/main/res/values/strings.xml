@@ -33,7 +33,7 @@
     <string name="notification_accepted">דיווח התקבל</string>
     <string name="goto_location">עבור לנ.צ</string>
     <string name="inside_threat_notification_title">איום</string>
-    <string name="inside_threat_notification_content">אתה נמצא בתוך איום מספר - </string>
+    <string name="inside_threat_notification_content">אתה נמצא בתוך איום מסוג - </string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

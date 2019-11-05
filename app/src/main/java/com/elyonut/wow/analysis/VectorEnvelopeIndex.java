@@ -168,7 +168,7 @@ public class VectorEnvelopeIndex {
                 selection,              // The columns for the WHERE clause
                 selectionArgs,          // The values for the WHERE clause
                 null,                   // don't group the rows
-                null,                   // don't filter by row groups
+                null,                   // don't zoomFilter by row groups
                 sortOrder               // The sort order
         )) {
             while (cursor.moveToNext()) {

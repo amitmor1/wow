@@ -6,6 +6,8 @@
     <color name="primaryTextColor">#ffffff</color>
     <color name="colorAccent">#4f83cc</color>
 
+    <color name="unreadMessage">#ccdeff</color>
+
     <color name="myLocationColor">#ccffff</color>
     <color name="color_gray">#808080</color>
     <color name="lowRisk">#ffdb4d</color>

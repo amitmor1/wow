@@ -25,6 +25,7 @@ import com.elyonut.wow.App
 import com.elyonut.wow.Constants
 import com.elyonut.wow.R
 import com.elyonut.wow.RiskStatus
+import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MapViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -42,6 +43,9 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.elyonut.wow.model.ThreatLevel
 import kotlinx.android.synthetic.main.fragment_map.view.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -56,7 +60,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private var listenerMap: OnMapFragmentInteractionListener? = null
 
     private lateinit var broadcastReceiver: BroadcastReceiver
-    var filter = IntentFilter("ZOOM_LOCATION")
+    var zoomFilter = IntentFilter(Constants.ZOOM_LOCATION_ACTION)
+    var alertAcceptedFilter = IntentFilter(Constants.ALERT_ACCEPTED_ACTION)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,8 +89,15 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.action) {
-                    "ZOOM_LOCATION" -> mapViewModel.setZoomLocation(intent.getStringExtra("threatID"))
+                    Constants.ZOOM_LOCATION_ACTION -> {
+                        mapViewModel.setZoomLocation(intent.getStringExtra("threatID"))
+                    }
+                    Constants.ALERT_ACCEPTED_ACTION -> {
+                        sharedViewModel.updateMessageAccepted(intent.getStringExtra("threatID"))
+                    }
                 }
+
+                sharedViewModel.alertsManager.cancelNotification(intent.getIntExtra("notificationID", 0))
             }
         }
 
@@ -160,7 +172,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun sendNotification() {
         mapViewModel.threatIdsByStatus[ThreatLevel.High]?.forEach {
-            val message = getString(R.string.inside_threat_notification_content) + it
+            val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
 
             sharedViewModel.alertsManager.sendNotification(
                 getString(R.string.inside_threat_notification_title),
@@ -169,12 +181,15 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 it
             )
 
-            updateAlertsContainer(message)
+            updateAlertsContainer(it, message)
         }
     }
 
-    private fun updateAlertsContainer(message: String) {
-        sharedViewModel.alertMessage.value = message
+    private fun updateAlertsContainer(threatID: String ,message: String) {
+        val date = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
+        val currentDateTime = date.format(Date())
+        val alert = AlertModel(threatID, message, R.drawable.sunflower, currentDateTime)
+        sharedViewModel.activeAlert.value = alert
     }
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
@@ -185,6 +200,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                     mapViewModel.checkRiskStatus()
                 }
             }
+
             mapViewModel.riskStatus.observe(this, riskStatusObserver)
         }
 
@@ -528,7 +544,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     override fun onResume() {
         super.onResume()
-        activity?.registerReceiver(broadcastReceiver, filter)
+        activity?.registerReceiver(broadcastReceiver, zoomFilter)
+        activity?.registerReceiver(broadcastReceiver, alertAcceptedFilter)
         mapView.onResume()
     }
 

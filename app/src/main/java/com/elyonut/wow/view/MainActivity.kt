@@ -20,6 +20,7 @@ import com.elyonut.wow.Constants
 import com.elyonut.wow.ILogger
 import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
+import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -43,7 +44,7 @@ class MainActivity : AppCompatActivity(),
     private val logger: ILogger = TimberLogAdapter()
     private lateinit var sharedPreferences: SharedPreferences
     private val gson = Gson()
-    private val alertsFragmentInstance = AlertsFragment.newInstance()
+    private lateinit var alertsFragmentInstance: AlertsFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +58,8 @@ class MainActivity : AppCompatActivity(),
                 .create(MainActivityViewModel::class.java)
         sharedViewModel =
             ViewModelProviders.of(this)[SharedViewModel::class.java]
+
+        alertsFragmentInstance = AlertsFragment.newInstance(sharedViewModel.allAlerts)
 
         setObservers()
         initAreaOfInterest()
@@ -98,8 +101,12 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
-        sharedViewModel.alertMessage.observe(this, Observer<String> {
+        sharedViewModel.activeAlert.observe(this, Observer<AlertModel> {
             updateAlerts(it)
+        })
+
+        sharedViewModel.isAlertChanged.observe(this, Observer<Boolean> {
+            alertsFragmentInstance.setAlertAccepted()
         })
     }
 
@@ -183,8 +190,8 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private fun updateAlerts(message: String) {
-        alertsFragmentInstance.addAlert(message, R.drawable.sunflower)
+    private fun updateAlerts(alert: AlertModel) {
+        alertsFragmentInstance.addAlert(alert)
     }
 
     override fun onMapFragmentInteraction() {

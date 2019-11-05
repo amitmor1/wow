@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.alerts.AlertsManager
+import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.Threat
 import com.mapbox.geojson.Polygon
 
@@ -24,9 +25,20 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var shouldDefineArea = MutableLiveData<Boolean>()
     var areaOfInterest: Polygon? = null
     val alertsManager =  AlertsManager(application)
-    val alertMessage = MutableLiveData<String>()
+    val activeAlert = MutableLiveData<AlertModel>()
+    var allAlerts = ArrayList<AlertModel>()
+    var isAlertChanged = MutableLiveData<Boolean>()
 
     fun selectExperimentalOption(itemId: Int) {
         selectedExperimentalOption.value = itemId
+    }
+
+    fun updateMessageAccepted(messageID: String) {
+        val alert = allAlerts.find { it.id == messageID }
+        if (alert != null) {
+            alert.isRead = true
+        }
+
+        isAlertChanged.value = true
     }
 }

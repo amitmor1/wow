@@ -4,7 +4,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".view.AlertsFragment"
-        android:background="#ffffff">
+        android:background="#ffffff"
+        android:clickable="true"
+        android:focusable="true">
 
     <RelativeLayout
             android:layout_width="match_parent"
