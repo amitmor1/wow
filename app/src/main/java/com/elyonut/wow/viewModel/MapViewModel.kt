@@ -164,7 +164,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val ids = getThreatIds()
 
         if (riskStatus.value == RiskStatus.HIGH) {
-            if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != ids)) {
+            if (threatIdsByStatus.isEmpty() || (threatIdsByStatus[ThreatLevel.High] != ids[ThreatLevel.High])) {
                 threatIdsByStatus = ids
                 isInsideThreatArea.value = true
             }
