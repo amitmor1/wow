@@ -399,8 +399,11 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                     val transaction = activity!!.supportFragmentManager.beginTransaction()
                     val fragment = ThreatFragment()
                     fragment.arguments = bundle
-                    transaction.replace(R.id.threat_list_fragment_container, fragment)
-                    transaction.commit()
+                    transaction.apply {
+                        replace(R.id.threat_list_fragment_container, fragment).commit()
+                        addToBackStack(fragment.javaClass.simpleName)
+                    }
+
                 }
             }
             R.id.threat_select_location_buildings -> {
