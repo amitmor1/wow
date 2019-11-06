@@ -47,6 +47,7 @@ class DataCardFragment : Fragment() {
         view.dataType.text = "איום"
         view.dataSecondTitle.text = threat.name
         val builder = StringBuilder()
+        builder.append(String.format("גובה (מטרים): %.3f\n", threat.height))
         builder.append(String.format("מרחק (מטרים): %.3f\n", threat.distanceMeters))
         builder.append(String.format("אזימוט: %.3f\n", threat.azimuth))
         builder.append(String.format("האם בקו ראיה: %s", if (threat.isLos) "כן" else "לא"))

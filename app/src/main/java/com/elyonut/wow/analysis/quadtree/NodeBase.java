@@ -173,7 +173,7 @@ public abstract class NodeBase {
     }
 
     private void visitItems(Envelope searchEnv, ItemVisitor visitor) {
-        // would be nice to zoomFilter items based on search envelope, but can't
+        // would be nice to filter items based on search envelope, but can't
         // until they contain an envelope
         for (Iterator i = items.iterator(); i.hasNext(); ) {
             visitor.visitItem(i.next());

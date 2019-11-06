@@ -24,10 +24,10 @@ import java.util.List;
  * A Quadtree is a spatial index structure for efficient querying of 2D rectangles. If other kinds
  * of spatial objects need to be indexed they can be represented by their envelopes
  *
- * <p>The quadtree structure is used to provide a primary zoomFilter for range rectangle queries. The
+ * <p>The quadtree structure is used to provide a primary filter for range rectangle queries. The
  * query() method returns a list of all objects which <i>may</i> intersect the query rectangle. Note
- * that it may return objects which do not in fact intersect. A secondary zoomFilter is required to test
- * for exact intersection. Of course, this secondary zoomFilter may consist of other tests besides
+ * that it may return objects which do not in fact intersect. A secondary filter is required to test
+ * for exact intersection. Of course, this secondary filter may consist of other tests besides
  * intersection, such as testing other kinds of spatial relationships.
  *
  * <p>This implementation does not require specifying the extent of the inserted items beforehand.

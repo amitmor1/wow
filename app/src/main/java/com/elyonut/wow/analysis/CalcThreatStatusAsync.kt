@@ -62,6 +62,10 @@ class CalcThreatStatusAsync(
                 modelThreat.name = threat.properties!!["namestr"].asString
                 modelThreat.type = threat.properties!!["type"].asString
                 modelThreat.level = KnowledgeBase.getThreatLevel(modelThreat.type)
+                val height = threat.properties!!["height"]
+                if(height != null) {
+                    modelThreat.height = height.asDouble
+                }
 
                 val coordinates = (feature.geometry() as Polygon).coordinates()
                 val featureLatitude = coordinates[0][0].latitude()
@@ -79,15 +83,13 @@ class CalcThreatStatusAsync(
             val selectedBuildingSource: GeoJsonSource? = if (isManualSelection){
                 mapViewModel.threatAnalyzer.mapboxMap.style?.getSourceAs(Constants.SELECTED_BUILDING_SOURCE_ID)
             } else{
-                mapViewModel.threatAnalyzer.mapboxMap.style?.getSourceAs(Constants.activeThreatsSourceId)
+                mapViewModel.threatAnalyzer.mapboxMap.style?.getSourceAs(Constants.ACTIVE_THREATS_SOURCE_ID)
             }
             selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
-            mapViewModel.threats.postValue(modelThreatList)
-            mapViewModel.riskStatus.postValue(result.riskStatus)
-//            if(!isManualSelection){
-//                mapViewModel.threats.postValue(modelThreatList)
-//            }
-
+            if(!isManualSelection){
+                mapViewModel.threats.postValue(modelThreatList)
+                mapViewModel.riskStatus.postValue(result.riskStatus)
+            }
         }
     }
 

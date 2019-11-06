@@ -43,7 +43,7 @@ public class KnowledgeBase {
         if(threatType.equals("observation")) return ThreatLevel.Medium;
         if(threatType.equals("command")) return ThreatLevel.High;
         if(threatType.equals("mortar")) return ThreatLevel.High;
-        if(threatType.equals("miksuh")) return ThreatLevel.High;
+        if(threatType.equals("mikush")) return ThreatLevel.High;
 
         return ThreatLevel.None;
     }

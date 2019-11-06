@@ -1,14 +1,5 @@
 package com.elyonut.wow.analysis;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.provider.BaseColumns;
-
-import com.elyonut.wow.App;
-import com.elyonut.wow.analysis.dal.VectorReaderContract.VectorEntry;
-import com.elyonut.wow.analysis.dal.VectorReaderDbHelper;
-import com.elyonut.wow.analysis.quadtree.Coordinate;
 import com.elyonut.wow.analysis.quadtree.Envelope;
 import com.elyonut.wow.analysis.quadtree.Quadtree;
 import com.elyonut.wow.analysis.quadtree.SpatialIndex;
@@ -16,12 +7,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mapbox.geojson.Point;
-import com.mapbox.turf.TurfConstants;
+import com.mapbox.geojson.Polygon;
 import com.mapbox.turf.TurfJoins;
-import com.mapbox.turf.TurfMeasurement;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -48,9 +36,8 @@ public class VectorEnvelopeIndex {
             for (int featureIndex = 0; featureIndex < features.size(); featureIndex++) {
                 JsonObject feature = (JsonObject) features.get(featureIndex);
                 JsonObject propertiesObj = feature.getAsJsonObject("properties");
-                String description = propertiesObj.get("Description").getAsString();
-                String id = getIdFromKmlDescription(description);
-                Double height = getHeightFromKmlDescription(description);
+                String id = propertiesObj.get("id").getAsString();
+                Double height = propertiesObj.get("height").getAsDouble();
                 JsonObject routeCoordinates2dObject = feature.getAsJsonObject("geometry");
                 JsonArray routeCoordinatesJsonArr2d = routeCoordinates2dObject.get("coordinates").getAsJsonArray();
                 List<Point> location = new ArrayList<>();
@@ -101,8 +88,8 @@ public class VectorEnvelopeIndex {
         return 4.0;
     }
 
-    public double getHeight(Point point){
-        VectorEnvelope vector = getVectorQuad(point);
+    public double getHeight(Double longitude, Double latitude){
+        VectorEnvelope vector = getVectorQuad(longitude, latitude);
         if(vector != null)
         {
             if(vector.getProperties().containsKey("height"))
@@ -168,7 +155,7 @@ public class VectorEnvelopeIndex {
                 selection,              // The columns for the WHERE clause
                 selectionArgs,          // The values for the WHERE clause
                 null,                   // don't group the rows
-                null,                   // don't zoomFilter by row groups
+                null,                   // don't filter by row groups
                 sortOrder               // The sort order
         )) {
             while (cursor.moveToNext()) {
@@ -218,6 +205,38 @@ public class VectorEnvelopeIndex {
         }
 
         return null;
+    }
+
+    public List<VectorEnvelope> getMultipleVectors(Envelope searchEnv, Polygon polygon){
+
+        List<VectorEnvelope> queryRes = spatialIndex.query(searchEnv);
+        List<VectorEnvelope> res = new ArrayList<>();
+
+        for(int i = queryRes.size() -1;i>=0;i--) {
+            VectorEnvelope env = queryRes.get(i);
+            double pointsInside = 0;
+            final double totalCorners = env.getCoordinates().size();
+            for (Point point : env.getCoordinates()) {
+                if (searchEnv.getMinX() <= point.longitude()
+                        && searchEnv.getMaxX() > point.longitude()
+                        && searchEnv.getMinY() < point.latitude()
+                        && searchEnv.getMaxY() >= point.latitude()
+                ) {
+
+                    boolean inside = TurfJoins.inside(point,polygon);
+                    if (inside) {
+                        pointsInside++;
+                        final double currentInsideRatio = pointsInside / totalCorners;
+                        if(currentInsideRatio > 0.5){
+                            res.add(env);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return res;
     }
 
     public VectorEnvelope getVectorQuad(Double longitude, Double latitude){

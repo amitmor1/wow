@@ -28,7 +28,7 @@ class ThreatAnalyzer(var mapboxMap: MapboxMap, private var topographyService: To
         currentLocation: LatLng
     ): List<Feature> {
         val currentLocationCoord = Coordinate(currentLocation.latitude, currentLocation.longitude)
-        return buildingFeatureCollection.filter { topographyService.isThreat(currentLocationCoord, it) }
+        return buildingFeatureCollection.filter { topographyService.isThreatBuilding(currentLocationCoord, it) }
     }
 
     private fun filterWithLOSModelFeatures(
@@ -60,6 +60,7 @@ class ThreatAnalyzer(var mapboxMap: MapboxMap, private var topographyService: To
         threat.name = "איום " + index.toString() // feature.id()
         threat.feature = feature
         threat.isLos = isLos
+        threat.height = height
 
         return threat
     }

@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * The basic operations supported by classes implementing spatial index algorithms.
  *
- * <p>A spatial index typically provides a primary zoomFilter for range rectangle queries. A secondary
- * zoomFilter is required to test for exact intersection. The secondary zoomFilter may consist of other
+ * <p>A spatial index typically provides a primary filter for range rectangle queries. A secondary
+ * filter is required to test for exact intersection. The secondary filter may consist of other
  * kinds of tests, such as testing other spatial relationships.
  */
 public interface SpatialIndex {

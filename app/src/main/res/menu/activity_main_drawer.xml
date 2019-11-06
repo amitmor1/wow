@@ -34,6 +34,9 @@
                 <item
                         android:id="@+id/threat_select_location"
                         android:title="@string/threats_on_map_with_location" />
+                <item
+                        android:id="@+id/threat_coverage"
+                        android:title="@string/show_hide_threats_coverage" />
             </group>
 
         </menu>

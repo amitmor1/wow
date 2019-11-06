@@ -19,6 +19,8 @@ class Threat() : Parcelable {
     var isLos: Boolean = false
     var azimuth: Double = 0.0
     var type: String = ""
+    var height: Double = 0.0
+
 
     constructor(parcel: Parcel) : this() {
         name = parcel.readString()
@@ -32,6 +34,7 @@ class Threat() : Parcelable {
         isLos = parcel.readInt() == 1
         azimuth = parcel.readDouble()
         type = parcel.readString()
+        height = parcel.readDouble()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -46,6 +49,7 @@ class Threat() : Parcelable {
         parcel.writeInt(if (isLos) 1 else 0)
         parcel.writeDouble(azimuth)
         parcel.writeString(type)
+        parcel.writeDouble(height)
     }
 
     override fun describeContents(): Int {

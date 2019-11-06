@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.RectF
 import android.location.Location
 import android.os.AsyncTask
+import android.util.ArrayMap
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -43,6 +44,9 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import java.io.InputStream
+
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -76,7 +80,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
     var isInsideThreatArea = MutableLiveData<Boolean>()
-    var threatIdsByStatus = HashMap<ThreatLevel, ArrayList<String>>()
+    var threatIdsByStatus = ArrayMap<ThreatLevel, ArrayList<String>>()
     private lateinit var topographyService: TopographyService
     lateinit var threatAnalyzer: ThreatAnalyzer
     private var calcThreatsTask: CalcThreatStatusAsync? = null
@@ -91,9 +95,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         topographyService = TopographyService(map)
         threatAnalyzer = ThreatAnalyzer(map, topographyService)
         map.setStyle(Constants.MAPBOX_STYLE_URL) { style ->
+            addThreatCoverageLayer(style)
             setBuildingFilter(style)
-            setSelectedBuildingLayer(style)
             setActiveThreatsLayer(style)
+            setSelectedBuildingLayer(style)
             // addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
             circleSource = initCircleSource(style)
@@ -156,7 +161,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun checkRiskStatus() {
-        var ids = getThreatIds()
+        val ids = getThreatIds()
 
         if (riskStatus.value == RiskStatus.HIGH) {
             if (threatIdsByStatus.isEmpty() || (threatIdsByStatus != ids)) {
@@ -171,8 +176,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         threatIdsByStatus = ids
     }
 
-    private fun getThreatIds(): HashMap<ThreatLevel, ArrayList<String>> {
-        var ids = HashMap<ThreatLevel, ArrayList<String>>()
+    private fun getThreatIds(): ArrayMap<ThreatLevel, ArrayList<String>> {
+        val ids = ArrayMap<ThreatLevel, ArrayList<String>>()
 
         ids[ThreatLevel.Low] = ArrayList()
         ids[ThreatLevel.Medium] = ArrayList()
@@ -215,8 +220,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 Expression.step(
                     (Expression.get("height")), Expression.color(
                         Color.parseColor("#dbd3c1")),
-                    Expression.stop(3, Expression.color(Color.parseColor("#ada799"))),
-                    Expression.stop(10, Expression.color(Color.parseColor("#918c80"))),
+                    Expression.stop(30, Expression.color(Color.parseColor("#ada799"))),
+                    Expression.stop(60, Expression.color(Color.parseColor("#918c80"))),
                     Expression.stop(100, Expression.color(Color.parseColor("#615d55")))
                 )
             ), fillExtrusionOpacity(0.5f)
@@ -248,24 +253,59 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setActiveThreatsLayer(loadedMapStyle: Style) {
-        loadedMapStyle.addSource(GeoJsonSource(Constants.activeThreatsSourceId))
+        loadedMapStyle.addSource(GeoJsonSource(Constants.ACTIVE_THREATS_SOURCE_ID))
         loadedMapStyle.addLayer(
-            FillLayer(
-                Constants.activeThreatsLayerId,
-                Constants.activeThreatsSourceId
-            ).withProperties(fillExtrusionOpacity(0.7f))
+            FillExtrusionLayer(
+                Constants.ACTIVE_THREATS_LAYER_ID,
+                Constants.ACTIVE_THREATS_SOURCE_ID
+            ).withProperties(
+                fillExtrusionOpacity(Constants.HIGH_OPACITY),
+                fillExtrusionHeight(get("height"))
+            )
         )
     }
 
     private fun setSelectedBuildingLayer(loadedMapStyle: Style) {
         loadedMapStyle.addSource(GeoJsonSource(Constants.SELECTED_BUILDING_SOURCE_ID))
         loadedMapStyle.addLayer(
-            FillLayer(
+            FillExtrusionLayer(
                 Constants.SELECTED_BUILDING_LAYER_ID,
                 Constants.SELECTED_BUILDING_SOURCE_ID
-            ).withProperties(fillExtrusionOpacity(0.7f),
-                fillColor(Color.parseColor("#870485")))
+            ).withProperties(
+                fillExtrusionOpacity(Constants.HIGH_OPACITY),
+                fillExtrusionColor(Color.parseColor("#870485")),
+                fillExtrusionHeight(get("height"))
+            )
         )
+    }
+
+    private fun addThreatCoverageLayer(loadedMapStyle: Style){
+        loadedMapStyle.addSource(GeoJsonSource(Constants.THREAT_COVERAGE_SOURCE_ID, getCoveragePointsJson()))
+        val circleLayer = CircleLayer(
+            Constants.THREAT_COVERAGE_LAYER_ID,
+            Constants.THREAT_COVERAGE_SOURCE_ID
+        )
+        circleLayer.setProperties(
+            circleRadius(4f),
+            circleColor(Color.RED),
+            circleBlur(1f),
+            visibility(NONE)
+        )
+        loadedMapStyle.addLayer(circleLayer)
+    }
+
+    fun toggleThreatCoverage(){
+        changeLayerVisibility(Constants.THREAT_COVERAGE_LAYER_ID)
+    }
+
+    private fun getCoveragePointsJson(): String {
+        val stream: InputStream = App.resourses.assets.open("arlozerov_coverage.geojson")
+        val size = stream.available()
+        val buffer = ByteArray(size)
+        stream.read(buffer)
+        stream.close()
+        val jsonObj = String(buffer, charset("UTF-8"))
+        return jsonObj
     }
 
     private fun addRadiusLayer(loadedStyle: Style) {

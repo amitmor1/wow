@@ -1,18 +1,17 @@
 package com.elyonut.wow.analysis
 
+import android.util.ArrayMap
 import com.elyonut.wow.App
 import com.elyonut.wow.Constants
+import com.elyonut.wow.analysis.quadtree.Envelope
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.PolygonModel
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.turf.TurfConstants
-import com.mapbox.turf.TurfMeasurement
 import java.io.InputStream
-import kotlin.math.abs
-import kotlin.math.ceil
+import kotlin.math.*
 
 class TopographyService {
 
@@ -20,11 +19,12 @@ class TopographyService {
     private val LOS_HEIGHT_METERS = 1.5
     private val vectorIndex: VectorEnvelopeIndex = VectorEnvelopeIndex()
 
+    var explodedMap: ArrayMap<String, List<Coordinate>> = ArrayMap()
+
     constructor(mapboxMap: MapboxMap){
         this.mapboxMap = mapboxMap
 
-        val stream: InputStream = App.resourses.assets.open("tlv-buildings.json")
-//        val stream: InputStream = App.resourses.assets.open("tlv-buildings_1building.json")
+        val stream: InputStream = App.resourses.assets.open("tlv-buildings.geojson")
         val size = stream.available()
         val buffer = ByteArray(size)
         stream.read(buffer)
@@ -34,7 +34,7 @@ class TopographyService {
         this.vectorIndex.loadBuildingFromGeoJson(jsonObj)
     }
 
-    fun isThreat(currentLocation: Coordinate, feature: Feature): Boolean {
+    fun isThreatBuilding(currentLocation: Coordinate, feature: Feature): Boolean {
         val threatCoordinates = getGeometryCoordinates(feature.geometry()!!)
         val threatType = feature.getProperty("type")?.asString
         if(threatType != null && threatType.contains("mikush")){
@@ -43,16 +43,9 @@ class TopographyService {
 
         val threatRangeMeters = KnowledgeBase.getRangeMeters(threatType)
 
-
-
         var inRange = false
         for (coord in threatCoordinates) {
-            val distance = TurfMeasurement.distance(
-                Point.fromLngLat(currentLocation.longitude, currentLocation.latitude),
-                getPoint(coord),
-                TurfConstants.UNIT_METERS
-            )
-
+            val distance = distanceMeters(currentLocation, coord)
             if(distance<= threatRangeMeters) {
                 inRange = true
                 break
@@ -100,12 +93,7 @@ class TopographyService {
 
         var inRange = false
         for (coord in threatCoordinates) {
-            val distance = TurfMeasurement.distance(
-                Point.fromLngLat(currentLocation.longitude, currentLocation.latitude),
-                getPoint(coord),
-                TurfConstants.UNIT_METERS
-            )
-
+            val distance = distanceMeters(currentLocation, coord)
             if(distance<= threatRangeMeters) {
                 inRange = true
                 break
@@ -114,21 +102,29 @@ class TopographyService {
 
         if(inRange) {
             val threatHeight = featureModel.properties?.get("height")!!.asDouble
-            return isLOSLocalIndex(currentLocation, threatCoordinates, threatHeight)
+            val threatCoordinatesExploded = getExplodedFromCache(featureModel.id!!, threatCoordinates, threatHeight)
+
+            return isLOSLocalIndex(currentLocation, threatCoordinatesExploded)
         }
 
         return false
     }
 
+    private fun getExplodedFromCache(featureId: String, threatCoordinates: List<Coordinate>, threatHeight: Double): List<Coordinate>{
+        //if buildings inside the threat zone: return the building coords
+        // else return the threat zone corners
+        var explodedThreatCoordinates: List<Coordinate>? = explodedMap[featureId]
+        if(explodedThreatCoordinates == null){
+            explodedThreatCoordinates = getCoordinatesFromZone(threatCoordinates, threatHeight)
+            explodedMap[featureId] = explodedThreatCoordinates
+        }
+        return  explodedThreatCoordinates
+    }
+
     private fun isMikushInRange(currentLocation: Coordinate, coordinates: List<Coordinate>): Boolean {
 
         for (coord in coordinates) {
-            val distance = TurfMeasurement.distance(
-                Point.fromLngLat(currentLocation.longitude, currentLocation.latitude),
-                getPoint(coord),
-                TurfConstants.UNIT_METERS
-            )
-
+            val distance = distanceMeters(currentLocation, coord)
             if(distance<= KnowledgeBase.MIKUSH_RANGE_METERS)
                 return true
         }
@@ -136,22 +132,16 @@ class TopographyService {
         return false
     }
 
-    private fun isLOSLocalIndex(currentLocation: Coordinate, threatCoordinates: List<Coordinate>, threatHeight: Double): Boolean {
-
+    private fun isLOSLocalIndex(currentLocation: Coordinate, threatCoordinatesExploded: List<Coordinate>): Boolean {
         var locationCoordinates = listOf(currentLocation)
-
-
         val buildingAtLocation = vectorIndex.getVectorQuad(currentLocation.longitude, currentLocation.latitude)
         if (buildingAtLocation != null) {
             locationCoordinates = getCoordinatesForAnalysis(buildingAtLocation.polygon)
-            val locationHeight = buildingAtLocation.getProperties()["height"]!!.toDouble()
+            val locationHeight = buildingAtLocation.properties["height"]!!.toDouble()
             locationCoordinates.forEach { bc -> bc.heightMeters = locationHeight }
         }
 
-        val buildingCoordinates = explodeCornerCoordinates(threatCoordinates)
-        buildingCoordinates.forEach { bc -> bc.heightMeters = threatHeight }
-
-        return isLOS(locationCoordinates, buildingCoordinates)
+        return isLOS(locationCoordinates, threatCoordinatesExploded)
 
     }
 
@@ -217,13 +207,7 @@ class TopographyService {
         val latDis = toPoint.latitude - fromPoint.latitude
         // The distance between the longitudes
         val longDis = toPoint.longitude - fromPoint.longitude
-        val samples = ceil(
-            TurfMeasurement.distance(
-                getPoint(fromPoint),
-                getPoint(toPoint),
-                TurfConstants.UNIT_METERS
-            ) / distanceOfPoints
-        ).toInt()
+        val samples = ceil( distanceMeters(fromPoint, toPoint) / distanceOfPoints).toInt()
         // get the minimum between the samples and Max samples
         //samples = Math.min(samples,256);
         val deltaLat = latDis / samples
@@ -249,11 +233,9 @@ class TopographyService {
 
     private fun getHeight(c1: Coordinate): Double {
         if (c1.heightMeters == -10000.0) {
-
-            val height = this.vectorIndex.getHeight(Point.fromLngLat(c1.longitude, c1.latitude))
-            return height
+            return vectorIndex.getHeight(c1.longitude, c1.latitude)
         }
-        return c1.heightMeters;
+        return c1.heightMeters
     }
 
     private fun getHeightMapBox(c1: Coordinate): Double {
@@ -261,7 +243,7 @@ class TopographyService {
             val buildingAtLocation = getBuildingAtLocation(LatLng(c1.latitude, c1.longitude))
             return buildingAtLocation?.getNumberProperty("height")?.toDouble() ?: LOS_HEIGHT_METERS
         }
-        return c1.heightMeters;
+        return c1.heightMeters
     }
 
     private fun getBuildingAtLocation(
@@ -276,10 +258,6 @@ class TopographyService {
 
         val sortedByName = features.sortedBy { myObject -> myObject.getNumberProperty("height").toDouble() }
         return sortedByName.last()
-    }
-
-    private fun distanceMeters(c1: Coordinate, c2: Coordinate): Double {
-        return TurfMeasurement.distance(getPoint(c1), getPoint(c2), TurfConstants.UNIT_METERS)
     }
 
     private fun getCoordinatesForAnalysis(featureGeometry: Geometry): List<Coordinate> {
@@ -302,10 +280,75 @@ class TopographyService {
     }
 
     private fun getCoordinates(polygonModel: PolygonModel): List<Coordinate> {
-        val coordinates = polygonModel.coordinates[0].map{
+        return polygonModel.coordinates[0].map {
                 coords -> Coordinate(coords[1], coords[0])
         }
-        return coordinates
+    }
+
+    /*
+    getCoordinatesFromZone:
+    if buildings inside the threat zone: return the internal building coords
+      else return the threat zone corners exploded
+     */
+    private fun getCoordinatesFromZone(
+        polygon: List<Coordinate>,
+        threatHeight: Double
+    ): List<Coordinate> {
+
+        val multipleVectors = vectorIndex.getMultipleVectors(getEnvelope(polygon), getPolygon(polygon))
+
+        if(multipleVectors != null && multipleVectors.size > 0) {
+            val result = ArrayList<Coordinate>()
+            for (vector in multipleVectors) {
+                val corners = getCoordinates(vector.coordinates)
+                val explodeCornerCoordinates = explodeCornerCoordinates(corners)
+                explodeCornerCoordinates.forEach { bc -> bc.heightMeters = vector.properties["height"]!!.toDouble() }
+                result.addAll(explodeCornerCoordinates)
+            }
+
+            return result
+        }
+        else{
+            val buildingCoordinates = explodeCornerCoordinates(polygon)
+            buildingCoordinates.forEach { bc -> bc.heightMeters = threatHeight }
+            return buildingCoordinates
+        }
+    }
+
+    private fun getCoordinates(points: List<Point>): List<Coordinate> {
+        return points.map {
+                point -> Coordinate(point.latitude(), point.longitude())
+        }
+    }
+
+    private fun getPolygon(points: List<Coordinate>): Polygon {
+        val pointList = points.map{
+                coord -> Point.fromLngLat(coord.longitude, coord.latitude)
+        }
+        val list = java.util.ArrayList<List<Point>>()
+        list.add(pointList)
+        return Polygon.fromLngLats(list)
+    }
+
+    private fun getEnvelope(polygon: List<Coordinate>): Envelope {
+
+        var minLongitude = java.lang.Double.MAX_VALUE
+        var maxLongitude = java.lang.Double.MIN_VALUE
+        var minLatitude = java.lang.Double.MAX_VALUE
+        var maxLatitude = java.lang.Double.MIN_VALUE
+
+        for (c in polygon) {
+            if (c.longitude < minLongitude)
+                minLongitude = c.longitude
+            if (c.latitude < minLatitude)
+                minLatitude = c.latitude
+            if (c.longitude > maxLongitude)
+                maxLongitude = c.longitude
+            if (c.latitude > maxLatitude)
+                maxLatitude = c.latitude
+        }
+
+        return Envelope(maxLongitude, minLongitude, maxLatitude, minLatitude)
     }
 
 
@@ -359,13 +402,36 @@ class TopographyService {
 //                geometry = featureGeometry as CoordinateContainer<*>
             }
         }
-
-
-        return coordinates;
+        return coordinates
     }
 
-    private fun getPoint(c: Coordinate): Point {
-        return Point.fromLngLat(c.longitude, c.latitude)
+    /**
+     * This uses the ‘haversine’ formula to calculate the great-circle distance(km) between two points –
+     * that is, the shortest distance over the earth’s surface
+     *
+     * @param from the source coordinate
+     * @param to   the target coordinate
+     * @return the aerial distance between two coordinates (Meters)
+     */
+    private fun distanceMeters(from: Coordinate, to: Coordinate): Double {
+        var startLat = from.latitude
+        val startLong = from.longitude
+        var endLat = to.latitude
+        val endLong = to.longitude
+        val dLat = Math.toRadians(endLat - startLat)
+        val dLong = Math.toRadians(endLong - startLong)
 
+        startLat = Math.toRadians(startLat)
+        endLat = Math.toRadians(endLat)
+        val earthRadiusKm = 6371.0
+
+        val a = haversin(dLat) + cos(startLat) * cos(endLat) * haversin(dLong)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        return earthRadiusKm * c * 1000.0
     }
+
+    private fun haversin(value: Double): Double {
+        return sin(value / 2.0).pow(2.0)
+    }
+
 }
