@@ -164,7 +164,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val ids = getThreatIds()
 
         if (riskStatus.value == RiskStatus.HIGH) {
-            if (threatIdsByStatus.isEmpty() || (threatIdsByStatus[ThreatLevel.High] != ids[ThreatLevel.High])) {
+            // threatIdsByStatus[ThreatLevel.High] != ids[ThreatLevel.High]
+            if (threatIdsByStatus.isEmpty() || !checkIfNewAlerts(threatIdsByStatus[ThreatLevel.High], ids[ThreatLevel.High])) {
                 threatIdsByStatus = ids
                 isInsideThreatArea.value = true
             }
@@ -190,6 +191,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         return ids
     }
 
+    private fun checkIfNewAlerts(currentAlerts: ArrayList<String>?, newAlerts: ArrayList<String>?): Boolean {
+        if (newAlerts != null) {
+            return currentAlerts!!.containsAll(newAlerts)
+        }
+
+        return false
+    }
 
     @SuppressLint("ShowToast")
     fun onRequestPermissionsResult(
