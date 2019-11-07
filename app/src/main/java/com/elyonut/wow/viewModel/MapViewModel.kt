@@ -33,7 +33,6 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.layers.*
 import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
@@ -232,12 +231,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
         (buildingLayer as FillExtrusionLayer).withProperties(
             fillExtrusionColor(
-                Expression.step(
-                    (Expression.get("height")), Expression.color(
+                step(
+                    (get("height")), color(
                         Color.parseColor("#dbd3c1")),
-                    Expression.stop(30, Expression.color(Color.parseColor("#ada799"))),
-                    Expression.stop(60, Expression.color(Color.parseColor("#918c80"))),
-                    Expression.stop(100, Expression.color(Color.parseColor("#615d55")))
+                    stop(30, color(Color.parseColor("#ada799"))),
+                    stop(60, color(Color.parseColor("#918c80"))),
+                    stop(100, color(Color.parseColor("#615d55")))
                 )
             ), fillExtrusionOpacity(0.5f)
         )
@@ -350,12 +349,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
         fillLayer.setProperties(
             fillColor(
-                Expression.step(
-                    Expression.get(Constants.THREAT_PROPERTY),
-                    Expression.color(RiskStatus.NONE.color),
-                    Expression.stop(0, Expression.color(RiskStatus.LOW.color)),
-                    Expression.stop(0.4, Expression.color(RiskStatus.MEDIUM.color)),
-                    Expression.stop(0.7, Expression.color(RiskStatus.HIGH.color))
+                step(
+                    get(Constants.THREAT_PROPERTY),
+                    color(RiskStatus.NONE.color),
+                    stop(0, color(RiskStatus.LOW.color)),
+                    stop(0.4, color(RiskStatus.MEDIUM.color)),
+                    stop(0.7, color(RiskStatus.HIGH.color))
                 )
             ),
             fillOpacity(.4f),
@@ -671,7 +670,7 @@ class FilterHandler {
         ) {
             val layer = style.getLayer(layerId)
             (layer as FillExtrusionLayer).setFilter(
-                Expression.all(Expression.eq(Expression.get(propertyId), type))
+                all(eq(get(propertyId), type))
             )
         }
 
@@ -683,8 +682,8 @@ class FilterHandler {
         ) {
             val layer = style.getLayer(layerId)
             (layer as FillExtrusionLayer).setFilter(
-                (Expression.eq(
-                    Expression.get(propertyId),
+                (eq(
+                    get(propertyId),
                     value
                 ))
             )
@@ -699,11 +698,11 @@ class FilterHandler {
         ) {
             val layer = style.getLayer(layerId)
             (layer as FillExtrusionLayer).setFilter(
-                Expression.all(
-                    Expression.gte(
-                        Expression.get(propertyId),
+                all(
+                    gte(
+                        get(propertyId),
                         minValue
-                    ), Expression.lte(Expression.get(propertyId), maxValue)
+                    ), lte(get(propertyId), maxValue)
                 )
             )
         }
@@ -716,9 +715,9 @@ class FilterHandler {
         ) {
             val layer = style.getLayer(layerId)
             (layer as FillExtrusionLayer).setFilter(
-                Expression.all(
-                    Expression.gte(
-                        Expression.get(propertyId),
+                all(
+                    gte(
+                        get(propertyId),
                         minValue
                     )
                 )
@@ -733,15 +732,15 @@ class FilterHandler {
         ) {
             val layer = style.getLayer(layerId)
             (layer as FillExtrusionLayer).setFilter(
-                Expression.all(
-                    Expression.lte(Expression.get(propertyId), maxValue)
+                all(
+                    lte(get(propertyId), maxValue)
                 )
             )
         }
 
         fun removeFilter(style: Style, layerId: String) {
             val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter(Expression.literal(true))
+            (layer as FillExtrusionLayer).setFilter(literal(true))
         }
     }
 }
