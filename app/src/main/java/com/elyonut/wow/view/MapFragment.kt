@@ -214,9 +214,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         if (isLocationAdapterInitialized) {
             val riskStatusObserver = Observer<RiskStatus> { newStatus ->
                 changeStatus(newStatus)
-//                if (newStatus == RiskStatus.HIGH) {
-//                    mapViewModel.checkRiskStatus()
-//                }
                 mapViewModel.checkRiskStatus()
             }
             mapViewModel.riskStatus.observe(this, riskStatusObserver)
