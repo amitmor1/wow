@@ -84,6 +84,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var topographyService: TopographyService
     lateinit var threatAnalyzer: ThreatAnalyzer
     private var calcThreatsTask: CalcThreatStatusAsync? = null
+    var threatAlerts = MutableLiveData<ArrayList<String>>()
 
     init {
         logger.initLogger()
@@ -161,20 +162,20 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun checkRiskStatus() {
-        val ids = getThreatIds()
+        val newThreats= getThreatIds()
 
         if (riskStatus.value == RiskStatus.HIGH) {
-            // threatIdsByStatus[ThreatLevel.High] != ids[ThreatLevel.High]
-            if (threatIdsByStatus.isEmpty() || !checkIfNewAlerts(threatIdsByStatus[ThreatLevel.High], ids[ThreatLevel.High])) {
-                threatIdsByStatus = ids
-                isInsideThreatArea.value = true
+            val previousThreats = threatIdsByStatus[ThreatLevel.High]
+
+            if (previousThreats == null) {
+                threatAlerts.value = newThreats[ThreatLevel.High]
+            }
+            else {
+                threatAlerts.value = getNewThreats(previousThreats, newThreats[ThreatLevel.High])
             }
         }
-        else {
-            isInsideThreatArea.value = false
-        }
 
-        threatIdsByStatus = ids
+        threatIdsByStatus = newThreats
     }
 
     private fun getThreatIds(): ArrayMap<ThreatLevel, ArrayList<String>> {
@@ -191,8 +192,22 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         return ids
     }
 
+    private fun getNewThreats(previousThreats: ArrayList<String>, currentThreats: ArrayList<String>?) : ArrayList<String>{
+
+        val newThreats = ArrayList<String>()
+
+        currentThreats?.forEach {
+            if (!previousThreats.contains(it)) {
+                newThreats.add(it)
+            }
+        }
+
+        return newThreats
+    }
+
     private fun checkIfNewAlerts(currentAlerts: ArrayList<String>?, newAlerts: ArrayList<String>?): Boolean {
         if (newAlerts != null) {
+
             return currentAlerts!!.containsAll(newAlerts)
         }
 

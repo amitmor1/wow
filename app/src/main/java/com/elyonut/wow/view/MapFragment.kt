@@ -144,9 +144,13 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             })
 
         mapViewModel.isInsideThreatArea.observe(this, Observer<Boolean> {
-            if (it) {
-                sendNotification()
-            }
+//            if (it) {
+//                sendNotification()
+//            }
+        })
+
+        mapViewModel.threatAlerts.observe(this, Observer {
+            sendNotification(it)
         })
 
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
@@ -170,8 +174,21 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         })
     }
 
-    private fun sendNotification() {
-        mapViewModel.threatIdsByStatus[ThreatLevel.High]?.forEach {
+    private fun sendNotification(alerts: ArrayList<String>) {
+//        mapViewModel.threatIdsByStatus[ThreatLevel.High]?.forEach {
+//            val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
+//
+//            sharedViewModel.alertsManager.sendNotification(
+//                getString(R.string.inside_threat_notification_title),
+//                message,
+//                R.drawable.threat_notification_icon,
+//                it
+//            )
+//
+//            updateAlertsContainer(it, message)
+//        }
+
+        alerts.forEach {
             val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
 
             sharedViewModel.alertsManager.sendNotification(
@@ -184,6 +201,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             updateAlertsContainer(it, message)
         }
     }
+
+
 
     private fun updateAlertsContainer(threatID: String ,message: String) {
         val date = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
