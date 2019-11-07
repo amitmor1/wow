@@ -41,7 +41,6 @@ import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.elyonut.wow.model.ThreatLevel
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -174,8 +173,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         })
     }
 
-    private fun sendNotification(alerts: ArrayList<String>) {
-//        mapViewModel.threatIdsByStatus[ThreatLevel.High]?.forEach {
+    private fun sendNotification(threatAlerts: ArrayList<String>) {
+//        mapViewModel.previousThreatsIds[ThreatLevel.High]?.forEach {
 //            val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
 //
 //            sharedViewModel.alertsManager.sendNotification(
@@ -188,7 +187,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 //            updateAlertsContainer(it, message)
 //        }
 
-        alerts.forEach {
+        threatAlerts.forEach {
             val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
 
             sharedViewModel.alertsManager.sendNotification(
@@ -215,9 +214,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         if (isLocationAdapterInitialized) {
             val riskStatusObserver = Observer<RiskStatus> { newStatus ->
                 changeStatus(newStatus)
-                if (newStatus == RiskStatus.HIGH) {
-                    mapViewModel.checkRiskStatus()
-                }
+//                if (newStatus == RiskStatus.HIGH) {
+//                    mapViewModel.checkRiskStatus()
+//                }
+                mapViewModel.checkRiskStatus()
             }
             mapViewModel.riskStatus.observe(this, riskStatusObserver)
         }

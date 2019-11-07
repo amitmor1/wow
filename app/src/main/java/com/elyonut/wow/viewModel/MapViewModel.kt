@@ -80,7 +80,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
     var isInsideThreatArea = MutableLiveData<Boolean>()
-    var threatIdsByStatus = ArrayMap<ThreatLevel, ArrayList<String>>()
+    var previousThreatsIds = ArrayMap<ThreatLevel, ArrayList<String>>()
     private lateinit var topographyService: TopographyService
     lateinit var threatAnalyzer: ThreatAnalyzer
     private var calcThreatsTask: CalcThreatStatusAsync? = null
@@ -162,34 +162,35 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun checkRiskStatus() {
-        val newThreats= getThreatIds()
+        val currentThreatsIds= getCurrentThreatIds()
 
         if (riskStatus.value == RiskStatus.HIGH) {
-            val previousThreats = threatIdsByStatus[ThreatLevel.High]
+            val highPreviousThreats = previousThreatsIds[ThreatLevel.High]
+            previousThreatsIds = currentThreatsIds
 
-            if (previousThreats == null) {
-                threatAlerts.value = newThreats[ThreatLevel.High]
+            if (highPreviousThreats == null) {
+                threatAlerts.value = currentThreatsIds[ThreatLevel.High]
             }
             else {
-                threatAlerts.value = getNewThreats(previousThreats, newThreats[ThreatLevel.High])
+                threatAlerts.value = getNewThreats(highPreviousThreats, currentThreatsIds[ThreatLevel.High])
             }
         }
 
-        threatIdsByStatus = newThreats
+        previousThreatsIds = currentThreatsIds
     }
 
-    private fun getThreatIds(): ArrayMap<ThreatLevel, ArrayList<String>> {
-        val ids = ArrayMap<ThreatLevel, ArrayList<String>>()
+    private fun getCurrentThreatIds(): ArrayMap<ThreatLevel, ArrayList<String>> {
+        val threatIds = ArrayMap<ThreatLevel, ArrayList<String>>()
 
-        ids[ThreatLevel.Low] = ArrayList()
-        ids[ThreatLevel.Medium] = ArrayList()
-        ids[ThreatLevel.High] = ArrayList()
+        threatIds[ThreatLevel.Low] = ArrayList()
+        threatIds[ThreatLevel.Medium] = ArrayList()
+        threatIds[ThreatLevel.High] = ArrayList()
 
         threats.value?.forEach {
-            ids[it.level]?.add(it.feature.id()!!)
+            threatIds[it.level]?.add(it.feature.id()!!)
         }
 
-        return ids
+        return threatIds
     }
 
     private fun getNewThreats(previousThreats: ArrayList<String>, currentThreats: ArrayList<String>?) : ArrayList<String>{

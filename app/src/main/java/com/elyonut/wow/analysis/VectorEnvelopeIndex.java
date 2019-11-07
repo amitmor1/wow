@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class VectorEnvelopeIndex {
 
-//    private List<VectorEnvelope> envelopeList;
+    //    private List<VectorEnvelope> envelopeList;
 //    private VectorReaderDbHelper dbHelper;
 //    private HashMap<String, VectorEnvelope> featureIdToEnvelopes;
     private SpatialIndex spatialIndex;
@@ -227,7 +227,7 @@ public class VectorEnvelopeIndex {
                     if (inside) {
                         pointsInside++;
                         final double currentInsideRatio = pointsInside / totalCorners;
-                        if(currentInsideRatio > 0.5){
+                        if(currentInsideRatio > 0.4){
                             res.add(env);
                             break;
                         }
