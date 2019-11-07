@@ -51,7 +51,7 @@ class AlertsManager(var context: Context) {
         threatID: String
     ) {
         val notificationID = getNotificationID(threatID)
-//        val notificationPendingIntent = createMainPendingIntent(notificationID)
+        val notificationPendingIntent = createMainPendingIntent(notificationID)
         val zoomLocationPendingIntent = createActionPendingIntent(notificationID, threatID, Constants.ZOOM_LOCATION_ACTION)
         val alertAcceptedPendingIntent = createActionPendingIntent(notificationID, threatID, Constants.ALERT_ACCEPTED_ACTION)
 
@@ -59,7 +59,7 @@ class AlertsManager(var context: Context) {
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
             .setSmallIcon(notificationIcon)
-//            .setContentIntent(notificationPendingIntent)
+            .setContentIntent(notificationPendingIntent)
             .setAutoCancel(true)
             .addAction(
                 R.drawable.ic_check_black,
@@ -81,7 +81,6 @@ class AlertsManager(var context: Context) {
             )
 
         notifyBuilder.build().flags.and(Notification.FLAG_AUTO_CANCEL)
-
         notificationManager?.notify(notificationID, notifyBuilder.build())
     }
 

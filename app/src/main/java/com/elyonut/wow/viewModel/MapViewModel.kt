@@ -206,15 +206,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         return newThreats
     }
 
-    private fun checkIfNewAlerts(currentAlerts: ArrayList<String>?, newAlerts: ArrayList<String>?): Boolean {
-        if (newAlerts != null) {
-
-            return currentAlerts!!.containsAll(newAlerts)
-        }
-
-        return false
-    }
-
     @SuppressLint("ShowToast")
     fun onRequestPermissionsResult(
         requestCode: Int,
