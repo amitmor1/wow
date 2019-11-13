@@ -83,7 +83,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         setObservers(view)
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
-
+        initThreatStatusButton()
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -322,6 +322,12 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
+    private fun initThreatStatusButton() {
+        (threatStatusView as Button).setOnClickListener {
+            openThreatListFragment()
+        }
+    }
+
     override fun onMapClick(latLng: LatLng): Boolean { // TODO UniqAi need to fix
 
         // return mapViewModel.onMapClick(map, latLng)
@@ -408,18 +414,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun applyExperimentalOption(id: Int) {
         when (id) {
             R.id.threat_list_menu_item -> {
-                mapViewModel.threats.value?.let {
-                    val bundle = Bundle()
-                    bundle.putParcelableArrayList("threats", it)
-
-                    val transaction = activity!!.supportFragmentManager.beginTransaction()
-                    val fragment = ThreatFragment()
-                    fragment.arguments = bundle
-                    transaction.apply {
-                        replace(R.id.threat_list_fragment_container, fragment).commit()
-                        addToBackStack(fragment.javaClass.simpleName)
-                    }
-                }
+                openThreatListFragment()
             }
             R.id.threat_select_location_buildings -> {
                 mapViewModel.selectLocationManual = true
@@ -431,6 +426,21 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
             R.id.threat_coverage -> {
                 mapViewModel.toggleThreatCoverage()
+            }
+        }
+    }
+
+    private fun openThreatListFragment() {
+        mapViewModel.threats.value?.let {
+            val bundle = Bundle()
+            bundle.putParcelableArrayList("threats", it)
+
+            val transaction = activity!!.supportFragmentManager.beginTransaction()
+            val fragment = ThreatFragment()
+            fragment.arguments = bundle
+            transaction.apply {
+                replace(R.id.threat_list_fragment_container, fragment).commit()
+                addToBackStack(fragment.javaClass.simpleName)
             }
         }
     }
