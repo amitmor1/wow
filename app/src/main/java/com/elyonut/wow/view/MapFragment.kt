@@ -84,7 +84,12 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         initFocusOnMyLocationButton(view)
         initShowRadiusLayerButton(view)
         initThreatStatusButton()
+        initBroadcastReceiver()
 
+        return view
+    }
+
+    private fun initBroadcastReceiver() {
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.action) {
@@ -100,7 +105,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
         }
 
-        return view
     }
 
     private fun initArea() {

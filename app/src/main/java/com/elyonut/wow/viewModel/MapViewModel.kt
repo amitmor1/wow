@@ -313,7 +313,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun getCoveragePointsJson(): String {
-        val stream: InputStream = App.resourses.assets.open("arlozerov_coverage.geojson")
+        val stream: InputStream = App.resourses.assets.open("arlozerov_coverage.geojson") //TODO what is this file, and why not in constatns
         val size = stream.available()
         val buffer = ByteArray(size)
         stream.read(buffer)
