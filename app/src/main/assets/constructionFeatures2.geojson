@@ -193,7 +193,8 @@
         "type": "mikush",
         "namestr": "מיקוש זבוטינסקי",
         "latitude": 32.085756,
-        "longitude": 34.79522
+        "longitude": 34.79522,
+        "height": 0
       },
       "geometry": {
         "coordinates": [
@@ -329,7 +330,8 @@
         "type": "mikush",
         "namestr": "מיקוש כיכר המדינה",
         "latitude": 32.085705,
-        "longitude": 34.790493
+        "longitude": 34.790493,
+        "height": 0
       },
       "geometry": {
         "coordinates": [
@@ -472,7 +474,8 @@
         "type": "mikush",
         "namestr": "מיקוש ארלוזרוב",
         "latitude": 32.082606,
-        "longitude": 34.794598
+        "longitude": 34.794598,
+        "height": 0
       },
       "geometry": {
         "coordinates": [

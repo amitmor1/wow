@@ -1,41 +1,45 @@
 package com.elyonut.wow.view
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.AlertsListAdapter
 
 import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.ArrayList
 
 class AlertsFragment(var allAlerts: ArrayList<AlertModel>) : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
-    private lateinit var alertsList: ListView
+    private lateinit var alertsRecyclerView: RecyclerView
     private var alertsAdapter:AlertsListAdapter? = null
+    private var layoutManager: RecyclerView.LayoutManager? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_alerts, container, false)
+        alertsRecyclerView = view.findViewById(R.id.alerts_list)
+        alertsRecyclerView.setHasFixedSize(true)
+        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL,true)
+        alertsRecyclerView.layoutManager = layoutManager
+        alertsRecyclerView.itemAnimator = DefaultItemAnimator()
         alertsAdapter = AlertsListAdapter(context!!, allAlerts)
-        alertsList = view.findViewById(R.id.alerts_list)
-        alertsList.adapter = alertsAdapter
+        alertsRecyclerView.adapter = alertsAdapter
 
         return view
     }
 
     fun addAlert(alert: AlertModel) {
         allAlerts.add(0, AlertModel(alert.id, alert.message, alert.image, alert.time))
-        alertsAdapter?.notifyDataSetChanged()
+        alertsAdapter?.notifyItemInserted(0)
     }
 
     fun setAlertAccepted() {

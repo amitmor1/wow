@@ -95,6 +95,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 when (intent.action) {
                     Constants.ZOOM_LOCATION_ACTION -> {
                         mapViewModel.setZoomLocation(intent.getStringExtra("threatID"))
+                        sharedViewModel.updateMessageAccepted(intent.getStringExtra("threatID"))
                     }
                     Constants.ALERT_ACCEPTED_ACTION -> {
                         sharedViewModel.updateMessageAccepted(intent.getStringExtra("threatID"))
@@ -390,7 +391,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             } else {
 
                 val point = map.projection.toScreenLocation(latLng)
-                val features = map.queryRenderedFeatures(point, Constants.BUILDINGS_LAYER_ID)
+                val features = map.queryRenderedFeatures(point, Constants.THREAT_LAYER_ID)
 
                 if (features.size > 0) {
                     selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))

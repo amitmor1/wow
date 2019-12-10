@@ -4,7 +4,7 @@ class Constants {
     companion object {
 //        const val THREAT_LAYER_ID = "buildingRisk"
         const val THREAT_LAYER_ID = "construction2"
-        const val constructionLayerId = "construction2"
+//        const val constructionLayerId = "construction2" // TODO Can be deleted?
         //        const val BUILDINGS_LAYER_ID = "building"
         const val BUILDINGS_LAYER_ID = "buildingscentertlv"
         const val THREAT_PROPERTY = "risk"

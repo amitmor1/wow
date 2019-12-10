@@ -89,7 +89,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         logger.initLogger()
     }
 
-    @SuppressLint("WrongConstant") // TODO why wrongconstant?!
+    @SuppressLint("WrongConstant")
     fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
         topographyService = TopographyService(map)
@@ -243,7 +243,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
-        val threatLayer = loadedMapStyle.getLayer(Constants.constructionLayerId)
+        val threatLayer = loadedMapStyle.getLayer(Constants.THREAT_LAYER_ID)
         (threatLayer as FillExtrusionLayer).withProperties(
             fillExtrusionOpacity(
                 opacity

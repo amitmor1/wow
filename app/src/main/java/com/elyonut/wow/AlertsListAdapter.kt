@@ -1,17 +1,17 @@
 package com.elyonut.wow
 
-import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.model.AlertModel
 import com.squareup.picasso.Picasso
 import kotlin.collections.ArrayList
@@ -19,31 +19,33 @@ import kotlin.collections.ArrayList
 class AlertsListAdapter(
     var context: Context,
     allAlerts: ArrayList<AlertModel>
-) : BaseAdapter() {
-    private var inflater: LayoutInflater? = null
+) : RecyclerView.Adapter<AlertsListAdapter.AlertsViewHolder>() {
+
+    class AlertsViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+
+
+        var alertMessage: TextView? = view?.findViewById(R.id.alert_message)
+        var alertImage: ImageView? = view?.findViewById(R.id.alert_image)
+        var currentTime: TextView? = view?.findViewById(R.id.current_time)
+        var cardView: CardView? = view?.findViewById(R.id.card_view)
+        var zoomLocationButton: ImageView? = view?.findViewById(R.id.zoomToLocation)
+    }
+
     private var alertsList = ArrayList<AlertModel>()
 
     init {
         alertsList = allAlerts
-        inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater?
     }
 
-    inner class Holder {
-        internal var alertMessage: TextView? = null
-        internal var alertImage: ImageView? = null
-        internal var currentTime: TextView? = null
-        internal var cardView: CardView? = null
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlertsViewHolder {
+        return AlertsViewHolder(LayoutInflater.from(context).inflate(R.layout.alert_item, parent, false))
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
-        val holder = Holder()
-        val view = inflater?.inflate(R.layout.alert_item, null)
+    override fun getItemCount(): Int {
+        return alertsList.count()
+    }
 
-        holder.alertMessage = view?.findViewById(R.id.alert_message)
-        holder.alertImage = view?.findViewById(R.id.alert_image)
-        holder.currentTime = view?.findViewById(R.id.current_time)
-        holder.cardView = view?.findViewById(R.id.card_view)
-
+    override fun onBindViewHolder(holder: AlertsViewHolder, position: Int) {
         holder.alertMessage?.text = alertsList[position].message
         Picasso.with(context).load(alertsList[position].image).into(holder.alertImage)
         holder.currentTime?.text = alertsList[position].time
@@ -56,18 +58,15 @@ class AlertsListAdapter(
             holder.cardView?.setCardBackgroundColor(Color.WHITE)
         }
 
-        return view
-    }
+        holder.zoomLocationButton?.setOnClickListener {
+            val actionIntent = Intent(Constants.ZOOM_LOCATION_ACTION).apply {
+                putExtra("threatID", alertsList[position].id)
+//                putExtra("notificationID", notificationID)
+            }
 
-    override fun getItem(position: Int): Any {
-        return position
-    }
+            PendingIntent.getBroadcast(context, alertsList[position].id as Int, actionIntent, 0).send()
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
 
-    override fun getCount(): Int {
-        return alertsList.count()
+        }
     }
 }
