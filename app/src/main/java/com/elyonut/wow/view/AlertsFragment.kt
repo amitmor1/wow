@@ -38,7 +38,7 @@ class AlertsFragment(var allAlerts: ArrayList<AlertModel>) : Fragment() {
     }
 
     fun addAlert(alert: AlertModel) {
-        allAlerts.add(0, AlertModel(alert.id, alert.message, alert.image, alert.time))
+        allAlerts.add(0, AlertModel(alert.notificationID ,alert.threatId, alert.message, alert.image, alert.time))
         alertsAdapter?.notifyItemInserted(0)
     }
 

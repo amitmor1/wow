@@ -84,7 +84,7 @@ class AlertsManager(var context: Context) {
         notificationManager?.notify(notificationID, notifyBuilder.build())
     }
 
-    private fun getNotificationID(threatID: String): Int {
+    fun getNotificationID(threatID: String): Int {
         var notificationID = notificationIds[threatID]
 
         if (notificationID == null) {

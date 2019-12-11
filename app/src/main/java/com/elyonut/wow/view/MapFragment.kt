@@ -105,7 +105,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 sharedViewModel.alertsManager.cancelNotification(intent.getIntExtra("notificationID", 0))
             }
         }
-
     }
 
     private fun initArea() {
@@ -202,16 +201,14 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 it
             )
 
-            updateAlertsContainer(it, message)
+            updateAlertsContainer(sharedViewModel.alertsManager.getNotificationID(it), it, message)
         }
     }
 
-
-
-    private fun updateAlertsContainer(threatID: String ,message: String) {
+    private fun updateAlertsContainer(notificationID: Int , threatID: String , message: String) {
         val date = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val currentDateTime = date.format(Date())
-        val alert = AlertModel(threatID, message, R.drawable.sunflower, currentDateTime)
+        val alert = AlertModel(notificationID, threatID, message, R.drawable.sunflower, currentDateTime)
         sharedViewModel.activeAlert.value = alert
     }
 
@@ -347,7 +344,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         loadedMapStyle.removeSource("threat-source")
         loadedMapStyle.removeLayer("layer-selected-location")
         loadedMapStyle.removeSource("source-marker-click")
-        loadedMapStyle.removeImage("marker-icon-id")
+        loadedMapStyle.removeImage("marker-icon-notificationID")
         val selectedBuildingSource =
             loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
@@ -359,7 +356,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
                 // Add the marker image to map
                 loadedMapStyle.addImage(
-                    "marker-icon-id",
+                    "marker-icon-notificationID",
                     BitmapFactory.decodeResource(
                         App.resourses, R.drawable.mapbox_marker_icon_default
                     )
@@ -374,7 +371,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
                 val symbolLayer = SymbolLayer("layer-selected-location", "source-marker-click")
                 symbolLayer.withProperties(
-                    PropertyFactory.iconImage("marker-icon-id")
+                    PropertyFactory.iconImage("marker-icon-notificationID")
                 )
                 loadedMapStyle.addLayer(symbolLayer)
 

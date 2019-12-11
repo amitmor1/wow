@@ -34,7 +34,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun updateMessageAccepted(messageID: String) {
-        val alert = allAlerts.find { it.id == messageID }
+        val alert = allAlerts.find { it.threatId == messageID }
         if (alert != null) {
             alert.isRead = true
         }

@@ -1,6 +1,6 @@
 package com.elyonut.wow
 
-import android.app.PendingIntent
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.model.AlertModel
 import com.squareup.picasso.Picasso
@@ -22,13 +23,12 @@ class AlertsListAdapter(
 ) : RecyclerView.Adapter<AlertsListAdapter.AlertsViewHolder>() {
 
     class AlertsViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-
-
-        var alertMessage: TextView? = view?.findViewById(R.id.alert_message)
-        var alertImage: ImageView? = view?.findViewById(R.id.alert_image)
-        var currentTime: TextView? = view?.findViewById(R.id.current_time)
-        var cardView: CardView? = view?.findViewById(R.id.card_view)
-        var zoomLocationButton: ImageView? = view?.findViewById(R.id.zoomToLocation)
+        val alertMessage: TextView? = view?.findViewById(R.id.alert_message)
+        val alertImage: ImageView? = view?.findViewById(R.id.alert_image)
+        val currentTime: TextView? = view?.findViewById(R.id.current_time)
+        val cardView: CardView? = view?.findViewById(R.id.card_view)
+        val zoomLocationButton: ImageView? = view?.findViewById(R.id.zoomToLocation)
+        val alertAcceptedButton: ImageView? = view?.findViewById(R.id.alertAccepted)
     }
 
     private var alertsList = ArrayList<AlertModel>()
@@ -59,14 +59,21 @@ class AlertsListAdapter(
         }
 
         holder.zoomLocationButton?.setOnClickListener {
-            val actionIntent = Intent(Constants.ZOOM_LOCATION_ACTION).apply {
-                putExtra("threatID", alertsList[position].id)
-//                putExtra("notificationID", notificationID)
-            }
-
-            PendingIntent.getBroadcast(context, alertsList[position].id as Int, actionIntent, 0).send()
-
-
+            sendBroadcastIntent(Constants.ZOOM_LOCATION_ACTION, alertsList[position].threatId, alertsList[position].notificationID)
+            (context as FragmentActivity).supportFragmentManager.popBackStack()
         }
+
+        holder.alertAcceptedButton?.setOnClickListener {
+            sendBroadcastIntent(Constants.ALERT_ACCEPTED_ACTION, alertsList[position].threatId, alertsList[position].notificationID)
+        }
+    }
+
+    private fun sendBroadcastIntent(actionName: String, threatId: String, notificationID: Int) {
+        val actionIntent = Intent(actionName).apply {
+            putExtra("threatID", threatId)
+            putExtra("notificationID", notificationID)
+        }
+
+        context.sendBroadcast(actionIntent)
     }
 }

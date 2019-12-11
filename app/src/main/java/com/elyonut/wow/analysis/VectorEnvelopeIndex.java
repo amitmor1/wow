@@ -103,7 +103,7 @@ public class VectorEnvelopeIndex {
         // Gets the data repository in write mode
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        String featureId = env.properties.get("id");
+        String featureId = env.properties.get("notificationID");
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(VectorEntry.COLUMN_NAME_FEATURE_ID, featureId);
