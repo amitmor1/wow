@@ -13,8 +13,10 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -38,10 +40,11 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.elyonut.wow.model.ThreatLevel
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -215,9 +218,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         if (isLocationAdapterInitialized) {
             val riskStatusObserver = Observer<RiskStatus> { newStatus ->
                 changeStatus(newStatus)
-                if (newStatus == RiskStatus.HIGH) {
-                    mapViewModel.checkRiskStatus()
-                }
+                mapViewModel.checkRiskStatus()
             }
             mapViewModel.riskStatus.observe(this, riskStatusObserver)
         }
@@ -302,7 +303,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun initLocationObserver() {
         val locationObserver = Observer<Location?> { newLocation ->
-            if (newLocation != null) {
+            if (mapViewModel.isLocationAdapterInitialized.value == true && newLocation != null) {
                 mapViewModel.changeLocation(newLocation)
             }
         }
@@ -343,11 +344,13 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         val selectedBuildingSource =
             loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
+        mapViewModel.setLayerVisibility(Constants.THREAT_COVERAGE_LAYER_ID, visibility(NONE))
+
 
         if (mapViewModel.isAreaSelectionMode) {
             mapViewModel.drawPolygonMode(latLng)
         } else {
-            if (mapViewModel.selectLocationManual || mapViewModel.selectLocationManualConstruction) {
+            if (mapViewModel.selectLocationManual || mapViewModel.selectLocationManualConstruction || mapViewModel.selectLocationManualCoverage || mapViewModel.selectLocationManualCoverageAll) {
 
                 // Add the marker image to map
                 loadedMapStyle.addImage(
@@ -378,7 +381,41 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
                     mapViewModel.updateThreatFeaturesConstruction(latLng)
                     mapViewModel.selectLocationManualConstruction = false
+                } else if (mapViewModel.selectLocationManualCoverage) {
+                    val progressBar: ProgressBar = view!!.findViewById(R.id.progressBar)
+                    progressBar.visibility = VISIBLE
+                    if(sharedViewModel.coverageSearchHeightMetersChecked){
+                        mapViewModel.calculateCoverageFromPoint(
+                            latLng,
+                            sharedViewModel.coverageRangeMeters,
+                            sharedViewModel.coverageResolutionMeters,
+                            sharedViewModel.coverageSearchHeightMeters,
+                            progressBar
+                        )
+                    }
+                    else {
+                        mapViewModel.calculateCoverageFromPoint(
+                            latLng,
+                            sharedViewModel.coverageRangeMeters,
+                            sharedViewModel.coverageResolutionMeters,
+                            Constants.DEFAULT_COVERAGE_HEIGHT_METERS,
+                            progressBar
+                        )
+                    }
+                    mapViewModel.selectLocationManualCoverage = false
+                } else if (mapViewModel.selectLocationManualCoverageAll){
+                    val progressBar: ProgressBar = view!!.findViewById(R.id.progressBar)
+                    progressBar.visibility = VISIBLE
+                    mapViewModel.calculateCoverageForAll(
+                        latLng,
+                        sharedViewModel.coverageRangeMeters,
+                        sharedViewModel.coverageResolutionMeters,
+                        sharedViewModel.coverageSearchHeightMeters,
+                        progressBar
+                    )
+                    mapViewModel.selectLocationManualCoverageAll = false
                 }
+
 
             } else {
 
@@ -435,6 +472,14 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
             R.id.threat_coverage -> {
                 mapViewModel.toggleThreatCoverage()
+            }
+            R.id.point_coverage-> {
+                mapViewModel.selectLocationManualCoverage = true
+                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
+            }
+            R.id.all_coverage-> {
+                mapViewModel.selectLocationManualCoverageAll = true
+                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
         }
     }
