@@ -37,4 +37,6 @@
     <string name="show_hide_threats_coverage">הצג / הסתר כיסוי איומים</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="calculate_point_coverage">חשב אזור איום</string>
+    <string name="calculate_all_coverage">חשב איומים לשכבת אויב</string>
 </resources>

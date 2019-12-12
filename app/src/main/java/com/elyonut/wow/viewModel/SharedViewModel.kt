@@ -3,6 +3,7 @@ package com.elyonut.wow.viewModel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.elyonut.wow.Constants
 import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.alerts.AlertsManager
 import com.elyonut.wow.model.AlertModel
@@ -28,6 +29,20 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val activeAlert = MutableLiveData<AlertModel>()
     var allAlerts = ArrayList<AlertModel>()
     var isAlertChanged = MutableLiveData<Boolean>()
+
+    var coverageRangeMeters: Double = Constants.DEFAULT_COVERAGE_RANGE_METERS
+    var coverageResolutionMeters: Double = Constants.DEFAULT_COVERAGE_RESOLUTION_METERS
+    var coverageSearchHeightMeters: Double = Constants.DEFAULT_COVERAGE_HEIGHT_METERS
+    var coverageSearchHeightMetersChecked: Boolean = false
+
+    fun applySaveCoverageSettingsButtonClicked(coverageRange: Double, resolution: Double, height: Double?, heightChecked: Boolean) {
+        this.coverageRangeMeters = coverageRange
+        this.coverageResolutionMeters = resolution
+        if( height!= null ){
+            this.coverageSearchHeightMeters = height
+        }
+        this.coverageSearchHeightMetersChecked = heightChecked
+    }
 
     fun selectExperimentalOption(itemId: Int) {
         selectedExperimentalOption.value = itemId

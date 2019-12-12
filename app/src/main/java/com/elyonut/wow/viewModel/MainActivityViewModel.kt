@@ -15,6 +15,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val chosenLayerId = MutableLiveData<String>()
     val selectedExperimentalOption = MutableLiveData<Int>()
     val filterSelected = MutableLiveData<Boolean>()
+    val coverageSettingsSelected = MutableLiveData<Boolean>()
     val shouldDefineArea = MutableLiveData<Boolean>()
     val shouldOpenAlertsFragment = MutableLiveData<Boolean>()
 
@@ -39,6 +40,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             }
             item.itemId == R.id.alerts -> {
                 shouldOpenAlertsFragment.value = true
+            }
+            item.itemId == R.id.coverage_settings -> {
+                coverageSettingsSelected.value = true
+                shouldCloseDrawer = false
             }
         }
 

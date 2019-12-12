@@ -19,6 +19,7 @@
                 <item android:id="@+id/define_area" android:title="הגדר תחום התעניינות">
 
                 </item>
+                <item android:id="@+id/coverage_settings" android:title="הגדר טווח ורזולוציה לאזור איום"/>
             </group>
         </menu>
     </item>
@@ -37,6 +38,13 @@
                 <item
                         android:id="@+id/threat_coverage"
                         android:title="@string/show_hide_threats_coverage" />
+                <item
+                        android:id="@+id/point_coverage"
+                        android:title="@string/calculate_point_coverage" />
+
+                <item
+                        android:id="@+id/all_coverage"
+                        android:title="@string/calculate_all_coverage" />
             </group>
 
         </menu>

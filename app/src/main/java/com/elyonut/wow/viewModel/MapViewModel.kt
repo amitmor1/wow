@@ -8,6 +8,7 @@ import android.graphics.RectF
 import android.location.Location
 import android.os.AsyncTask
 import android.util.ArrayMap
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -17,14 +18,14 @@ import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.MapAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
 import com.elyonut.wow.adapter.TimberLogAdapter
-import com.elyonut.wow.analysis.CalcThreatStatusAsync
-import com.elyonut.wow.analysis.ThreatAnalyzer
-import com.elyonut.wow.analysis.TopographyService
+import com.elyonut.wow.analysis.*
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.transformer.MapboxTransformer
 import com.mapbox.geojson.*
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
@@ -33,6 +34,7 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.expressions.Expression.get
 import com.mapbox.mapboxsdk.style.layers.*
 import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
@@ -41,8 +43,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
-import com.mapbox.mapboxsdk.camera.CameraPosition
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import java.io.InputStream
 
@@ -53,6 +53,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     var selectLocationManual: Boolean = false
     var selectLocationManualConstruction: Boolean = false
+    var selectLocationManualCoverage: Boolean = false
+    var selectLocationManualCoverageAll: Boolean = false
     private lateinit var map: MapboxMap
     private val tempDB = TempDB(application)
     private val permissions: IPermissions =
@@ -83,6 +85,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var topographyService: TopographyService
     lateinit var threatAnalyzer: ThreatAnalyzer
     private var calcThreatsTask: CalcThreatStatusAsync? = null
+    private var calcThreatCoverageTask: CalcThreatCoverageAsync? = null
+    private var allCoverageTask: CalcThreatCoverageAllConstructionAsync? = null
     var threatAlerts = MutableLiveData<ArrayList<String>>()
 
     init {
@@ -203,6 +207,15 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         return newThreats
+    }
+
+    private fun checkIfNewAlerts(currentAlerts: ArrayList<String>?, newAlerts: ArrayList<String>?): Boolean {
+        if (newAlerts != null) {
+
+            return currentAlerts!!.containsAll(newAlerts)
+        }
+
+        return false
     }
 
     @SuppressLint("ShowToast")
@@ -381,6 +394,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 layer.setProperties(visibility(VISIBLE))
             }
         }
+    }
+
+    fun setLayerVisibility(layerId: String, visibility: PropertyValue<String>) {
+        val layer = map.style?.getLayer(layerId)
+        layer?.setProperties(visibility)
     }
 
     fun applyFilter(
@@ -624,6 +642,39 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         calcThreatsTask = CalcThreatStatusAsync(this, true)
 
         calcThreatsTask!!.execute(latLng).get()
+    }
+
+    fun calculateCoverageFromPoint(
+        latLng: LatLng,
+        coverageRangeMeters: Double,
+        coverageResolutionMeters: Double,
+        coverageSearchHeightMeters: Double,
+        progressBar: ProgressBar
+    ) {
+
+        if(calcThreatCoverageTask != null && calcThreatCoverageTask!!.status != AsyncTask.Status.FINISHED){
+            return //Returning as the current task execution is not finished yet.
+        }
+
+
+        calcThreatCoverageTask = CalcThreatCoverageAsync(this, progressBar)
+        calcThreatCoverageTask!!.execute(ThreatCoverageData(latLng, coverageRangeMeters, coverageResolutionMeters, coverageSearchHeightMeters))
+    }
+
+    fun calculateCoverageForAll(
+        latLng: LatLng,
+        coverageRangeMeters: Double,
+        coverageResolutionMeters: Double,
+        coverageSearchHeightMeters: Double,
+        progressBar: ProgressBar
+    ) {
+
+        if(allCoverageTask != null && allCoverageTask!!.status != AsyncTask.Status.FINISHED){
+            return //Returning as the current task execution is not finished yet.
+        }
+
+        allCoverageTask = CalcThreatCoverageAllConstructionAsync(this, progressBar)
+        allCoverageTask!!.execute(ThreatCoverageData(latLng, coverageRangeMeters, coverageResolutionMeters, coverageSearchHeightMeters))
     }
 
     fun buildingThreatToCurrentLocation(building: Feature): Threat {

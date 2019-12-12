@@ -23,12 +23,12 @@ class AlertsListAdapter(
 ) : RecyclerView.Adapter<AlertsListAdapter.AlertsViewHolder>() {
 
     class AlertsViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-        val alertMessage: TextView? = view?.findViewById(R.id.alert_message)
-        val alertImage: ImageView? = view?.findViewById(R.id.alert_image)
-        val currentTime: TextView? = view?.findViewById(R.id.current_time)
-        val cardView: CardView? = view?.findViewById(R.id.card_view)
-        val zoomLocationButton: ImageView? = view?.findViewById(R.id.zoomToLocation)
-        val alertAcceptedButton: ImageView? = view?.findViewById(R.id.alertAccepted)
+        val alertMessage: TextView? = view.findViewById(R.id.alert_message)
+        val alertImage: ImageView? = view.findViewById(R.id.alert_image)
+        val currentTime: TextView? = view.findViewById(R.id.current_time)
+        val cardView: CardView? = view.findViewById(R.id.card_view)
+        val zoomLocationButton: ImageView? = view.findViewById(R.id.zoomToLocation)
+        val alertAcceptedButton: ImageView? = view.findViewById(R.id.alertAccepted)
     }
 
     private var alertsList = ArrayList<AlertModel>()

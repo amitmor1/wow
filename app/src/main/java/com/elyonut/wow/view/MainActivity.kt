@@ -99,6 +99,12 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
+        mainViewModel.coverageSettingsSelected.observe(this, Observer {
+            if (it) {
+                coverageSettingsButtonClicked()
+            }
+        })
+
         sharedViewModel.shouldDefineArea.observe(this, Observer {
             if (!it) {
                 mainViewModel.shouldDefineArea.value = it
@@ -137,6 +143,15 @@ class MainActivity : AppCompatActivity(),
         fragmentTransaction.apply {
             add(R.id.fragmentMenuParent, filterFragment).commit()
             addToBackStack(filterFragment.javaClass.simpleName)
+        }
+    }
+
+    private fun coverageSettingsButtonClicked(){
+        val coverageSettingsFragment = CoverageSettingsFragment.newInstance()
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.apply {
+            add(R.id.fragmentMenuParent, coverageSettingsFragment).commit()
+            addToBackStack(coverageSettingsFragment.javaClass.simpleName)
         }
     }
 

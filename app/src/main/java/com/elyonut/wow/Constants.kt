@@ -2,7 +2,7 @@ package com.elyonut.wow
 
 class Constants {
     companion object {
-//        const val THREAT_LAYER_ID = "buildingRisk"
+        //        const val THREAT_LAYER_ID = "buildingRisk"
         const val THREAT_LAYER_ID = "construction2"
 //        const val constructionLayerId = "construction2" // TODO Can be deleted?
         //        const val BUILDINGS_LAYER_ID = "building"
@@ -30,5 +30,9 @@ class Constants {
         const val PRIMARY_CHANNEL_ID = "primary_notification_channel"
         const val ZOOM_LOCATION_ACTION = "ZOOM_LOCATION"
         const val ALERT_ACCEPTED_ACTION = "ALERT_ACCEPTED"
+        const val DEFAULT_COVERAGE_RANGE_METERS = 300.0
+        const val DEFAULT_COVERAGE_RESOLUTION_METERS = 10.0
+        const val DEFAULT_COVERAGE_HEIGHT_METERS = -10000.0
+        const val EARTH_RADIUS_KM = 6371.0
     }
 }
