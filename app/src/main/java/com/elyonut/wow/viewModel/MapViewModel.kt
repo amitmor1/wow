@@ -3,8 +3,11 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.graphics.RectF
+import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.AsyncTask
 import android.util.ArrayMap
@@ -110,6 +113,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
+
+//            map.uiSettings.compassImage.setTint(Color.WHITE)
+//            map.uiSettings.isLogoEnabled = true
         }
     }
 

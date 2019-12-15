@@ -274,7 +274,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     }
 
     private fun showAlertDialog() {
-        AlertDialog.Builder(listenerMap as Context)
+        AlertDialog.Builder(listenerMap as Context, R.style.AlertDialogTheme)
             .setTitle(getString(R.string.turn_on_location_title))
             .setMessage(getString(R.string.turn_on_location))
             .setPositiveButton(getString(R.string.yes_hebrew)) { _, _ ->

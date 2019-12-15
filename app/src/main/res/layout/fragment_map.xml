@@ -23,7 +23,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="#ECEBEB"
                 android:clickable="false"
-                android:textColor="@android:color/background_dark"
+                style="@style/AppButton"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/mainMapView" />
 

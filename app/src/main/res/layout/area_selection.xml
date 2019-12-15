@@ -24,6 +24,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cancel_area"
+            style="@style/AppButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
@@ -32,6 +33,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/apply_area"
+            style="@style/AppButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
