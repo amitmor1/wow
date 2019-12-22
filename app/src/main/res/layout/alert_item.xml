@@ -66,19 +66,21 @@
 
                             android:orientation="horizontal">
 
-                        <Button
+                        <TextView
                             android:id="@+id/zoomToLocation"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:textColor="@color/color_gray"
                             android:text="קפוץ לנ.צ" />
 
-                        <Button
+                        <TextView
                             android:id="@+id/alertAccepted"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="סמן כנקרא" />
+                            android:textColor="@color/color_gray"
+                            android:text="סמן כנקרא"/>
                     </LinearLayout>
 
                 </LinearLayout>
