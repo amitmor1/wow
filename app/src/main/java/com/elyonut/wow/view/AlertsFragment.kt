@@ -15,7 +15,7 @@ import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
 import kotlin.collections.ArrayList
 
-class AlertsFragment(var allAlerts: ArrayList<AlertModel>) : Fragment() {
+class AlertsFragment(private var allAlerts: ArrayList<AlertModel>) : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
     private lateinit var alertsRecyclerView: RecyclerView
     private var alertsAdapter:AlertsListAdapter? = null

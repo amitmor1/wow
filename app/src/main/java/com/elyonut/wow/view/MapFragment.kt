@@ -86,9 +86,10 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         initArea()
         setObservers(view)
         initFocusOnMyLocationButton(view)
-        initShowRadiusLayerButton(view)
+//        initShowRadiusLayerButton(view)
         initThreatStatusButton()
         initBroadcastReceiver()
+        initMapLayersButton(view)
 
         return view
     }
@@ -150,12 +151,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 }
             })
 
-        mapViewModel.isInsideThreatArea.observe(this, Observer<Boolean> {
-//            if (it) {
-//                sendNotification()
-//            }
-        })
-
         mapViewModel.threatAlerts.observe(this, Observer {
             sendNotification(it)
         })
@@ -182,19 +177,6 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     }
 
     private fun sendNotification(threatAlerts: ArrayList<String>) {
-//        mapViewModel.previousThreatsIds[ThreatLevel.High]?.forEach {
-//            val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
-//
-//            sharedViewModel.alertsManager.sendNotification(
-//                getString(R.string.inside_threat_notification_title),
-//                message,
-//                R.drawable.threat_notification_icon,
-//                it
-//            )
-//
-//            updateAlertsContainer(it, message)
-//        }
-
         threatAlerts.forEach {
             val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
 
@@ -319,12 +301,26 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         }
     }
 
-    private fun initShowRadiusLayerButton(view: View) {
-        val radiusLayerButton: View = view.findViewById(R.id.radiusLayer)
-        radiusLayerButton.setOnClickListener {
-            //mapViewModel.showRadiusLayerButtonClicked(Constants.THREAT_RADIUS_LAYER_ID)
-            // TODO: mvvm
-            mapViewModel.toggleThreatCoverage()
+//    private fun initShowRadiusLayerButton(view: View) {
+//        val radiusLayerButton: View = view.findViewById(R.id.radiusLayer)
+//        radiusLayerButton.setOnClickListener {
+//            //mapViewModel.showRadiusLayerButtonClicked(Constants.THREAT_RADIUS_LAYER_ID)
+//            // TODO: mvvm
+//            mapViewModel.toggleThreatCoverage()
+//        }
+//    }
+
+    private fun initMapLayersButton(view: View) {
+        val mapLayersButton: View = view.findViewById(R.id.mapLayers)
+        mapLayersButton.setOnClickListener {
+            val ft = fragmentManager?.beginTransaction()
+            val prev = fragmentManager?.findFragmentByTag("dialog")
+            if (prev != null) {
+                ft?.remove(prev)
+            }
+            ft?.addToBackStack(null)
+            val dialogFragment = MapLayersFragment()
+            dialogFragment.show(ft!!, "dialog")
         }
     }
 
@@ -498,7 +494,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun enableAreaSelection(view: View, shouldEnable: Boolean) {
         val mainMapLayoutView = view.mainMapLayout
         val currentLocationButton = view.currentLocation
-        val radiusLayerButton = view.radiusLayer
+//        val radiusLayerButton = view.radiusLayer
+        val navigationButton = view.navigationButton
 
         if (shouldEnable) {
             layoutInflater.inflate(R.layout.area_selection, mainMapLayoutView)
@@ -512,7 +509,8 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             sharedViewModel.shouldDefineArea.value = false
         }
 
-        radiusLayerButton.isEnabled = !shouldEnable
+//        radiusLayerButton.isEnabled = !shouldEnable
+        navigationButton.isEnabled = !shouldEnable
         currentLocationButton.isEnabled = !shouldEnable
         mapViewModel.isAreaSelectionMode = shouldEnable
     }

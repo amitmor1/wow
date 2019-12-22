@@ -39,26 +39,49 @@
                 app:layout_constraintStart_toEndOf="@id/status" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/currentLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:src="@drawable/ic_my_location_black"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
+            android:id="@+id/mapLayers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_layers"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/radiusLayer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:src="@drawable/bullseye"
-                app:layout_constraintBottom_toTopOf="@+id/currentLocation"
-                app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
+            android:id="@+id/currentLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_my_location_black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/navigationButton"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
+
+<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--                android:id="@+id/radiusLayer"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="16dp"-->
+<!--                android:layout_marginEnd="16dp"-->
+<!--                android:layout_marginBottom="8dp"-->
+<!--                android:src="@drawable/bullseye"-->
+<!--                app:layout_constraintBottom_toTopOf="@+id/currentLocation"-->
+<!--                app:layout_constraintEnd_toEndOf="@+id/mainMapView" />-->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/navigationButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_directions"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
 
         <com.mapbox.mapboxsdk.maps.MapView
                 android:id="@+id/mainMapView"
