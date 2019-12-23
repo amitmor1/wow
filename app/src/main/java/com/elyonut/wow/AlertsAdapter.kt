@@ -16,10 +16,10 @@ import com.elyonut.wow.model.AlertModel
 import com.squareup.picasso.Picasso
 import kotlin.collections.ArrayList
 
-class AlertsListAdapter(
+class AlertsAdapter(
     var context: Context,
     allAlerts: ArrayList<AlertModel>
-) : RecyclerView.Adapter<AlertsListAdapter.AlertsViewHolder>() {
+) : RecyclerView.Adapter<AlertsAdapter.AlertsViewHolder>() {
 
     class AlertsViewHolder (view: View) : RecyclerView.ViewHolder(view) {
         val alertMessage: TextView? = view.findViewById(R.id.alert_message)
