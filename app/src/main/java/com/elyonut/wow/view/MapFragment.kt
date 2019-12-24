@@ -223,6 +223,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 sharedViewModel.specificValue,
                 sharedViewModel.minValue,
                 sharedViewModel.maxValue
+            // gggg
             )
         }
     }
