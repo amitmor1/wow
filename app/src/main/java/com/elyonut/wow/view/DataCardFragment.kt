@@ -44,14 +44,13 @@ class DataCardFragment : Fragment() {
     }
 
     private fun initThreatInfo(view: View, threat: Threat){
-        view.dataType.text = "איום"
-        view.dataSecondTitle.text = threat.name
-        val builder = StringBuilder()
-        builder.append(String.format("גובה (מטרים): %.3f\n", threat.height))
-        builder.append(String.format("מרחק (מטרים): %.3f\n", threat.distanceMeters))
-        builder.append(String.format("אזימוט: %.3f\n", threat.azimuth))
-        builder.append(String.format("האם בקו ראיה: %s", if (threat.isLos) "כן" else "לא"))
-        view.moreContent.text = builder.toString()
+        val feature = threat.feature.properties()
+
+        view.knowledgeType.text = feature?.get("knowledgeType")?.asString
+        view.eAmount.text = feature?.get("eAmount")?.asString
+        view.type.text = feature?.get("type")?.asString
+        view.range.text = feature?.get("range")?.asString
+
         view.buildingStateColor.background.setColorFilter(Threat.color(threat), PorterDuff.Mode.MULTIPLY)
     }
 
@@ -61,16 +60,16 @@ class DataCardFragment : Fragment() {
     }
 
     private fun extendDataCard(view: View) {
-        if (dataCardViewModel.isReadMoreButtonClicked.value!!) {
-            view.buildingDataCard.layoutParams =
-                dataCardViewModel.getRelativeLayoutParams(EXPENDED_CARD_SIZE_RELATION_TO_SCREEN)
-            view.moreContent.visibility = View.VISIBLE
-            view.readMore.text = getString(R.string.read_less_hebrew)
-        } else {
-            view.buildingDataCard.layoutParams = dataCardViewModel.getRelativeLayoutParams(CARD_SIZE_RELATION_TO_SCREEN)
-            view.moreContent.visibility = View.GONE
-            view.readMore.text = getString(R.string.read_more_hebrew)
-        }
+//        if (dataCardViewModel.isReadMoreButtonClicked.value!!) {
+//            view.buildingDataCard.layoutParams =
+//                dataCardViewModel.getRelativeLayoutParams(EXPENDED_CARD_SIZE_RELATION_TO_SCREEN)
+//            view.moreContent.visibility = View.VISIBLE
+//            view.readMore.text = getString(R.string.read_less_hebrew)
+//        } else {
+//            view.buildingDataCard.layoutParams = dataCardViewModel.getRelativeLayoutParams(CARD_SIZE_RELATION_TO_SCREEN)
+//            view.moreContent.visibility = View.GONE
+//            view.readMore.text = getString(R.string.read_more_hebrew)
+//        }
     }
 
     private fun closeCard() {
@@ -79,7 +78,7 @@ class DataCardFragment : Fragment() {
 
     private fun initReadMoreButton(view: View) {
         view.readMore.setOnClickListener {
-            dataCardViewModel.readMoreButtonClicked(view.moreContent)
+          //  dataCardViewModel.readMoreButtonClicked(view.moreContent)
         }
     }
 
