@@ -19,6 +19,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -313,15 +314,20 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private fun initMapLayersButton(view: View) {
         val mapLayersButton: View = view.findViewById(R.id.mapLayers)
         mapLayersButton.setOnClickListener {
-            val ft = fragmentManager?.beginTransaction()
-            val prev = fragmentManager?.findFragmentByTag("dialog")
-            if (prev != null) {
-                ft?.remove(prev)
-            }
-            ft?.addToBackStack(null)
-            val dialogFragment = MapLayersFragment()
-            dialogFragment.show(ft!!, "dialog")
+            openDialogFragment(MapLayersFragment())
         }
+    }
+
+    private fun openDialogFragment(newDialogFragment: DialogFragment) {
+        val fragmentTransaction = fragmentManager?.beginTransaction()
+        val previousFragment = fragmentManager?.findFragmentByTag("dialog")
+
+        if (previousFragment != null) {
+            fragmentTransaction?.remove(previousFragment)
+        }
+
+        fragmentTransaction?.addToBackStack(null)
+        newDialogFragment.show(fragmentTransaction!!, "dialog")
     }
 
     private fun initThreatStatusButton() {
