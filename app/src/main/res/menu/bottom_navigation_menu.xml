@@ -4,13 +4,15 @@
             android:id="@+id/alerts"
             android:icon="@drawable/ic_notification"
             android:title="התראות"/>
-    <item
-            android:icon="@drawable/ic_pencil"
-            android:title="תחום עניין"
-            android:id="@+id/define_area"></item>
 
     <item
         android:icon="@drawable/visibility"
         android:title="גלוי"
         android:id="@+id/visibility_status"></item>
+
+    <item
+            android:icon="@drawable/ic_pencil"
+            android:title="תחום עניין"
+            android:id="@+id/define_area"></item>
+
 </menu>
