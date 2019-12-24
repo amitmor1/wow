@@ -1,6 +1,5 @@
 package com.elyonut.wow.view
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

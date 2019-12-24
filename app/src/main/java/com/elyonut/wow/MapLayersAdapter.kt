@@ -26,12 +26,6 @@ class MapLayersAdapter(var context: Context, var mapLayers: ArrayList<String>) :
     }
 
     override fun onBindViewHolder(holder: MapLayersViewHolder, position: Int) {
-        holder.mapTypeImage.setImageBitmap(
-            BitmapFactory.decodeResource(
-                context.resources,
-                R.drawable.sunflower
-            )
-        )
         holder.mapDescription.text = mapLayers[position]
     }
 
