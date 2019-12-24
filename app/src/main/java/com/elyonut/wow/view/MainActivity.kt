@@ -186,6 +186,7 @@ class MainActivity : AppCompatActivity(),
     private fun initBottomNavigationView() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setOnNavigationItemSelectedListener(this)
+        bottomNavigationView.getOrCreateBadge(R.id.alerts).number = sharedViewModel.allAlerts.size
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
