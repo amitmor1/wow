@@ -121,6 +121,15 @@
 
                     android:text="טווח"
                     android:textColor="@android:color/secondary_text_light" />
+
+                <TextView
+                    android:id="@+id/moreContent"
+                    android:layout_width="145dp"
+                    android:layout_height="177dp"
+                    android:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n\n ועוד מלא"
+                    android:visibility="gone"
+                    tools:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n ועוד מלא"
+                    tools:visibility="visible"/>
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
