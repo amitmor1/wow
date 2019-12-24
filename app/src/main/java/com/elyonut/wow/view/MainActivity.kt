@@ -246,9 +246,5 @@ class MainActivity : AppCompatActivity(),
             .putString(Constants.AREA_OF_INTEREST_KEY, areaOfInterestJson)
             .apply()
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
 }
 
