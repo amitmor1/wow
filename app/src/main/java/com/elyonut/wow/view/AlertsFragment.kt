@@ -28,7 +28,7 @@ class AlertsFragment(var allAlerts: ArrayList<AlertModel>) : Fragment() {
         val view = inflater.inflate(R.layout.fragment_alerts, container, false)
         alertsRecyclerView = view.findViewById(R.id.alerts_list)
         alertsRecyclerView.setHasFixedSize(true)
-        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL,true)
+        layoutManager = LinearLayoutManager(context)
         alertsRecyclerView.layoutManager = layoutManager
         alertsRecyclerView.itemAnimator = DefaultItemAnimator()
         alertsAdapter = AlertsAdapter(context!!, allAlerts)

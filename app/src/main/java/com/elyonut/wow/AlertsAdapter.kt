@@ -7,8 +7,10 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +30,7 @@ class AlertsAdapter(
         val cardView: CardView? = view.findViewById(R.id.card_view)
         val zoomLocationButton: TextView? = view.findViewById(R.id.zoomToLocation)
         val alertAcceptedButton: TextView? = view.findViewById(R.id.alertAccepted)
+        val deleteAlert: AppCompatImageButton? = view.findViewById(R.id.deleteAlert)
     }
 
     private var alertsList = ArrayList<AlertModel>()
@@ -64,6 +67,12 @@ class AlertsAdapter(
 
         holder.alertAcceptedButton?.setOnClickListener {
             sendBroadcastIntent(Constants.ALERT_ACCEPTED_ACTION, alertsList[position].threatId, alertsList[position].notificationID)
+        }
+
+        holder.deleteAlert?.setOnClickListener {
+            alertsList.removeAt(holder.adapterPosition)
+            notifyItemRemoved(position)
+            notifyItemRangeChanged(position, alertsList.count())
         }
     }
 
