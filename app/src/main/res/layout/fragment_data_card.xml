@@ -90,29 +90,25 @@
                     android:id="@+id/timePassed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/time_passed"
-                    android:textColor="@android:color/secondary_text_light" />
+                    android:text="@string/time_passed" />
 
                 <TextView
                     android:id="@+id/knowledgeType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="סוג ידיעה"
-                    android:textColor="@android:color/secondary_text_light" />
+                    android:text="סוג ידיעה"/>
 
                 <TextView
                     android:id="@+id/eAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="גודל הקבוצה"
-                    android:textColor="@android:color/secondary_text_light" />
+                    android:text="גודל הקבוצה" />
 
                 <TextView
                     android:id="@+id/type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="סוג הקבוצה"
-                    android:textColor="@android:color/secondary_text_light" />
+                    android:text="סוג הקבוצה"/>
 
                 <TextView
                     android:id="@+id/range"

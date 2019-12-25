@@ -35,4 +35,8 @@
     <string name="show_hide_threats_coverage">הצג / הסתר כיסוי איומים</string>
     <string name="calculate_point_coverage">חשב אזור איום</string>
     <string name="calculate_all_coverage">חשב איומים לשכבת אויב</string>
+    <string name="eAmount">eAmount</string>
+    <string name="knowledgeType">knowledgeType</string>
+    <string name="type">type</string>
+    <string name="range">range</string>
 </resources>
