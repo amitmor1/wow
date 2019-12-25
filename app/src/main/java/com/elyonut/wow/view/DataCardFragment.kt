@@ -46,10 +46,10 @@ class DataCardFragment : Fragment() {
     private fun initThreatInfo(view: View, threat: Threat){
         val feature = threat.feature.properties()
 
-        view.knowledgeType.text = "סוג ידיעה: " + feature?.get(getString(R.string.knowledgeType))?.asString
-        view.eAmount.text = "גודל קבוצה: " + feature?.get(getString(R.string.eAmount))?.asString
-        view.type.text = "סוג קבוצה: " + feature?.get(getString(R.string.type))?.asString
-        view.range.text = "טווח: " + feature?.get(getString(R.string.range))?.asString
+        view.knowledgeType.text = getString(R.string.knowledgeType_title) + ": " + feature?.get(getString(R.string.knowledgeType))?.asString
+        view.eAmount.text = getString(R.string.eAmount_title) + ": " + feature?.get(getString(R.string.eAmount))?.asString
+        view.type.text = getString(R.string.type_title)+ ": " + feature?.get(getString(R.string.type))?.asString
+        view.range.text = getString(R.string.range_title) + ": "+ feature?.get(getString(R.string.range))?.asString
 
         val builder = StringBuilder()
         builder.append(String.format("גובה (מטרים): %.3f\n", threat.height))
