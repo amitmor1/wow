@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layoutDirection="rtl">
+    android:layoutDirection="rtl"
+    android:padding="10dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/map_types"
-        android:layout_marginRight="10dp">
+        android:text="@string/map_types">
     </TextView>
 
     <androidx.recyclerview.widget.RecyclerView
