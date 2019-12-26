@@ -5,17 +5,27 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/map_type_image"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/round_corner"
-        android:cropToPadding="true"
-        android:scaleType="fitXY"
-        android:src="@drawable/map"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></ImageView>
+    <androidx.cardview.widget.CardView
+            android:id="@+id/map_item_card"
+    android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+        app:cardCornerRadius="8dp"
+        android:layout_margin="5dp">
+
+        <ImageView
+            android:id="@+id/map_type_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:cropToPadding="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/map"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></ImageView>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/map_type_description"
@@ -23,7 +33,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map_type_image"
+        app:layout_constraintTop_toBottomOf="@+id/map_item_card"
         android:text="map"></TextView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
