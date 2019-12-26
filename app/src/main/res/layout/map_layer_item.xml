@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <ImageButton
+    <ImageView
         android:id="@+id/map_type_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -15,7 +15,7 @@
         android:src="@drawable/map"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></ImageButton>
+        app:layout_constraintTop_toTopOf="parent"></ImageView>
 
     <TextView
         android:id="@+id/map_type_description"
