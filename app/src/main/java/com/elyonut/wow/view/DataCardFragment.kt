@@ -44,14 +44,20 @@ class DataCardFragment : Fragment() {
     }
 
     private fun initThreatInfo(view: View, threat: Threat){
-        view.dataType.text = "איום"
-        view.dataSecondTitle.text = threat.name
+        val feature = threat.feature.properties()
+
+        view.knowledgeType.text = getString(R.string.knowledgeType_title) + ": " + feature?.get(getString(R.string.knowledgeType))?.asString
+        view.eAmount.text = getString(R.string.eAmount_title) + ": " + feature?.get(getString(R.string.eAmount))?.asString
+        view.type.text = getString(R.string.type_title)+ ": " + feature?.get(getString(R.string.type))?.asString
+        view.range.text = getString(R.string.range_title) + ": "+ feature?.get(getString(R.string.range))?.asString
+
         val builder = StringBuilder()
         builder.append(String.format("גובה (מטרים): %.3f\n", threat.height))
         builder.append(String.format("מרחק (מטרים): %.3f\n", threat.distanceMeters))
         builder.append(String.format("אזימוט: %.3f\n", threat.azimuth))
         builder.append(String.format("האם בקו ראיה: %s", if (threat.isLos) "כן" else "לא"))
         view.moreContent.text = builder.toString()
+
         view.buildingStateColor.background.setColorFilter(Threat.color(threat), PorterDuff.Mode.MULTIPLY)
     }
 

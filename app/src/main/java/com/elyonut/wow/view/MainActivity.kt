@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity(),
             sharedViewModel.areaOfInterest =
                 gson.fromJson<Polygon>(areaOfInterestJson, Polygon::class.java)
         } else {
-            AlertDialog.Builder(this)
+            AlertDialog.Builder(this, R.style.AlertDialogTheme)
                 .setTitle(getString(R.string.area_not_defined))
                 .setPositiveButton(getString(R.string.yes_hebrew)) { _, _ ->
                     mainViewModel.shouldDefineArea.value = true

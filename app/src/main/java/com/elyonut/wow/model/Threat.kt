@@ -6,7 +6,6 @@ import android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE
 import com.elyonut.wow.RiskStatus
 import com.mapbox.geojson.Feature
 
-
 class Threat() : Parcelable {
     var name: String = ""
     var description: String = ""
@@ -20,7 +19,6 @@ class Threat() : Parcelable {
     var azimuth: Double = 0.0
     var type: String = ""
     var height: Double = 0.0
-
 
     constructor(parcel: Parcel) : this() {
         name = parcel.readString()
