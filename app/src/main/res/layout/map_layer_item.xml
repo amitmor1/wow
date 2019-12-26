@@ -20,7 +20,7 @@
             android:id="@+id/map_item_card"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_margin="1dp"
             app:cardCornerRadius="5dp"
             app:cardElevation="2dp"
             app:layout_constraintEnd_toEndOf="parent"
