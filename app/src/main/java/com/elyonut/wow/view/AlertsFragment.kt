@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.elyonut.wow.AlertsListAdapter
+import com.elyonut.wow.AlertsAdapter
 
 import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
@@ -18,7 +18,7 @@ import kotlin.collections.ArrayList
 class AlertsFragment(private var allAlerts: ArrayList<AlertModel>) : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
     private lateinit var alertsRecyclerView: RecyclerView
-    private var alertsAdapter:AlertsListAdapter? = null
+    private var alertsAdapter:AlertsAdapter? = null
     private var layoutManager: RecyclerView.LayoutManager? = null
 
     override fun onCreateView(
@@ -28,10 +28,10 @@ class AlertsFragment(private var allAlerts: ArrayList<AlertModel>) : Fragment() 
         val view = inflater.inflate(R.layout.fragment_alerts, container, false)
         alertsRecyclerView = view.findViewById(R.id.alerts_list)
         alertsRecyclerView.setHasFixedSize(true)
-        layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL,true)
+        layoutManager = LinearLayoutManager(context)
         alertsRecyclerView.layoutManager = layoutManager
         alertsRecyclerView.itemAnimator = DefaultItemAnimator()
-        alertsAdapter = AlertsListAdapter(context!!, allAlerts)
+        alertsAdapter = AlertsAdapter(context!!, allAlerts)
         alertsRecyclerView.adapter = alertsAdapter
 
         return view

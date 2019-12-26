@@ -7,8 +7,10 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -16,18 +18,19 @@ import com.elyonut.wow.model.AlertModel
 import com.squareup.picasso.Picasso
 import kotlin.collections.ArrayList
 
-class AlertsListAdapter(
+class AlertsAdapter(
     var context: Context,
     allAlerts: ArrayList<AlertModel>
-) : RecyclerView.Adapter<AlertsListAdapter.AlertsViewHolder>() {
+) : RecyclerView.Adapter<AlertsAdapter.AlertsViewHolder>() {
 
     class AlertsViewHolder (view: View) : RecyclerView.ViewHolder(view) {
         val alertMessage: TextView? = view.findViewById(R.id.alert_message)
         val alertImage: ImageView? = view.findViewById(R.id.alert_image)
         val currentTime: TextView? = view.findViewById(R.id.current_time)
         val cardView: CardView? = view.findViewById(R.id.card_view)
-        val zoomLocationButton: ImageView? = view.findViewById(R.id.zoomToLocation)
-        val alertAcceptedButton: ImageView? = view.findViewById(R.id.alertAccepted)
+        val zoomLocationButton: TextView? = view.findViewById(R.id.zoomToLocation)
+        val alertAcceptedButton: TextView? = view.findViewById(R.id.alertAccepted)
+        val deleteAlert: AppCompatImageButton? = view.findViewById(R.id.deleteAlert)
     }
 
     private var alertsList = ArrayList<AlertModel>()
@@ -64,6 +67,12 @@ class AlertsListAdapter(
 
         holder.alertAcceptedButton?.setOnClickListener {
             sendBroadcastIntent(Constants.ALERT_ACCEPTED_ACTION, alertsList[position].threatId, alertsList[position].notificationID)
+        }
+
+        holder.deleteAlert?.setOnClickListener {
+            alertsList.removeAt(holder.adapterPosition)
+            notifyItemRemoved(position)
+            notifyItemRangeChanged(position, alertsList.count())
         }
     }
 

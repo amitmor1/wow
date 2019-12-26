@@ -2,7 +2,6 @@
     <string name="app_name">WoW</string>
 
     <string name="style_url">mapbox://styles/wowdev/ck2abkdff0mc91clfa04mr7ff</string>
-    <!--    <string name="style_url">mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl</string>-->
     <string name="permission_not_granted">Can\'t find location, permission not granted</string>
     <string name="json_field_region_name">region_name</string>
     <string name="region_name">Tel Aviv Yafo erea</string>
@@ -11,8 +10,7 @@
     <string name="yes_hebrew">כן</string>
     <string name="no_thanks_hebrew">לא, תודה</string>
     <string name="turn_on_location_title">הפעלת שירותי מיקום</string>
-    <string name="data_type">סוג מידע</string>
-    <string name="data__second_title">כותרת משנה</string>
+    <string name="data_card_title">כרטיסיית בניין</string>
     <string name="type_image">תמונת מהות</string>
     <string name="time_passed">זמן שעבר</string>
     <string name="who_added">By who</string>
@@ -35,9 +33,15 @@
     <string name="inside_threat_notification_title">איום</string>
     <string name="inside_threat_notification_content">אתה נמצא בטווח איום של - </string>
     <string name="show_hide_threats_coverage">הצג / הסתר כיסוי איומים</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="calculate_point_coverage">חשב אזור איום</string>
     <string name="calculate_all_coverage">חשב איומים לשכבת אויב</string>
+    <string name="eAmount">eAmount</string>
+    <string name="knowledgeType">knowledgeType</string>
+    <string name="type">type</string>
+    <string name="range">range</string>
+    <string name="eAmount_title">גודל קבוצה</string>
+    <string name="knowledgeType_title">סוג ידיעה</string>
+    <string name="type_title">סוג קבוצה</string>
+    <string name="range_title">טווח</string>
     <string name="map_types">סוג מפה</string>
 </resources>

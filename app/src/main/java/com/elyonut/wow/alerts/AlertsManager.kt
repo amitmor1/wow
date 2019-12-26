@@ -35,7 +35,6 @@ class AlertsManager(var context: Context) {
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
             notificationChannel.enableVibration(true)
-//            notificationChannel.description = "Notification from Mascot"
             notificationManager?.createNotificationChannel(notificationChannel)
         }
     }
