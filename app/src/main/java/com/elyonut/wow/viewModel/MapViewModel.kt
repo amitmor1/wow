@@ -3,8 +3,11 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.graphics.RectF
+import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.AsyncTask
 import android.util.ArrayMap
@@ -80,7 +83,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var circleSource: GeoJsonSource
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
-    var isInsideThreatArea = MutableLiveData<Boolean>()
     var previousThreatsIds = ArrayMap<ThreatLevel, ArrayList<String>>()
     private lateinit var topographyService: TopographyService
     lateinit var threatAnalyzer: ThreatAnalyzer
@@ -110,6 +112,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
+
+//            map.uiSettings.compassImage.setTint(Color.WHITE)
+//            map.uiSettings.isLogoEnabled = true
         }
     }
 

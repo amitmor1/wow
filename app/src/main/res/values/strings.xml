@@ -43,4 +43,5 @@
     <string name="knowledgeType_title">סוג ידיעה</string>
     <string name="type_title">סוג קבוצה</string>
     <string name="range_title">טווח</string>
+    <string name="map_types">סוג מפה</string>
 </resources>
