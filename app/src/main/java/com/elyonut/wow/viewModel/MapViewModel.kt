@@ -26,6 +26,7 @@ import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.transformer.MapboxTransformer
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -52,8 +53,7 @@ import java.io.InputStream
 
 private const val RECORD_REQUEST_CODE = 101
 
-class MapViewModel(application: Application) : AndroidViewModel(application) {
-
+class MapViewModel(application: Application) : AndroidViewModel(application){
     var selectLocationManual: Boolean = false
     var selectLocationManualConstruction: Boolean = false
     var selectLocationManualCoverage: Boolean = false
@@ -90,6 +90,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private var calcThreatCoverageTask: CalcThreatCoverageAsync? = null
     private var allCoverageTask: CalcThreatCoverageAllConstructionAsync? = null
     var threatAlerts = MutableLiveData<ArrayList<String>>()
+    var isFocusOnLocation = MutableLiveData<Boolean>()
 
     init {
         logger.initLogger()
@@ -115,6 +116,27 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
 //            map.uiSettings.compassImage.setTint(Color.WHITE)
 //            map.uiSettings.isLogoEnabled = true
+        }
+
+//        map.addOnMoveListener(object : MapboxMap.OnMoveListener {
+//            override fun onMoveBegin(detector: MoveGestureDetector) {
+//
+//
+//            }
+//            override fun onMove(detector: MoveGestureDetector) {
+//
+//
+//            }
+//            override fun onMoveEnd(detector: MoveGestureDetector) {
+//                isFocusOnLocation.value = map.cameraPosition.target == locationAdapter?.getCurrentLocation()!!.value
+//
+//            }
+//        })
+
+
+        mapboxMap.addOnCameraMoveListener {
+//            isFocusOnLocation.value = map.cameraPosition.target == LatLng(locationAdapter?.getCurrentLocation()!!.value!!.latitude, locationAdapter?.getCurrentLocation()!!.value!!.longitude)
+            isFocusOnLocation.value = true
         }
     }
 
