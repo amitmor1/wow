@@ -178,14 +178,18 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         })
 
         mapViewModel.isFocusOnLocation.observe(this, Observer {
-            val currentLocationButton: FloatingActionButton = view.findViewById(R.id.currentLocation)
-            if (it) {
-                currentLocationButton.setImageResource(R.drawable.ic_my_location_blue)
-            }
-            else {
-//                currentLocationButton.setImageResource(R.drawable.ic_my_location_black)
-            }
+            setCurrentLocationButtonIcon(it, view)
         })
+    }
+
+    private fun setCurrentLocationButtonIcon(isInCurrentLocation: Boolean, view: View) {
+        val currentLocationButton: FloatingActionButton = view.findViewById(R.id.currentLocation)
+
+        if (isInCurrentLocation) {
+            currentLocationButton.setImageResource(R.drawable.ic_my_location_blue)
+        } else {
+            currentLocationButton.setImageResource(R.drawable.ic_my_location_black)
+        }
     }
 
     private fun sendNotification(threatAlerts: ArrayList<String>) {

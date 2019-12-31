@@ -113,31 +113,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
-
-//            map.uiSettings.compassImage.setTint(Color.WHITE)
-//            map.uiSettings.isLogoEnabled = true
         }
 
-//        map.addOnMoveListener(object : MapboxMap.OnMoveListener {
-//            override fun onMoveBegin(detector: MoveGestureDetector) {
-//
-//
-//            }
-//            override fun onMove(detector: MoveGestureDetector) {
-//
-//
-//            }
-//            override fun onMoveEnd(detector: MoveGestureDetector) {
-//                isFocusOnLocation.value = map.cameraPosition.target == locationAdapter?.getCurrentLocation()!!.value
-//
-//            }
-//        })
-
-
-        mapboxMap.addOnCameraMoveListener {
-//            isFocusOnLocation.value = map.cameraPosition.target == LatLng(locationAdapter?.getCurrentLocation()!!.value!!.latitude, locationAdapter?.getCurrentLocation()!!.value!!.longitude)
-            isFocusOnLocation.value = true
-        }
+        setCameraMoveListener()
     }
 
     private fun locationSetUp(loadedMapStyle: Style) {
@@ -735,6 +713,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
 
     fun getFeatureName(threatID: String): String {
         return layerManager.getFeatureName(threatID)
+    }
+
+    private fun setCameraMoveListener() {
+        map.addOnCameraMoveListener {
+            val cameraLocation = LatLng(map.cameraPosition.target.latitude, map.cameraPosition.target.longitude)
+            val currentLocation = LatLng(locationAdapter?.getCurrentLocation()!!.value!!.latitude, locationAdapter?.getCurrentLocation()!!.value!!.longitude)
+            isFocusOnLocation.value = cameraLocation.distanceTo(currentLocation) <= Constants.MAX_DISTANCE_TO_CURRENT_LOCATION
+        }
     }
 }
 

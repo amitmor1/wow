@@ -31,5 +31,6 @@ class Constants {
         const val DEFAULT_COVERAGE_RESOLUTION_METERS = 10.0
         const val DEFAULT_COVERAGE_HEIGHT_METERS = -10000.0
         const val EARTH_RADIUS_KM = 6371.0
+        const val MAX_DISTANCE_TO_CURRENT_LOCATION = 20
     }
 }

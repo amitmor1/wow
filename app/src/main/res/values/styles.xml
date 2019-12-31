@@ -10,15 +10,13 @@
         <item name="android:color">@color/primaryTextColor</item>
         <item name="android:editTextColor">@color/primaryTextColor</item>
         <item name="android:textColor">@android:color/background_dark</item>
+        <item name="floatingActionButtonStyle">IconColorFloatingButton</item>"
     </style>
 
-    <style name="locationButton" parent="Widget.Design.FloatingActionButton">
+    <style name="IconColorFloatingButton" parent="Widget.Design.FloatingActionButton">
         <item name="colorOnSecondary">@null</item>
+        <item name="rippleColor">#000000</item>
     </style>
-<!--    -->
-<!--    <style>-->
-<!--        <item name-->
-<!--    </style>-->
 
     <style name="AppButton" parent="AppTheme">
         <item name="materialThemeOverlay">@style/ButtonThemeOverlay</item>
