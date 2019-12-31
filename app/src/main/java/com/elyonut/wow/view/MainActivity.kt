@@ -1,7 +1,6 @@
 package com.elyonut.wow.view
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
@@ -31,6 +30,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
+import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
@@ -118,6 +118,20 @@ class MainActivity : AppCompatActivity(),
         sharedViewModel.isAlertChanged.observe(this, Observer<Boolean> {
             alertsFragmentInstance.setAlertAccepted()
         })
+
+        sharedViewModel.allAlerts.observe(this, Observer<ArrayList<AlertModel>> {
+            editAlertsBadge(it)
+        })
+    }
+
+    private fun editAlertsBadge(alerts: ArrayList<AlertModel>) {
+        val unreadMessages = alerts.count { !it.isRead }
+        if (unreadMessages == 0) {
+            bottom_navigation.removeBadge(R.id.alerts)
+        }
+        else {
+            bottom_navigation.getOrCreateBadge(R.id.alerts).number = unreadMessages
+        }
     }
 
     private fun initAreaOfInterest() {
