@@ -126,11 +126,11 @@ class MainActivity : AppCompatActivity(),
 
     private fun editAlertsBadge(alerts: ArrayList<AlertModel>) {
         val unreadMessages = alerts.count { !it.isRead }
-        if (unreadMessages != 0) {
-            bottom_navigation.getOrCreateBadge(R.id.alerts).number = unreadMessages
+        if (unreadMessages == 0) {
+            bottom_navigation.removeBadge(R.id.alerts)
         }
         else {
-            bottom_navigation.removeBadge(R.id.alerts)
+            bottom_navigation.getOrCreateBadge(R.id.alerts).number = unreadMessages
         }
     }
 

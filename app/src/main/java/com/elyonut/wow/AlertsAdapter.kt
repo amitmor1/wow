@@ -21,7 +21,7 @@ import kotlin.collections.ArrayList
 class AlertsAdapter(
     var context: Context,
     allAlerts: ArrayList<AlertModel>,
-    onClickInterface: AlertsFragment.OnClickInterface
+    onClickHandler: AlertsFragment.OnClickInterface
 ) : RecyclerView.Adapter<AlertsAdapter.AlertsViewHolder>() {
 
     private var alertsList = ArrayList<AlertModel>()
@@ -29,7 +29,7 @@ class AlertsAdapter(
 
     init {
         alertsList = allAlerts
-        this.onClickInterface = onClickInterface
+        this.onClickInterface = onClickHandler
     }
 
     inner class AlertsViewHolder (view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {

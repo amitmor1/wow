@@ -7,18 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.AlertsAdapter
 import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
-import com.elyonut.wow.viewModel.AlertsViewModel
-import kotlinx.android.synthetic.main.alert_item.view.*
 import kotlin.collections.ArrayList
-import androidx.lifecycle.ViewModelProviders
-import com.elyonut.wow.AlertsViewModelFactory
 
 class AlertsFragment(var allAlerts: MutableLiveData<ArrayList<AlertModel>>) : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
@@ -31,7 +26,7 @@ class AlertsFragment(var allAlerts: MutableLiveData<ArrayList<AlertModel>>) : Fr
         fun setClick(view: View, position: Int)
     }
 
-    private lateinit var onClickInterface: OnClickInterface
+    private lateinit var onClickHandler: OnClickInterface
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,14 +40,14 @@ class AlertsFragment(var allAlerts: MutableLiveData<ArrayList<AlertModel>>) : Fr
         alertsRecyclerView.layoutManager = layoutManager
         alertsRecyclerView.itemAnimator = DefaultItemAnimator()
         initClickInterface()
-        alertsAdapter = AlertsAdapter(context!!, allAlerts.value!!, onClickInterface)
+        alertsAdapter = AlertsAdapter(context!!, allAlerts.value!!, onClickHandler)
         alertsRecyclerView.adapter = alertsAdapter
 
         return view
     }
 
     private fun initClickInterface() {
-        onClickInterface = object : OnClickInterface {
+        onClickHandler = object : OnClickInterface {
             override fun setClick(view: View, position: Int) {
                 when (view.id) {
                     R.id.deleteAlert -> {
