@@ -32,6 +32,7 @@ import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MapViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -175,6 +176,20 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 enableAreaSelection(view, it)
             }
         })
+
+        mapViewModel.isFocusOnLocation.observe(this, Observer {
+            setCurrentLocationButtonIcon(it, view)
+        })
+    }
+
+    private fun setCurrentLocationButtonIcon(isInCurrentLocation: Boolean, view: View) {
+        val currentLocationButton: FloatingActionButton = view.findViewById(R.id.currentLocation)
+
+        if (isInCurrentLocation) {
+            currentLocationButton.setImageResource(R.drawable.ic_my_location_blue)
+        } else {
+            currentLocationButton.setImageResource(R.drawable.ic_my_location_black)
+        }
     }
 
     private fun sendNotification(threatAlerts: ArrayList<String>) {

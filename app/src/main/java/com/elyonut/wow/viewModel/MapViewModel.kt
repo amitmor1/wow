@@ -26,6 +26,7 @@ import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.transformer.MapboxTransformer
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -52,8 +53,7 @@ import java.io.InputStream
 
 private const val RECORD_REQUEST_CODE = 101
 
-class MapViewModel(application: Application) : AndroidViewModel(application) {
-
+class MapViewModel(application: Application) : AndroidViewModel(application){
     var selectLocationManual: Boolean = false
     var selectLocationManualConstruction: Boolean = false
     var selectLocationManualCoverage: Boolean = false
@@ -90,6 +90,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private var calcThreatCoverageTask: CalcThreatCoverageAsync? = null
     private var allCoverageTask: CalcThreatCoverageAllConstructionAsync? = null
     var threatAlerts = MutableLiveData<ArrayList<String>>()
+    var isFocusOnLocation = MutableLiveData<Boolean>()
 
     init {
         logger.initLogger()
@@ -112,10 +113,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
-
-//            map.uiSettings.compassImage.setTint(Color.WHITE)
-//            map.uiSettings.isLogoEnabled = true
         }
+
+        setCameraMoveListener()
     }
 
     private fun locationSetUp(loadedMapStyle: Style) {
@@ -713,6 +713,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getFeatureName(threatID: String): String {
         return layerManager.getFeatureName(threatID)
+    }
+
+    private fun setCameraMoveListener() {
+        map.addOnCameraMoveListener {
+            val cameraLocation = LatLng(map.cameraPosition.target.latitude, map.cameraPosition.target.longitude)
+            val currentLocation = LatLng(locationAdapter?.getCurrentLocation()!!.value!!.latitude, locationAdapter?.getCurrentLocation()!!.value!!.longitude)
+            isFocusOnLocation.value = cameraLocation.distanceTo(currentLocation) <= Constants.MAX_DISTANCE_TO_CURRENT_LOCATION
+        }
     }
 }
 
