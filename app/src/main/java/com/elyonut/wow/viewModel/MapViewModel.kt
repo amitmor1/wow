@@ -3,11 +3,8 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.RectF
-import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.AsyncTask
 import android.util.ArrayMap
@@ -26,7 +23,6 @@ import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.transformer.MapboxTransformer
-import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -90,7 +86,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
     private var calcThreatCoverageTask: CalcThreatCoverageAsync? = null
     private var allCoverageTask: CalcThreatCoverageAllConstructionAsync? = null
     var threatAlerts = MutableLiveData<ArrayList<String>>()
-    var isFocusOnLocation = MutableLiveData<Boolean>()
+    var isFocusedOnLocation = MutableLiveData<Boolean>()
 
     init {
         logger.initLogger()
@@ -719,7 +715,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
         map.addOnCameraMoveListener {
             val cameraLocation = LatLng(map.cameraPosition.target.latitude, map.cameraPosition.target.longitude)
             val currentLocation = LatLng(locationAdapter?.getCurrentLocation()!!.value!!.latitude, locationAdapter?.getCurrentLocation()!!.value!!.longitude)
-            isFocusOnLocation.value = cameraLocation.distanceTo(currentLocation) <= Constants.MAX_DISTANCE_TO_CURRENT_LOCATION
+            isFocusedOnLocation.value = cameraLocation.distanceTo(currentLocation) <= Constants.MAX_DISTANCE_TO_CURRENT_LOCATION
         }
     }
 }

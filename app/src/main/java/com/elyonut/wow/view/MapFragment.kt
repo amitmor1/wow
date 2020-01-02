@@ -177,7 +177,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
             }
         })
 
-        mapViewModel.isFocusOnLocation.observe(this, Observer {
+        mapViewModel.isFocusedOnLocation.observe(this, Observer {
             setCurrentLocationButtonIcon(it, view)
         })
     }
