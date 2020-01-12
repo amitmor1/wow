@@ -2,31 +2,34 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.AlertsAdapter
+import com.elyonut.wow.AlertsManager
+import com.elyonut.wow.AlertsViewModelFactory
 import com.elyonut.wow.R
-import com.elyonut.wow.model.AlertModel
-import kotlin.collections.ArrayList
+import com.elyonut.wow.viewModel.AlertsViewModel
+import com.elyonut.wow.viewModel.SharedViewModel
 
-class AlertsFragment(var allAlerts: MutableLiveData<ArrayList<AlertModel>>) : Fragment() {
+class AlertsFragment : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
     private lateinit var alertsRecyclerView: RecyclerView
-    private var alertsAdapter: AlertsAdapter? = null
+    private lateinit var onClickHandler: OnClickInterface
     private var layoutManager: RecyclerView.LayoutManager? = null
-//    private lateinit var alertsViewModel: AlertsViewModel
+    private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var alertsViewModel: AlertsViewModel
+    private lateinit var alertsManager: AlertsManager
 
     interface OnClickInterface {
         fun setClick(view: View, position: Int)
     }
-
-    private lateinit var onClickHandler: OnClickInterface
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,56 +37,62 @@ class AlertsFragment(var allAlerts: MutableLiveData<ArrayList<AlertModel>>) : Fr
     ): View? {
         val view = inflater.inflate(R.layout.fragment_alerts, container, false)
 
+        sharedViewModel =
+            activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
+
+        alertsManager = sharedViewModel.alertsManager
+        initClickInterface()
+
+        alertsViewModel = ViewModelProviders.of(
+            this,
+            AlertsViewModelFactory(activity!!.application, alertsManager, onClickHandler)
+        ).get(AlertsViewModel::class.java)
+
         alertsRecyclerView = view.findViewById(R.id.alerts_list)
         alertsRecyclerView.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
         alertsRecyclerView.layoutManager = layoutManager
         alertsRecyclerView.itemAnimator = DefaultItemAnimator()
-        initClickInterface()
-        alertsAdapter = AlertsAdapter(context!!, allAlerts.value!!, onClickHandler)
-        alertsRecyclerView.adapter = alertsAdapter
+
+        alertsRecyclerView.adapter = alertsViewModel.alertsAdapter
+
+        setObservers()
 
         return view
     }
+
 
     private fun initClickInterface() {
         onClickHandler = object : OnClickInterface {
             override fun setClick(view: View, position: Int) {
                 when (view.id) {
                     R.id.deleteAlert -> {
-                        deleteAlert(position)
+                        alertsViewModel.deleteAlertClicked(position)
+                    }
+                    R.id.zoomToLocation -> {
+                        alertsViewModel.zoomToLocationClicked(alertsManager.alerts.value!![position])
+                    }
+                    R.id.alertAccepted -> {
+                        alertsViewModel.acceptAlertClicked(alertsManager.alerts.value!![position])
                     }
                 }
             }
         }
     }
 
-    fun addAlert(alert: AlertModel) {
-        allAlerts.value?.add(
-            0,
-            AlertModel(alert.notificationID, alert.threatId, alert.message, alert.image, alert.time)
-        )
-        alertsAdapter?.notifyItemInserted(0)
-        updateAlerts()
+    private fun setObservers() {
+        alertsManager.isAlertChanged.observe(this, Observer {
+            alertsViewModel.setAlertAccepted()
+        })
+
+        alertsManager.isAlertAdded.observe(this, Observer {
+            alertsViewModel.addAlert()
+        })
+
+        alertsManager.deletedAlertPosition.observe(this, Observer {
+            alertsViewModel.deleteAlert(it)
+        })
     }
-
-    fun setAlertAccepted() {
-        alertsAdapter?.notifyDataSetChanged()
-        updateAlerts()
-    }
-
-
-    fun deleteAlert(position: Int) {
-        allAlerts.value?.removeAt(position)
-        alertsAdapter?.notifyItemRemoved(position)
-        alertsAdapter?.notifyItemRangeChanged(position, allAlerts.value!!.count())
-        updateAlerts()
-    }
-
-    private fun updateAlerts() {
-        allAlerts.value = allAlerts.value
-    }
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -105,8 +114,8 @@ class AlertsFragment(var allAlerts: MutableLiveData<ArrayList<AlertModel>>) : Fr
 
     companion object {
         @JvmStatic
-        fun newInstance(allAlerts: MutableLiveData<ArrayList<AlertModel>>) =
-            AlertsFragment(allAlerts).apply {
+        fun newInstance() =
+            AlertsFragment().apply {
             }
     }
 }

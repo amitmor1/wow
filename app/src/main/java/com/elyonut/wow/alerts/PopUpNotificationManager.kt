@@ -12,7 +12,7 @@ import com.elyonut.wow.Constants
 import kotlin.random.Random
 
 
-class AlertsManager(var context: Context) {
+class PopUpNotificationManager(var context: Context) {
 
     private var notificationManager: NotificationManager? = null
     private var notificationIds = HashMap<String, Int>()
@@ -54,11 +54,17 @@ class AlertsManager(var context: Context) {
         val zoomLocationPendingIntent = createActionPendingIntent(notificationID, threatID, Constants.ZOOM_LOCATION_ACTION)
         val alertAcceptedPendingIntent = createActionPendingIntent(notificationID, threatID, Constants.ALERT_ACCEPTED_ACTION)
 
+
+        val fullScreenIntent = Intent(context, PopUpNotificationManager::class.java)
+        val fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
+            fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
         val notifyBuilder = NotificationCompat.Builder(context, Constants.PRIMARY_CHANNEL_ID)
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
             .setSmallIcon(notificationIcon)
             .setContentIntent(notificationPendingIntent)
+            .setFullScreenIntent(fullScreenPendingIntent, true)
             .setAutoCancel(true)
             .addAction(
                 R.drawable.ic_check_black,
@@ -105,7 +111,7 @@ class AlertsManager(var context: Context) {
     private fun createActionPendingIntent(notificationID: Int, threatID: String, action: String): PendingIntent {
         val actionIntent = Intent(action).apply {
             putExtra("threatID", threatID)
-            putExtra("notificationID", notificationID)
+            putExtra("alertID", notificationID)
         }
 
         return PendingIntent.getBroadcast(context, notificationID, actionIntent, 0)

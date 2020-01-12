@@ -44,4 +44,7 @@
     <string name="type_title">סוג קבוצה</string>
     <string name="range_title">טווח</string>
     <string name="map_types">סוג מפה</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

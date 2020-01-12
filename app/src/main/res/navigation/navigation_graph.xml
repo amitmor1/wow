@@ -6,7 +6,7 @@
     app:startDestination="@id/map_fragment">
     <fragment
         android:id="@+id/map_fragment"
-        android:name="com.elyonut.wow.view.MainMapFragment"
-        tools:layout="@layout/fragment_map" >
+        android:name="com.elyonut.wow.view.MapFragment"
+        tools:layout="@layout/fragment_map">
     </fragment>
 </navigation>

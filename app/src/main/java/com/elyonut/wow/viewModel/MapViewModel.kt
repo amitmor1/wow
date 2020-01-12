@@ -3,14 +3,18 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.RectF
+import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.AsyncTask
 import android.util.ArrayMap
+import android.view.Gravity
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColor
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
@@ -109,6 +113,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
+
+            mapboxMap.uiSettings.compassGravity = Gravity.RIGHT
+            mapboxMap.uiSettings.setCompassMargins(16,50,16,50)
         }
 
         setCameraMoveListener()
