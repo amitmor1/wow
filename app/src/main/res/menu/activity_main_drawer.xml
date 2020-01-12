@@ -23,7 +23,7 @@
             </group>
         </menu>
     </item>
-    <item android:title="Experiments">
+    <item android:title="מבנים">
         <menu>
             <group android:id="@+id/nav_experiments">
                 <item
@@ -32,19 +32,10 @@
                 <item
                     android:id="@+id/threat_select_location_buildings"
                     android:title="@string/threats_on_map_with_location_buildings" />
-                <item
-                        android:id="@+id/threat_select_location"
-                        android:title="@string/threats_on_map_with_location" />
-                <item
-                        android:id="@+id/threat_coverage"
-                        android:title="@string/show_hide_threats_coverage" />
+
                 <item
                         android:id="@+id/point_coverage"
                         android:title="@string/calculate_point_coverage" />
-
-                <item
-                        android:id="@+id/all_coverage"
-                        android:title="@string/calculate_all_coverage" />
             </group>
 
         </menu>
