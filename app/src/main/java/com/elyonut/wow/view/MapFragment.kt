@@ -496,17 +496,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                 mapViewModel.selectLocationManualConstruction = true
                 Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
-//            R.id.threat_coverage -> {
-//                mapViewModel.toggleThreatCoverage()
-//            }
             R.id.point_coverage-> {
                 mapViewModel.selectLocationManualCoverage = true
                 Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
-//            R.id.all_coverage-> {
-//                mapViewModel.selectLocationManualCoverageAll = true
-//                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
-//            }
         }
     }
 
