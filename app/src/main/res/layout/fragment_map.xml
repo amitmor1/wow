@@ -46,6 +46,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_layers"
+            android:elevation="4dp"
             app:layout_constraintEnd_toEndOf="@+id/mainMapView"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -105,10 +106,14 @@
 
         <LinearLayout
             android:id="@+id/alert_Pop_Up"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="parent" />
+            android:elevation="6dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -133,6 +138,5 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
 </FrameLayout>
