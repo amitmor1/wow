@@ -55,14 +55,18 @@ class AlertsManager(var context: Context) {
 
     fun zoomToLocation(alert: AlertModel) {
         sendBroadcastIntent(Constants.ZOOM_LOCATION_ACTION, alert.threatId, alert.alertID)
-        alertsQueue.remove()
-        shouldPopAlert.value = true
+        if (alertsQueue.isNotEmpty()) {
+            alertsQueue.remove()
+            shouldPopAlert.value = true
+        }
     }
 
     fun acceptAlert(alert: AlertModel) {
         sendBroadcastIntent(Constants.ALERT_ACCEPTED_ACTION, alert.threatId, alert.alertID)
-        alertsQueue.remove()
-        shouldPopAlert.value = true
+        if (alertsQueue.isNotEmpty()) {
+            alertsQueue.remove()
+            shouldPopAlert.value = true
+        }
     }
 
     private fun updateAlerts() {
