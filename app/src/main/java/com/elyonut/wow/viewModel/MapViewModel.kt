@@ -115,7 +115,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
             locationSetUp(style)
 
             mapboxMap.uiSettings.compassGravity = Gravity.RIGHT
-            mapboxMap.uiSettings.setCompassMargins(16,50,16,50)
+            mapboxMap.uiSettings.setCompassMargins(16,50,16,16)
         }
 
         setCameraMoveListener()
@@ -326,6 +326,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
             circleBlur(1f),
             visibility(NONE)
         )
+
         loadedMapStyle.addLayer(circleLayer)
     }
 
@@ -356,6 +357,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
 
     private fun getThreatRadiuses(): FeatureCollection {
         val threatRadiuses = mutableListOf<Feature>()
+
         mapAdapter.createThreatRadiusSource().forEach {
             threatRadiuses.add(MapboxTransformer.transfromFeatureModelToMapboxFeature(it))
         }

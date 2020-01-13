@@ -22,6 +22,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -180,6 +181,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         mapViewModel.isFocusedOnLocation.observe(this, Observer {
             setCurrentLocationButtonIcon(it, view)
         })
+
+        alertsManager.shouldPopAlert.observe(this, Observer {
+            if (it && alertsManager.alertsQueue.isNotEmpty()) {
+                setAlertPopUp(alertsManager.alertsQueue.element())
+            }
+        })
     }
 
     private fun setCurrentLocationButtonIcon(isInCurrentLocation: Boolean, view: View) {
@@ -194,21 +201,30 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
 
     private fun sendNotification(threatAlerts: ArrayList<String>) {
         threatAlerts.forEach {
-            val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
+            val message =
+                getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(
+                    it
+                )
 
-            updateAlertsContainer(sharedViewModel.alertsManager.getNotificationID(it), it, message)
+            updateAlertsContainer(alertsManager.getAlertID(it), it, message)
         }
     }
 
-    private fun updateAlertsContainer(notificationID: Int , threatID: String , message: String) {
+    private fun updateAlertsContainer(notificationID: Int, threatID: String, message: String) {
         val date = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val currentDateTime = date.format(Date())
-        val alert = AlertModel(notificationID, threatID, message, R.drawable.sunflower, currentDateTime)
+        val alert =
+            AlertModel(notificationID, threatID, message, R.drawable.sunflower, currentDateTime)
         alertsManager.addAlert(alert)
     }
 
-    private fun setAlertPopUp() {
+    private fun setAlertPopUp(alert: AlertModel) {
+        val alertFragmentInstance = AlertFragment.newInstance(alert)
 
+        activity!!.supportFragmentManager.beginTransaction().replace(
+            R.id.alert_Pop_Up,
+            alertFragmentInstance
+        ).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
     }
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
@@ -406,7 +422,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                 } else if (mapViewModel.selectLocationManualCoverage) {
                     val progressBar: ProgressBar = view!!.findViewById(R.id.progressBar)
                     progressBar.visibility = VISIBLE
-                    if(sharedViewModel.coverageSearchHeightMetersChecked){
+                    if (sharedViewModel.coverageSearchHeightMetersChecked) {
                         mapViewModel.calculateCoverageFromPoint(
                             latLng,
                             sharedViewModel.coverageRangeMeters,
@@ -414,8 +430,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                             sharedViewModel.coverageSearchHeightMeters,
                             progressBar
                         )
-                    }
-                    else {
+                    } else {
                         mapViewModel.calculateCoverageFromPoint(
                             latLng,
                             sharedViewModel.coverageRangeMeters,
@@ -425,7 +440,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                         )
                     }
                     mapViewModel.selectLocationManualCoverage = false
-                } else if (mapViewModel.selectLocationManualCoverageAll){
+                } else if (mapViewModel.selectLocationManualCoverageAll) {
                     val progressBar: ProgressBar = view!!.findViewById(R.id.progressBar)
                     progressBar.visibility = VISIBLE
                     mapViewModel.calculateCoverageForAll(
@@ -484,11 +499,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             R.id.threat_coverage -> {
                 mapViewModel.toggleThreatCoverage()
             }
-            R.id.point_coverage-> {
+            R.id.point_coverage -> {
                 mapViewModel.selectLocationManualCoverage = true
                 Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
-            R.id.all_coverage-> {
+            R.id.all_coverage -> {
                 mapViewModel.selectLocationManualCoverageAll = true
                 Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }

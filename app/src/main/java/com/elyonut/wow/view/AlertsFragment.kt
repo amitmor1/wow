@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.elyonut.wow.AlertsAdapter
 import com.elyonut.wow.AlertsManager
 import com.elyonut.wow.AlertsViewModelFactory
 import com.elyonut.wow.R
@@ -19,7 +18,7 @@ import com.elyonut.wow.viewModel.AlertsViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 
 class AlertsFragment : Fragment() {
-    private var listener: OnFragmentInteractionListener? = null
+    private var listener: OnAlertsFragmentInteractionListener? = null
     private lateinit var alertsRecyclerView: RecyclerView
     private lateinit var onClickHandler: OnClickInterface
     private var layoutManager: RecyclerView.LayoutManager? = null
@@ -96,10 +95,10 @@ class AlertsFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
+        if (context is OnAlertsFragmentInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException("$context must implement OnFragmentInteractionListener")
+            throw RuntimeException("$context must implement OnAlertFragmentInteractionListener")
         }
     }
 
@@ -108,7 +107,7 @@ class AlertsFragment : Fragment() {
         listener = null
     }
 
-    interface OnFragmentInteractionListener {
+    interface OnAlertsFragmentInteractionListener {
         fun onAlertsFragmentInteraction()
     }
 

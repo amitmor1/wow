@@ -2,6 +2,7 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.WindowManager
@@ -9,17 +10,14 @@ import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
-import androidx.navigation.navArgs
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.elyonut.wow.AlertsManager
 import com.elyonut.wow.Constants
 import com.elyonut.wow.ILogger
 import com.elyonut.wow.R
@@ -42,7 +40,8 @@ class MainActivity : AppCompatActivity(),
     MapFragment.OnMapFragmentInteractionListener,
     FilterFragment.OnFragmentInteractionListener,
     BottomNavigationView.OnNavigationItemSelectedListener,
-    AlertsFragment.OnFragmentInteractionListener {
+    AlertsFragment.OnAlertsFragmentInteractionListener,
+    AlertFragment.OnAlertFragmentInteractionListener {
 
     private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
@@ -233,6 +232,9 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onAlertsFragmentInteraction() {
+    }
+
+    override fun onAlertFragmentInteraction(uri: Uri) {
     }
 
     @SuppressWarnings("MissingPermission")

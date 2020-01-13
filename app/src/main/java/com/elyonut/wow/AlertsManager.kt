@@ -16,11 +16,12 @@ class AlertsManager(var context: Context) {
     var isAlertAdded = MutableLiveData<Boolean>()
     var deletedAlertPosition = MutableLiveData<Int>()
     private var alertIds = HashMap<String, Int>()
-//    lateinit var alertsQueue: Queue<AlertModel>
+    var alertsQueue = LinkedList<AlertModel>()
+    var shouldPopAlert = MutableLiveData<Boolean>()
 
     init {
         alerts.value = ArrayList()
-//        alertsQueue = Queue<AlertModel>()
+        shouldPopAlert.value = false
     }
 
     fun addAlert(alert: AlertModel) {
@@ -30,36 +31,48 @@ class AlertsManager(var context: Context) {
         )
 
         updateAlerts()
+        alertsQueue.add(alert)
         isAlertAdded.value = true
+
+        if (!shouldPopAlert.value!!) {
+            shouldPopAlert.value = true
+        }
     }
 
     fun deleteAlert(position: Int) {
         alerts.value?.removeAt(position)
         updateAlerts()
+        shouldPopAlert.value = true
         deletedAlertPosition.value = position
     }
 
     fun deleteAlert(alert: AlertModel) {
         alerts.value?.remove(alert)
+        shouldPopAlert.value = true
+        alertsQueue.remove()
         updateAlerts()
     }
 
     fun zoomToLocation(alert: AlertModel) {
         sendBroadcastIntent(Constants.ZOOM_LOCATION_ACTION, alert.threatId, alert.alertID)
+        alertsQueue.remove()
+        shouldPopAlert.value = true
     }
 
     fun acceptAlert(alert: AlertModel) {
         sendBroadcastIntent(Constants.ALERT_ACCEPTED_ACTION, alert.threatId, alert.alertID)
+        alertsQueue.remove()
+        shouldPopAlert.value = true
     }
 
     private fun updateAlerts() {
         alerts.value = alerts.value
     }
 
-    private fun sendBroadcastIntent(actionName: String, threatId: String, notificationID: Int) {
+    private fun sendBroadcastIntent(actionName: String, threatId: String, alertID: Int) {
         val actionIntent = Intent(actionName).apply {
             putExtra("threatID", threatId)
-            putExtra("alertID", notificationID)
+            putExtra("alertID", alertID)
         }
 
         this.context.sendBroadcast(actionIntent)
@@ -77,7 +90,7 @@ class AlertsManager(var context: Context) {
 
     }
 
-    fun getNotificationID(threatID: String): Int {
+    fun getAlertID(threatID: String): Int {
         var notificationID = alertIds[threatID]
 
         if (notificationID == null) {

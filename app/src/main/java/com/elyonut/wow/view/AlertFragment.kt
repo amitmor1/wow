@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.AlertsManager
 
@@ -20,7 +21,7 @@ import kotlinx.android.synthetic.main.alert_item.view.*
 
 
 class AlertFragment(var alert: AlertModel) : Fragment() {
-    private var listener: OnFragmentInteractionListener? = null
+    private var listener: OnAlertFragmentInteractionListener? = null
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var alertsManager: AlertsManager
 
@@ -59,23 +60,31 @@ class AlertFragment(var alert: AlertModel) : Fragment() {
     private fun initViewButtons(view: View) {
         view.zoomToLocation.setOnClickListener {
             alertsManager.zoomToLocation(alert)
+            removeAlert()
         }
 
         view.alertAccepted.setOnClickListener {
             alertsManager.acceptAlert(alert)
+            removeAlert()
         }
 
         view.deleteAlert.setOnClickListener {
             alertsManager.deleteAlert(alert)
+            removeAlert()
         }
+    }
+
+    private fun removeAlert() {
+        activity?.supportFragmentManager?.beginTransaction()?.remove(this@AlertFragment)?.setTransition(
+            FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)?.commit()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
+        if (context is OnAlertFragmentInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException(context.toString() + " must implement OnAlertFragmentInteractionListener")
         }
     }
 
@@ -95,8 +104,8 @@ class AlertFragment(var alert: AlertModel) : Fragment() {
      * (http://developer.android.com/training/basics/fragments/communicating.html)
      * for more information.
      */
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
+    interface OnAlertFragmentInteractionListener {
+        fun onAlertFragmentInteraction(uri: Uri)
     }
 
     companion object {
