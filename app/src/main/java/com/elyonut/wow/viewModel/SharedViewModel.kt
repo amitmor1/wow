@@ -6,8 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.AlertsManager
 import com.elyonut.wow.Constants
 import com.elyonut.wow.NumericFilterTypes
-import com.elyonut.wow.alerts.PopUpNotificationManager
-import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.Threat
 import com.mapbox.geojson.Polygon
 

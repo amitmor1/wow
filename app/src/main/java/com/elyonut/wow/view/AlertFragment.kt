@@ -10,11 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.elyonut.wow.AlertsManager
-
+import com.elyonut.wow.AlertViewModelFactory
 import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
+import com.elyonut.wow.viewModel.AlertViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.alert_item.view.*
@@ -23,7 +24,7 @@ import kotlinx.android.synthetic.main.alert_item.view.*
 class AlertFragment(var alert: AlertModel) : Fragment() {
     private var listener: OnAlertFragmentInteractionListener? = null
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var alertsManager: AlertsManager
+    private lateinit var alertViewModel: AlertViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,8 +35,12 @@ class AlertFragment(var alert: AlertModel) : Fragment() {
         sharedViewModel =
             activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
-        alertsManager = sharedViewModel.alertsManager
+        alertViewModel = ViewModelProviders.of(
+            this,
+            AlertViewModelFactory(activity!!.application, sharedViewModel.alertsManager)
+        ).get(AlertViewModel::class.java)
 
+        setObservers()
         initView(view)
 
         return view
@@ -57,20 +62,25 @@ class AlertFragment(var alert: AlertModel) : Fragment() {
         initViewButtons(view)
     }
 
+    private fun setObservers() {
+        alertViewModel.shouldRemoveAlert.observe(this, Observer {
+            if (it) {
+                removeAlert()
+            }
+        })
+    }
+
     private fun initViewButtons(view: View) {
         view.zoomToLocation.setOnClickListener {
-            alertsManager.zoomToLocation(alert)
-            removeAlert()
+            alertViewModel.zoomToLocationClicked(alert)
         }
 
         view.alertAccepted.setOnClickListener {
-            alertsManager.acceptAlert(alert)
-            removeAlert()
+            alertViewModel.acceptAlertClicked(alert)
         }
 
         view.deleteAlert.setOnClickListener {
-            alertsManager.deleteAlert(alert)
-            removeAlert()
+            alertViewModel.deleteAlertClicked(alert)
         }
     }
 
