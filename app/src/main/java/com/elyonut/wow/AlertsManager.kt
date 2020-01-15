@@ -48,8 +48,10 @@ class AlertsManager(var context: Context) {
 
     fun deleteAlert(alert: AlertModel) {
         alerts.value?.remove(alert)
-        shouldPopAlert.value = true
-        alertsQueue.remove()
+        if (alertsQueue.isNotEmpty()) {
+            alertsQueue.remove()
+            shouldPopAlert.value = true
+        }
         updateAlerts()
     }
 
