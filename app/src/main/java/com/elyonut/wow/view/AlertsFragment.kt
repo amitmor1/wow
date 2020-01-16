@@ -52,14 +52,12 @@ class AlertsFragment : Fragment() {
         layoutManager = LinearLayoutManager(context)
         alertsRecyclerView.layoutManager = layoutManager
         alertsRecyclerView.itemAnimator = DefaultItemAnimator()
-
         alertsRecyclerView.adapter = alertsViewModel.alertsAdapter
 
         setObservers()
 
         return view
     }
-
 
     private fun initClickInterface() {
         onClickHandler = object : OnClickInterface {
@@ -80,7 +78,7 @@ class AlertsFragment : Fragment() {
     }
 
     private fun setObservers() {
-        alertsManager.isAlertChanged.observe(this, Observer {
+        alertsManager.isAlertAccepted.observe(this, Observer {
             alertsViewModel.setAlertAccepted()
         })
 

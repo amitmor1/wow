@@ -4,74 +4,83 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.model.AlertModel
-import java.io.Serializable
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.random.Random
 
 class AlertsManager(var context: Context) {
-    var alerts = MutableLiveData<ArrayList<AlertModel>>()
-    var isAlertChanged = MutableLiveData<Boolean>()
+    var alerts = MutableLiveData<LinkedList<AlertModel>>()
+    var isAlertAccepted = MutableLiveData<Boolean>()
     var isAlertAdded = MutableLiveData<Boolean>()
     var deletedAlertPosition = MutableLiveData<Int>()
-    private var alertIds = HashMap<String, Int>()
-    var alertsQueue = LinkedList<AlertModel>()
+//    private var alertIds = HashMap<String, Int>()
+//    var alertsQueue = LinkedList<AlertModel>()
     var shouldPopAlert = MutableLiveData<Boolean>()
+    var shouldRemoveAlert = MutableLiveData<Boolean>()
+    var idCounter = 0
 
     init {
-        alerts.value = ArrayList()
+        alerts.value = LinkedList()
         shouldPopAlert.value = false
+        shouldRemoveAlert.value = false
     }
 
     fun addAlert(alert: AlertModel) {
         alerts.value?.add(
             0,
-            AlertModel(alert.alertID, alert.threatId, alert.message, alert.image, alert.time)
+            AlertModel(idCounter, alert.threatId, alert.message, alert.image, alert.time)
         )
 
-        updateAlerts()
-        alertsQueue.add(alert)
+        updateAlertsList()
+//        alertsQueue.add(alert)
         isAlertAdded.value = true
+//        if (!shouldPopAlert.value!!) {
+//            shouldPopAlert.value = true
+//        }
 
-        if (!shouldPopAlert.value!!) {
-            shouldPopAlert.value = true
-        }
+        shouldPopAlert.value = true
+
+        idCounter++
     }
 
     fun deleteAlert(position: Int) {
         alerts.value?.removeAt(position)
-        updateAlerts()
+        updateAlertsList()
+        shouldRemoveAlert.value = true
         shouldPopAlert.value = true
         deletedAlertPosition.value = position
     }
 
     fun deleteAlert(alert: AlertModel) {
         alerts.value?.remove(alert)
-        if (alertsQueue.isNotEmpty()) {
-            alertsQueue.remove()
-            shouldPopAlert.value = true
-        }
-        updateAlerts()
+//        if (alertsQueue.isNotEmpty()) {
+//            alertsQueue.remove()
+//            shouldPopAlert.value = true
+//        }
+        shouldRemoveAlert.value = true
+        shouldPopAlert.value = true
+        updateAlertsList()
     }
 
     fun zoomToLocation(alert: AlertModel) {
         sendBroadcastIntent(Constants.ZOOM_LOCATION_ACTION, alert.threatId, alert.alertID)
-        if (alertsQueue.isNotEmpty()) {
-            alertsQueue.remove()
-            shouldPopAlert.value = true
-        }
+//        if (alertsQueue.isNotEmpty()) {
+//            alertsQueue.remove()
+//            shouldPopAlert.value = true
+//        }
+//        shouldPopAlert.value = true
+        shouldRemoveAlert.value = true
     }
 
     fun acceptAlert(alert: AlertModel) {
         sendBroadcastIntent(Constants.ALERT_ACCEPTED_ACTION, alert.threatId, alert.alertID)
-        if (alertsQueue.isNotEmpty()) {
-            alertsQueue.remove()
-            shouldPopAlert.value = true
-        }
+//        if (alertsQueue.isNotEmpty()) {
+//            alertsQueue.remove()
+//            shouldPopAlert.value = true
+//        }
+//        shouldPopAlert.value = true
+        shouldRemoveAlert.value = true
     }
 
-    private fun updateAlerts() {
+    private fun updateAlertsList() {
         alerts.value = alerts.value
     }
 
@@ -91,28 +100,28 @@ class AlertsManager(var context: Context) {
             alert.isRead = true
         }
 
-        updateAlerts()
-        isAlertChanged.value = true
+        updateAlertsList()
+        isAlertAccepted.value = true
 
     }
 
-    fun getAlertID(threatID: String): Int {
-        var notificationID = alertIds[threatID]
-
-        if (notificationID == null) {
-            notificationID = generateNotificationID(threatID)
-        }
-
-        return notificationID
-    }
-
-    private fun generateNotificationID(threatID: String): Int {
-        var newID = Random.nextInt()
-        while (alertIds.containsValue(newID)) {
-            newID = Random.nextInt()
-        }
-
-        alertIds[threatID] = newID
-        return newID
-    }
+//    fun getAlertID(threatID: String): Int {
+//        var notificationID = alertIds[threatID]
+//
+//        if (notificationID == null) {
+//            notificationID = generateNotificationID(threatID)
+//        }
+//
+//        return notificationID
+//    }
+//
+//    private fun generateNotificationID(threatID: String): Int {
+//        var newID = Random.nextInt()
+//        while (alertIds.containsValue(newID)) {
+//            newID = Random.nextInt()
+//        }
+//
+//        alertIds[threatID] = newID
+//        return newID
+//    }
 }

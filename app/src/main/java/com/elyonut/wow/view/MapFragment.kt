@@ -111,6 +111,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                         alertsManager.updateMessageAccepted(intent.getStringExtra("threatID"))
                     }
                 }
+
+//                alertsManager.shouldRemoveAlert.value = true
+                alertsManager.shouldPopAlert.value = true
             }
         }
     }
@@ -182,9 +185,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             setCurrentLocationButtonIcon(it, view)
         })
 
-        alertsManager.shouldPopAlert.observe(this, Observer {
-            if (it && alertsManager.alertsQueue.isNotEmpty()) {
-                setAlertPopUp(alertsManager.alertsQueue.element())
+        alertsManager.shouldPopAlert.observe(this, Observer {shouldPop ->
+//            if (it && alertsManager.alertsQueue.isNotEmpty()) {
+//                setAlertPopUp(alertsManager.alertsQueue.element())
+//            }
+            if (shouldPop && alertsManager.alerts.value!!.count { !it.isRead } > 0) {
+                alertsManager.shouldPopAlert.value = false
+                setAlertPopUp(alertsManager.alerts.value?.findLast { !it.isRead }!!)
             }
         })
     }
@@ -206,15 +213,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                     it
                 )
 
-            updateAlertsContainer(alertsManager.getAlertID(it), it, message)
+            updateAlertsContainer(it, message)
         }
     }
 
-    private fun updateAlertsContainer(notificationID: Int, threatID: String, message: String) {
+    private fun updateAlertsContainer(threatID: String, message: String) {
         val date = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val currentDateTime = date.format(Date())
         val alert =
-            AlertModel(notificationID, threatID, message, R.drawable.sunflower, currentDateTime)
+            AlertModel(threatId = threatID, message = message, image =  R.drawable.sunflower, time = currentDateTime)
         alertsManager.addAlert(alert)
     }
 

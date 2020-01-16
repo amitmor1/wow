@@ -14,14 +14,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.view.AlertsFragment
 import com.squareup.picasso.Picasso
+import java.util.*
+import kotlin.collections.ArrayList
 
 class AlertsAdapter(
     var context: Context,
-    alerts: ArrayList<AlertModel>,
+    alerts: LinkedList<AlertModel>,
     onClickHandler: AlertsFragment.OnClickInterface
 ) : RecyclerView.Adapter<AlertsAdapter.AlertsViewHolder>() {
 
-    var alerts = ArrayList<AlertModel>()
+    var alerts = LinkedList<AlertModel>()
     var onClickInterface: AlertsFragment.OnClickInterface
 
     init {

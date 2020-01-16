@@ -32,6 +32,8 @@ import com.google.gson.Gson
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
 import kotlinx.android.synthetic.main.app_bar_main.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
@@ -113,12 +115,12 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
-        sharedViewModel.alertsManager.alerts.observe(this, Observer<ArrayList<AlertModel>> {
+        sharedViewModel.alertsManager.alerts.observe(this, Observer<LinkedList<AlertModel>> {
             editAlertsBadge(it)
         })
     }
 
-    private fun editAlertsBadge(alerts: ArrayList<AlertModel>) {
+    private fun editAlertsBadge(alerts: LinkedList<AlertModel>) {
         val unreadMessages = alerts.count { !it.isRead }
         if (unreadMessages == 0) {
             bottom_navigation.removeBadge(R.id.alerts)

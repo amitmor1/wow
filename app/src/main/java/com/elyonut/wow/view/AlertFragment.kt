@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.AlertViewModelFactory
+import com.elyonut.wow.AlertsManager
 import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.viewModel.AlertViewModel
@@ -21,10 +22,11 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.alert_item.view.*
 
 
-class AlertFragment(var alert: AlertModel) : Fragment() {
+class AlertFragment(private var alert: AlertModel) : Fragment() {
     private var listener: OnAlertFragmentInteractionListener? = null
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var alertViewModel: AlertViewModel
+    private lateinit var alertsManager: AlertsManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,9 +37,11 @@ class AlertFragment(var alert: AlertModel) : Fragment() {
         sharedViewModel =
             activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
+        alertsManager = sharedViewModel.alertsManager
+
         alertViewModel = ViewModelProviders.of(
             this,
-            AlertViewModelFactory(activity!!.application, sharedViewModel.alertsManager)
+            AlertViewModelFactory(activity!!.application, alertsManager)
         ).get(AlertViewModel::class.java)
 
         setObservers()
@@ -63,7 +67,12 @@ class AlertFragment(var alert: AlertModel) : Fragment() {
     }
 
     private fun setObservers() {
-        alertViewModel.shouldRemoveAlert.observe(this, Observer {
+//        alertViewModel.shouldRemoveAlert.observe(this, Observer {
+//            if (it) {
+//                removeAlert()
+//            }
+//        })
+        alertsManager.shouldRemoveAlert.observe(this, Observer {
             if (it) {
                 removeAlert()
             }
@@ -87,6 +96,8 @@ class AlertFragment(var alert: AlertModel) : Fragment() {
     private fun removeAlert() {
         activity?.supportFragmentManager?.beginTransaction()?.remove(this@AlertFragment)?.setTransition(
             FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)?.commit()
+
+        alertsManager.shouldRemoveAlert.value = false
     }
 
     override fun onAttach(context: Context) {

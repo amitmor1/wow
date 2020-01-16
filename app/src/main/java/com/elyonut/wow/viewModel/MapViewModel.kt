@@ -113,9 +113,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
-
-            mapboxMap.uiSettings.compassGravity = Gravity.RIGHT
-            mapboxMap.uiSettings.setCompassMargins(16,50,16,16)
         }
 
         setCameraMoveListener()
