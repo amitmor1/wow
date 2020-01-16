@@ -11,8 +11,6 @@ class AlertsManager(var context: Context) {
     var isAlertAccepted = MutableLiveData<Boolean>()
     var isAlertAdded = MutableLiveData<Boolean>()
     var deletedAlertPosition = MutableLiveData<Int>()
-//    private var alertIds = HashMap<String, Int>()
-//    var alertsQueue = LinkedList<AlertModel>()
     var shouldPopAlert = MutableLiveData<Boolean>()
     var shouldRemoveAlert = MutableLiveData<Boolean>()
     var idCounter = 0
@@ -30,12 +28,7 @@ class AlertsManager(var context: Context) {
         )
 
         updateAlertsList()
-//        alertsQueue.add(alert)
         isAlertAdded.value = true
-//        if (!shouldPopAlert.value!!) {
-//            shouldPopAlert.value = true
-//        }
-
         shouldPopAlert.value = true
 
         idCounter++
@@ -51,10 +44,6 @@ class AlertsManager(var context: Context) {
 
     fun deleteAlert(alert: AlertModel) {
         alerts.value?.remove(alert)
-//        if (alertsQueue.isNotEmpty()) {
-//            alertsQueue.remove()
-//            shouldPopAlert.value = true
-//        }
         shouldRemoveAlert.value = true
         shouldPopAlert.value = true
         updateAlertsList()
@@ -62,21 +51,11 @@ class AlertsManager(var context: Context) {
 
     fun zoomToLocation(alert: AlertModel) {
         sendBroadcastIntent(Constants.ZOOM_LOCATION_ACTION, alert.threatId, alert.alertID)
-//        if (alertsQueue.isNotEmpty()) {
-//            alertsQueue.remove()
-//            shouldPopAlert.value = true
-//        }
-//        shouldPopAlert.value = true
         shouldRemoveAlert.value = true
     }
 
     fun acceptAlert(alert: AlertModel) {
         sendBroadcastIntent(Constants.ALERT_ACCEPTED_ACTION, alert.threatId, alert.alertID)
-//        if (alertsQueue.isNotEmpty()) {
-//            alertsQueue.remove()
-//            shouldPopAlert.value = true
-//        }
-//        shouldPopAlert.value = true
         shouldRemoveAlert.value = true
     }
 
@@ -104,24 +83,4 @@ class AlertsManager(var context: Context) {
         isAlertAccepted.value = true
 
     }
-
-//    fun getAlertID(threatID: String): Int {
-//        var notificationID = alertIds[threatID]
-//
-//        if (notificationID == null) {
-//            notificationID = generateNotificationID(threatID)
-//        }
-//
-//        return notificationID
-//    }
-//
-//    private fun generateNotificationID(threatID: String): Int {
-//        var newID = Random.nextInt()
-//        while (alertIds.containsValue(newID)) {
-//            newID = Random.nextInt()
-//        }
-//
-//        alertIds[threatID] = newID
-//        return newID
-//    }
 }

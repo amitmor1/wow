@@ -112,7 +112,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                     }
                 }
 
-//                alertsManager.shouldRemoveAlert.value = true
                 alertsManager.shouldPopAlert.value = true
             }
         }
@@ -186,9 +185,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         })
 
         alertsManager.shouldPopAlert.observe(this, Observer {shouldPop ->
-//            if (it && alertsManager.alertsQueue.isNotEmpty()) {
-//                setAlertPopUp(alertsManager.alertsQueue.element())
-//            }
             if (shouldPop && alertsManager.alerts.value!!.count { !it.isRead } > 0) {
                 alertsManager.shouldPopAlert.value = false
                 setAlertPopUp(alertsManager.alerts.value?.findLast { !it.isRead }!!)

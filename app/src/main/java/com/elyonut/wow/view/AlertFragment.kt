@@ -67,11 +67,6 @@ class AlertFragment(private var alert: AlertModel) : Fragment() {
     }
 
     private fun setObservers() {
-//        alertViewModel.shouldRemoveAlert.observe(this, Observer {
-//            if (it) {
-//                removeAlert()
-//            }
-//        })
         alertsManager.shouldRemoveAlert.observe(this, Observer {
             if (it) {
                 removeAlert()
