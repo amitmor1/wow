@@ -2,6 +2,7 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.WindowManager
@@ -31,15 +32,18 @@ import com.google.gson.Gson
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
 import kotlinx.android.synthetic.main.app_bar_main.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
     NavigationView.OnNavigationItemSelectedListener,
     ThreatFragment.OnListFragmentInteractionListener,
-    MainMapFragment.OnMapFragmentInteractionListener,
+    MapFragment.OnMapFragmentInteractionListener,
     FilterFragment.OnFragmentInteractionListener,
     BottomNavigationView.OnNavigationItemSelectedListener,
-    AlertsFragment.OnFragmentInteractionListener {
+    AlertsFragment.OnAlertsFragmentInteractionListener,
+    AlertFragment.OnAlertFragmentInteractionListener {
 
     private lateinit var mainViewModel: MainActivityViewModel
     private lateinit var sharedViewModel: SharedViewModel
@@ -61,7 +65,7 @@ class MainActivity : AppCompatActivity(),
         sharedViewModel =
             ViewModelProviders.of(this)[SharedViewModel::class.java]
 
-        alertsFragmentInstance = AlertsFragment.newInstance(sharedViewModel.allAlerts)
+        alertsFragmentInstance = AlertsFragment.newInstance()
 
         setObservers()
         initAreaOfInterest()
@@ -111,20 +115,12 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
-        sharedViewModel.activeAlert.observe(this, Observer<AlertModel> {
-            updateAlerts(it)
-        })
-
-        sharedViewModel.isAlertChanged.observe(this, Observer<Boolean> {
-            alertsFragmentInstance.setAlertAccepted()
-        })
-
-        sharedViewModel.allAlerts.observe(this, Observer<ArrayList<AlertModel>> {
+        sharedViewModel.alertsManager.alerts.observe(this, Observer<LinkedList<AlertModel>> {
             editAlertsBadge(it)
         })
     }
 
-    private fun editAlertsBadge(alerts: ArrayList<AlertModel>) {
+    private fun editAlertsBadge(alerts: LinkedList<AlertModel>) {
         val unreadMessages = alerts.count { !it.isRead }
         if (unreadMessages == 0) {
             bottom_navigation.removeBadge(R.id.alerts)
@@ -217,14 +213,11 @@ class MainActivity : AppCompatActivity(),
     private fun openAlertsFragment() {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
 
-        fragmentTransaction.apply {
-            add(R.id.fragment_container, alertsFragmentInstance).commit()
+       fragmentTransaction.apply {
+            add(R.id.fragment_container, alertsFragmentInstance)
             addToBackStack(alertsFragmentInstance.javaClass.simpleName)
+            commit()
         }
-    }
-
-    private fun updateAlerts(alert: AlertModel) {
-        alertsFragmentInstance.addAlert(alert)
     }
 
     override fun onMapFragmentInteraction() {
@@ -241,6 +234,9 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onAlertsFragmentInteraction() {
+    }
+
+    override fun onAlertFragmentInteraction(uri: Uri) {
     }
 
     @SuppressWarnings("MissingPermission")

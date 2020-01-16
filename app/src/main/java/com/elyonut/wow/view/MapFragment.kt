@@ -21,13 +21,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.elyonut.wow.App
-import com.elyonut.wow.Constants
-import com.elyonut.wow.R
-import com.elyonut.wow.RiskStatus
+import com.elyonut.wow.*
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MapViewModel
@@ -54,7 +53,7 @@ import kotlin.collections.ArrayList
 
 private const val RECORD_REQUEST_CODE = 101
 
-class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener {
+class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener {
 
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
@@ -67,6 +66,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
     private lateinit var broadcastReceiver: BroadcastReceiver
     var zoomFilter = IntentFilter(Constants.ZOOM_LOCATION_ACTION)
     var alertAcceptedFilter = IntentFilter(Constants.ALERT_ACCEPTED_ACTION)
+    private lateinit var alertsManager: AlertsManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,6 +80,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         sharedViewModel =
             activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
+        alertsManager = sharedViewModel.alertsManager
         threatStatusView = view.findViewById(R.id.status)
         threatStatusColorView = view.findViewById(R.id.statusColor)
         mapView = view.findViewById(R.id.mainMapView)
@@ -102,14 +103,16 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 when (intent.action) {
                     Constants.ZOOM_LOCATION_ACTION -> {
                         mapViewModel.setZoomLocation(intent.getStringExtra("threatID"))
-                        sharedViewModel.updateMessageAccepted(intent.getStringExtra("threatID"))
+                        alertsManager.updateMessageAccepted(intent.getStringExtra("threatID"))
+                        (context as FragmentActivity).supportFragmentManager.popBackStack()
+
                     }
                     Constants.ALERT_ACCEPTED_ACTION -> {
-                        sharedViewModel.updateMessageAccepted(intent.getStringExtra("threatID"))
+                        alertsManager.updateMessageAccepted(intent.getStringExtra("threatID"))
                     }
                 }
 
-                sharedViewModel.alertsManager.cancelNotification(intent.getIntExtra("notificationID", 0))
+                alertsManager.shouldPopAlert.value = true
             }
         }
     }
@@ -180,6 +183,13 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         mapViewModel.isFocusedOnLocation.observe(this, Observer {
             setCurrentLocationButtonIcon(it, view)
         })
+
+        alertsManager.shouldPopAlert.observe(this, Observer {shouldPop ->
+            if (shouldPop && alertsManager.alerts.value!!.count { !it.isRead } > 0) {
+                alertsManager.shouldPopAlert.value = false
+                setAlertPopUp(alertsManager.alerts.value?.findLast { !it.isRead }!!)
+            }
+        })
     }
 
     private fun setCurrentLocationButtonIcon(isInCurrentLocation: Boolean, view: View) {
@@ -194,24 +204,30 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
     private fun sendNotification(threatAlerts: ArrayList<String>) {
         threatAlerts.forEach {
-            val message = getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(it)
+            val message =
+                getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(
+                    it
+                )
 
-            sharedViewModel.alertsManager.sendNotification(
-                getString(R.string.inside_threat_notification_title),
-                message,
-                R.drawable.threat_notification_icon,
-                it
-            )
-
-            updateAlertsContainer(sharedViewModel.alertsManager.getNotificationID(it), it, message)
+            updateAlertsContainer(it, message)
         }
     }
 
-    private fun updateAlertsContainer(notificationID: Int , threatID: String , message: String) {
+    private fun updateAlertsContainer(threatID: String, message: String) {
         val date = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val currentDateTime = date.format(Date())
-        val alert = AlertModel(notificationID, threatID, message, R.drawable.sunflower, currentDateTime)
-        sharedViewModel.activeAlert.value = alert
+        val alert =
+            AlertModel(threatId = threatID, message = message, image =  R.drawable.sunflower, time = currentDateTime)
+        alertsManager.addAlert(alert)
+    }
+
+    private fun setAlertPopUp(alert: AlertModel) {
+        val alertFragmentInstance = AlertFragment.newInstance(alert)
+
+        activity!!.supportFragmentManager.beginTransaction().replace(
+            R.id.alert_Pop_Up,
+            alertFragmentInstance
+        ).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
     }
 
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
@@ -365,7 +381,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
         loadedMapStyle.removeSource("threat-source")
         loadedMapStyle.removeLayer("layer-selected-location")
         loadedMapStyle.removeSource("source-marker-click")
-        loadedMapStyle.removeImage("marker-icon-notificationID")
+        loadedMapStyle.removeImage("marker-icon-alertID")
         val selectedBuildingSource =
             loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
@@ -379,7 +395,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
                 // Add the marker image to map
                 loadedMapStyle.addImage(
-                    "marker-icon-notificationID",
+                    "marker-icon-alertID",
                     BitmapFactory.decodeResource(
                         App.resourses, R.drawable.mapbox_marker_icon_default
                     )
@@ -394,7 +410,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
 
                 val symbolLayer = SymbolLayer("layer-selected-location", "source-marker-click")
                 symbolLayer.withProperties(
-                    PropertyFactory.iconImage("marker-icon-notificationID")
+                    PropertyFactory.iconImage("marker-icon-alertID")
                 )
                 loadedMapStyle.addLayer(symbolLayer)
 
@@ -409,7 +425,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                 } else if (mapViewModel.selectLocationManualCoverage) {
                     val progressBar: ProgressBar = view!!.findViewById(R.id.progressBar)
                     progressBar.visibility = VISIBLE
-                    if(sharedViewModel.coverageSearchHeightMetersChecked){
+                    if (sharedViewModel.coverageSearchHeightMetersChecked) {
                         mapViewModel.calculateCoverageFromPoint(
                             latLng,
                             sharedViewModel.coverageRangeMeters,
@@ -417,8 +433,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                             sharedViewModel.coverageSearchHeightMeters,
                             progressBar
                         )
-                    }
-                    else {
+                    } else {
                         mapViewModel.calculateCoverageFromPoint(
                             latLng,
                             sharedViewModel.coverageRangeMeters,
@@ -428,7 +443,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                         )
                     }
                     mapViewModel.selectLocationManualCoverage = false
-                } else if (mapViewModel.selectLocationManualCoverageAll){
+                } else if (mapViewModel.selectLocationManualCoverageAll) {
                     val progressBar: ProgressBar = view!!.findViewById(R.id.progressBar)
                     progressBar.visibility = VISIBLE
                     mapViewModel.calculateCoverageForAll(
@@ -462,6 +477,7 @@ class MainMapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickList
                         R.id.fragmentParent,
                         dataCardFragmentInstance
                     ).commit()
+                    activity!!.supportFragmentManager.fragments
                     activity!!.supportFragmentManager.fragments
                 }
             }

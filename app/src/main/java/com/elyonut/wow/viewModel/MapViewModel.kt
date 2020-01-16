@@ -3,14 +3,18 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.RectF
+import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.AsyncTask
 import android.util.ArrayMap
+import android.view.Gravity
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColor
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
@@ -319,6 +323,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
             circleBlur(1f),
             visibility(NONE)
         )
+
         loadedMapStyle.addLayer(circleLayer)
     }
 
@@ -349,6 +354,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
 
     private fun getThreatRadiuses(): FeatureCollection {
         val threatRadiuses = mutableListOf<Feature>()
+
         mapAdapter.createThreatRadiusSource().forEach {
             threatRadiuses.add(MapboxTransformer.transfromFeatureModelToMapboxFeature(it))
         }

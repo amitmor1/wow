@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:mapbox="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/mapFragmentParentLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mapFragmentParentLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/mainMapLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".view.MainMapFragment">
+        android:id="@+id/mainMapLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".view.MapFragment">
 
         <com.google.android.material.button.MaterialButton
-                android:id="@+id/status"
-                android:layout_width="171dp"
-                android:layout_height="43dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="16dp"
-                android:layout_weight="1"
-                android:backgroundTint="#ECEBEB"
-                android:clickable="false"
-                style="@style/AppButton"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/mainMapView" />
+            android:id="@+id/status"
+            style="@style/AppButton"
+            android:layout_width="171dp"
+            android:layout_height="43dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_weight="1"
+            android:backgroundTint="#ECEBEB"
+            android:clickable="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/mainMapView" />
 
         <com.google.android.material.button.MaterialButton
-                android:id="@+id/statusColor"
-                android:layout_width="22dp"
-                android:layout_height="42dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="false"
-                android:textColor="#00000000"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/status" />
+            android:id="@+id/statusColor"
+            android:layout_width="22dp"
+            android:layout_height="42dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="false"
+            android:textColor="#00000000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/status" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/mapLayers"
@@ -46,8 +46,9 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_layers"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
+            android:elevation="4dp"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/currentLocation"
@@ -60,16 +61,16 @@
             app:layout_constraintBottom_toTopOf="@+id/navigationButton"
             app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
 
-<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--                android:id="@+id/radiusLayer"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_margin="16dp"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:layout_marginBottom="8dp"-->
-<!--                android:src="@drawable/bullseye"-->
-<!--                app:layout_constraintBottom_toTopOf="@+id/currentLocation"-->
-<!--                app:layout_constraintEnd_toEndOf="@+id/mainMapView" />-->
+        <!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+        <!--                android:id="@+id/radiusLayer"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_margin="16dp"-->
+        <!--                android:layout_marginEnd="16dp"-->
+        <!--                android:layout_marginBottom="8dp"-->
+        <!--                android:src="@drawable/bullseye"-->
+        <!--                app:layout_constraintBottom_toTopOf="@+id/currentLocation"-->
+        <!--                app:layout_constraintEnd_toEndOf="@+id/mainMapView" />-->
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/navigationButton"
@@ -83,48 +84,59 @@
             app:layout_constraintEnd_toEndOf="@+id/mainMapView" />
 
         <com.mapbox.mapboxsdk.maps.MapView
-                android:id="@+id/mainMapView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="parent"
-                app:layout_constraintVertical_bias="0.0"
-                mapbox:mapbox_cameraTargetLat="32.078899"
-                mapbox:mapbox_cameraTargetLng="34.794590"
-                mapbox:mapbox_cameraZoom="12" />
+            android:id="@+id/mainMapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            mapbox:mapbox_cameraTargetLat="32.078899"
+            mapbox:mapbox_cameraTargetLng="34.794590"
+            mapbox:mapbox_cameraZoom="12" />
 
         <LinearLayout
-                android:id="@+id/fragmentParent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="parent" />
+            android:id="@+id/fragmentParent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/alert_Pop_Up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:elevation="6dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintEnd_toEndOf="@+id/mainMapView"
+            app:layout_constraintTop_toTopOf="parent" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
-            android:id="@+id/threat_list_fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:id="@+id/threat_list_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:max="100"
-            android:progress="50"
-            android:background="#000"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:indeterminate="true"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
-
+        android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#000"
+        android:indeterminate="true"
+        android:max="100"
+        android:progress="50"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </FrameLayout>
