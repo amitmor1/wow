@@ -9,6 +9,7 @@ import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
@@ -48,6 +49,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import java.text.SimpleDateFormat
+import java.time.Duration
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -203,21 +205,39 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     }
 
     private fun sendNotification(threatAlerts: ArrayList<String>) {
-        threatAlerts.forEach {
-            val message =
-                getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(
-                    it
-                )
+        threatAlerts.forEach { threatID ->
+            if (shouldSendAlert(threatID)) {
+                val message =
+                    getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(
+                        threatID
+                    )
 
-            updateAlertsContainer(it, message)
+                updateAlertsContainer(threatID, message)
+            }
+        }
+    }
+
+    private fun shouldSendAlert(threatID: String): Boolean {
+        val sameAlert = alertsManager.alerts.value!!.find { it.threatId ==  threatID }
+
+        return if (sameAlert != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
+                val sameAlertDateTime = dateFormat.parse(sameAlert.time)
+                Duration.between(sameAlertDateTime.toInstant(), Date().toInstant()).seconds > Constants.ALERT_INTERVAL_IN_SECONDS
+            } else {
+                false
+            }
+        } else {
+            true
         }
     }
 
     private fun updateAlertsContainer(threatID: String, message: String) {
-        val date = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
-        val currentDateTime = date.format(Date())
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
+        val currentDateTime = dateFormat.format(Date())
         val alert =
-            AlertModel(threatId = threatID, message = message, image =  R.drawable.sunflower, time = currentDateTime)
+            AlertModel(threatId = threatID, message = message, image = R.drawable.sunflower, time = currentDateTime)
         alertsManager.addAlert(alert)
     }
 
