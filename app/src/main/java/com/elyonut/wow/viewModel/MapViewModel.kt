@@ -83,7 +83,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
     private lateinit var circleSource: GeoJsonSource
     private lateinit var fillSource: GeoJsonSource
     private lateinit var firstPointOfPolygon: Point
-    var previousThreatsIds = ArrayMap<ThreatLevel, ArrayList<String>>()
     private lateinit var topographyService: TopographyService
     lateinit var threatAnalyzer: ThreatAnalyzer
     private var calcThreatsTask: CalcThreatStatusAsync? = null
@@ -171,20 +170,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
 
     fun checkRiskStatus() {
         val currentThreatsIds= getCurrentThreatIds()
-
         if (riskStatus.value == RiskStatus.HIGH) {
-            val highPreviousThreats = previousThreatsIds[ThreatLevel.High]
-            previousThreatsIds = currentThreatsIds
-
-            if (highPreviousThreats == null) {
-                threatAlerts.value = currentThreatsIds[ThreatLevel.High]
-            }
-            else {
-                threatAlerts.value = getNewThreats(highPreviousThreats, currentThreatsIds[ThreatLevel.High])
-            }
+            threatAlerts.value = currentThreatsIds[ThreatLevel.High]
         }
-
-        previousThreatsIds = currentThreatsIds
     }
 
     private fun getCurrentThreatIds(): ArrayMap<ThreatLevel, ArrayList<String>> {
@@ -199,28 +187,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
         }
 
         return threatIds
-    }
-
-    private fun getNewThreats(previousThreats: ArrayList<String>, currentThreats: ArrayList<String>?) : ArrayList<String>{
-
-        val newThreats = ArrayList<String>()
-
-        currentThreats?.forEach {
-            if (!previousThreats.contains(it)) {
-                newThreats.add(it)
-            }
-        }
-
-        return newThreats
-    }
-
-    private fun checkIfNewAlerts(currentAlerts: ArrayList<String>?, newAlerts: ArrayList<String>?): Boolean {
-        if (newAlerts != null) {
-
-            return currentAlerts!!.containsAll(newAlerts)
-        }
-
-        return false
     }
 
     @SuppressLint("ShowToast")

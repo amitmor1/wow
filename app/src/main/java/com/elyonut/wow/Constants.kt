@@ -24,7 +24,6 @@ class Constants {
         const val CIRCLE_LAYER_ID = "circle-layer-id"
         const val LINE_LAYER_ID = "line-layer-id"
         const val AREA_OF_INTEREST_KEY = "areaOfInterest"
-        const val PRIMARY_CHANNEL_ID = "primary_notification_channel"
         const val ZOOM_LOCATION_ACTION = "ZOOM_LOCATION"
         const val ALERT_ACCEPTED_ACTION = "ALERT_ACCEPTED"
         const val DEFAULT_COVERAGE_RANGE_METERS = 300.0
@@ -32,5 +31,6 @@ class Constants {
         const val DEFAULT_COVERAGE_HEIGHT_METERS = -10000.0
         const val EARTH_RADIUS_KM = 6371.0
         const val MAX_DISTANCE_TO_CURRENT_LOCATION = 20
+        const val ALERT_INTERVAL_IN_SECONDS = 180
     }
 }
