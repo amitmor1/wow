@@ -2,10 +2,7 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.WindowManager
@@ -224,7 +221,7 @@ class MainActivity : AppCompatActivity(),
             bottomNavigationView.menu[1].icon = getDrawable(R.drawable.ic_visibility)
         } else {
             bottomNavigationView.menu[1].title = getString(R.string.invisible)
-            bottomNavigationView.menu[1].icon = getDrawable(R.drawable.ic_visibility_off_black_24dp)
+            bottomNavigationView.menu[1].icon = getDrawable(R.drawable.ic_visibility_off)
         }
     }
 

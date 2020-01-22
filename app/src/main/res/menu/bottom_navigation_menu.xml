@@ -6,7 +6,7 @@
         android:title="התראות" />
     <item
         android:id="@+id/visibility_status"
-        android:icon="@drawable/ic_visibility_off_black_24dp"
+        android:icon="@drawable/ic_visibility_off"
         android:title="@string/invisible"
         />
 
