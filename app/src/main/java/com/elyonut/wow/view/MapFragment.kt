@@ -83,8 +83,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
         alertsManager = sharedViewModel.alertsManager
-        threatStatusView = view.findViewById(R.id.status)
-        threatStatusColorView = view.findViewById(R.id.statusColor)
+//        threatStatusView = view.findViewById(R.id.status)
+//        threatStatusColorView = view.findViewById(R.id.statusColor)
         mapView = view.findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
@@ -169,13 +169,22 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             this,
             Observer<Int> { applyExperimentalOption(it) }
         )
+
+        sharedViewModel.shouldOpenThreatsFragment.observe(this, Observer {
+            if (it) {
+                openThreatListFragment()
+            }
+        })
+
         sharedViewModel.selectedThreatItem.observe(
             this,
             Observer<Threat> { onListFragmentInteraction(it) }
         )
+
         sharedViewModel.shouldApplyFilter.observe(this,
             Observer<Boolean> { filter(it) }
         )
+
         sharedViewModel.shouldDefineArea.observe(this, Observer {
             if (it) {
                 enableAreaSelection(view, it)
@@ -253,9 +262,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized) {
             val riskStatusObserver = Observer<RiskStatus> { newStatus ->
-                changeStatus(newStatus)
+//                changeStatus(newStatus)
+                sharedViewModel.isVisible.value =
+                    !(newStatus == RiskStatus.LOW || newStatus == RiskStatus.NONE)
+
                 mapViewModel.checkRiskStatus()
             }
+
             mapViewModel.riskStatus.observe(this, riskStatusObserver)
         }
 
@@ -279,14 +292,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         }
     }
 
-    private fun changeStatus(status: RiskStatus) {
-        (threatStatusView as Button).text = status.text
-        (threatStatusColorView as Button).backgroundTintList = ColorStateList(
-            arrayOf(
-                intArrayOf(android.R.attr.state_enabled)
-            ), intArrayOf(status.color)
-        )
-    }
+//    private fun changeStatus(status: RiskStatus) {
+//        (threatStatusView as Button).text = status.text
+//        (threatStatusColorView as Button).backgroundTintList = ColorStateList(
+//            arrayOf(
+//                intArrayOf(android.R.attr.state_enabled)
+//            ), intArrayOf(status.color)
+//        )
+//    }
 
     private fun showDescriptionFragment() {
         val dataCardFragmentInstance = DataCardFragment.newInstance()
@@ -382,9 +395,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     }
 
     private fun initThreatStatusButton() {
-        (threatStatusView as Button).setOnClickListener {
-            openThreatListFragment()
-        }
+//        (threatStatusView as Button).setOnClickListener {
+//            openThreatListFragment()
+//        }
     }
 
     override fun onMapClick(latLng: LatLng): Boolean { // TODO UniqAi need to fix

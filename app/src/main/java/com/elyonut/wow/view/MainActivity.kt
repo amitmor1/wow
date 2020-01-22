@@ -2,7 +2,10 @@ package com.elyonut.wow.view
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.WindowManager
@@ -11,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -33,7 +37,6 @@ import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
 import kotlinx.android.synthetic.main.app_bar_main.*
 import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(),
     DataCardFragment.OnFragmentInteractionListener,
@@ -109,6 +112,10 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
+        mainViewModel.shouldOpenThreatsFragment.observe(this, Observer {
+            sharedViewModel.openThreatFragment(it)
+        })
+
         sharedViewModel.shouldDefineArea.observe(this, Observer {
             if (!it) {
                 mainViewModel.shouldDefineArea.value = it
@@ -118,6 +125,8 @@ class MainActivity : AppCompatActivity(),
         sharedViewModel.alertsManager.alerts.observe(this, Observer<LinkedList<AlertModel>> {
             editAlertsBadge(it)
         })
+
+        sharedViewModel.isVisible.observe(this, Observer { changVisibilityState(it) })
     }
 
     private fun editAlertsBadge(alerts: LinkedList<AlertModel>) {
@@ -196,6 +205,7 @@ class MainActivity : AppCompatActivity(),
     private fun initBottomNavigationView() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setOnNavigationItemSelectedListener(this)
+        bottomNavigationView.itemIconTintList = null
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -204,6 +214,18 @@ class MainActivity : AppCompatActivity(),
         }
 
         return true
+    }
+
+    private fun changVisibilityState(isVisible: Boolean) {
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
+        if (isVisible) {
+            bottomNavigationView.menu[1].title = getString(R.string.visible)
+            bottomNavigationView.menu[1].icon = getDrawable(R.drawable.ic_visibility)
+        } else {
+            bottomNavigationView.menu[1].title = getString(R.string.invisible)
+            bottomNavigationView.menu[1].icon = getDrawable(R.drawable.ic_visibility_off_black_24dp)
+        }
     }
 
     private fun closeDrawer() {

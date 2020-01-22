@@ -14,29 +14,29 @@
         android:layout_height="match_parent"
         tools:context=".view.MapFragment">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/status"
-            style="@style/AppButton"
-            android:layout_width="171dp"
-            android:layout_height="43dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="16dp"
-            android:layout_weight="1"
-            android:backgroundTint="#ECEBEB"
-            android:clickable="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/mainMapView" />
+<!--        <com.google.android.material.button.MaterialButton-->
+<!--            android:id="@+id/status"-->
+<!--            style="@style/AppButton"-->
+<!--            android:layout_width="171dp"-->
+<!--            android:layout_height="43dp"-->
+<!--            android:layout_marginStart="16dp"-->
+<!--            android:layout_marginBottom="16dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:backgroundTint="#ECEBEB"-->
+<!--            android:clickable="false"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="@+id/mainMapView" />-->
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/statusColor"
-            android:layout_width="22dp"
-            android:layout_height="42dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="false"
-            android:textColor="#00000000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/status" />
+<!--        <com.google.android.material.button.MaterialButton-->
+<!--            android:id="@+id/statusColor"-->
+<!--            android:layout_width="22dp"-->
+<!--            android:layout_height="42dp"-->
+<!--            android:layout_marginEnd="8dp"-->
+<!--            android:layout_marginBottom="16dp"-->
+<!--            android:clickable="false"-->
+<!--            android:textColor="#00000000"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintStart_toEndOf="@id/status" />-->
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/mapLayers"
