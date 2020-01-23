@@ -48,4 +48,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     fun openThreatFragment(shouldOpen: Boolean) {
         shouldOpenThreatsFragment.value = shouldOpen
     }
+
+    fun setVisibility(isVisible: Boolean) {
+        this.isVisible.value = isVisible
+    }
 }

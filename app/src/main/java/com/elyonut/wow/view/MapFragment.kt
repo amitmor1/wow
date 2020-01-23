@@ -61,8 +61,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private lateinit var map: MapboxMap
     private lateinit var mapViewModel: MapViewModel
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var threatStatusView: View
-    private lateinit var threatStatusColorView: View
     private var listenerMap: OnMapFragmentInteractionListener? = null
 
     private lateinit var broadcastReceiver: BroadcastReceiver
@@ -83,8 +81,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
         alertsManager = sharedViewModel.alertsManager
-//        threatStatusView = view.findViewById(R.id.status)
-//        threatStatusColorView = view.findViewById(R.id.statusColor)
         mapView = view.findViewById(R.id.mainMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
@@ -92,7 +88,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         setObservers(view)
         initFocusOnMyLocationButton(view)
 //        initShowRadiusLayerButton(view)
-        initThreatStatusButton()
         initBroadcastReceiver()
         initMapLayersButton(view)
 
@@ -195,7 +190,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             setCurrentLocationButtonIcon(it, view)
         })
 
-        alertsManager.shouldPopAlert.observe(this, Observer {shouldPop ->
+        alertsManager.shouldPopAlert.observe(this, Observer { shouldPop ->
             if (shouldPop && alertsManager.alerts.value!!.count { !it.isRead } > 0) {
                 alertsManager.shouldPopAlert.value = false
                 setAlertPopUp(alertsManager.alerts.value?.findLast { !it.isRead }!!)
@@ -227,13 +222,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     }
 
     private fun shouldSendAlert(threatID: String): Boolean {
-        val sameAlert = alertsManager.alerts.value!!.find { it.threatId ==  threatID }
+        val sameAlert = alertsManager.alerts.value!!.find { it.threatId == threatID }
 
         return if (sameAlert != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
                 val sameAlertDateTime = dateFormat.parse(sameAlert.time)
-                Duration.between(sameAlertDateTime.toInstant(), Date().toInstant()).seconds > Constants.ALERT_INTERVAL_IN_SECONDS
+                Duration.between(
+                    sameAlertDateTime.toInstant(),
+                    Date().toInstant()
+                ).seconds > Constants.ALERT_INTERVAL_IN_SECONDS
             } else {
                 false
             }
@@ -246,7 +244,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val currentDateTime = dateFormat.format(Date())
         val alert =
-            AlertModel(threatId = threatID, message = message, image = R.drawable.sunflower, time = currentDateTime)
+            AlertModel(
+                threatId = threatID,
+                message = message,
+                image = R.drawable.sunflower,
+                time = currentDateTime
+            )
         alertsManager.addAlert(alert)
     }
 
@@ -262,10 +265,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized) {
             val riskStatusObserver = Observer<RiskStatus> { newStatus ->
-//                changeStatus(newStatus)
-                sharedViewModel.isVisible.value =
-                    !(newStatus == RiskStatus.LOW || newStatus == RiskStatus.NONE)
-
+                sharedViewModel.setVisibility((newStatus == RiskStatus.HIGH || newStatus == RiskStatus.MEDIUM))
                 mapViewModel.checkRiskStatus()
             }
 
@@ -291,15 +291,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             )
         }
     }
-
-//    private fun changeStatus(status: RiskStatus) {
-//        (threatStatusView as Button).text = status.text
-//        (threatStatusColorView as Button).backgroundTintList = ColorStateList(
-//            arrayOf(
-//                intArrayOf(android.R.attr.state_enabled)
-//            ), intArrayOf(status.color)
-//        )
-//    }
 
     private fun showDescriptionFragment() {
         val dataCardFragmentInstance = DataCardFragment.newInstance()
@@ -392,12 +383,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
 
         fragmentTransaction?.addToBackStack(null)
         newDialogFragment.show(fragmentTransaction!!, "dialog")
-    }
-
-    private fun initThreatStatusButton() {
-//        (threatStatusView as Button).setOnClickListener {
-//            openThreatListFragment()
-//        }
     }
 
     override fun onMapClick(latLng: LatLng): Boolean { // TODO UniqAi need to fix
@@ -532,7 +517,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                 mapViewModel.selectLocationManualConstruction = true
                 Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
-            R.id.point_coverage-> {
+            R.id.point_coverage -> {
                 mapViewModel.selectLocationManualCoverage = true
                 Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
             }
