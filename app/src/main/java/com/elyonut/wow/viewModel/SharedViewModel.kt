@@ -29,6 +29,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var coverageSearchHeightMeters: Double = Constants.DEFAULT_COVERAGE_HEIGHT_METERS
     var coverageSearchHeightMetersChecked: Boolean = false
     var alertsManager = AlertsManager(application)
+    var isVisible = MutableLiveData<Boolean>()
+    var shouldOpenThreatsFragment = MutableLiveData<Boolean>()
 
     fun applySaveCoverageSettingsButtonClicked(coverageRange: Double, resolution: Double, height: Double?, heightChecked: Boolean) {
         this.coverageRangeMeters = coverageRange
@@ -41,5 +43,13 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     fun selectExperimentalOption(itemId: Int) {
         selectedExperimentalOption.value = itemId
+    }
+
+    fun openThreatFragment(shouldOpen: Boolean) {
+        shouldOpenThreatsFragment.value = shouldOpen
+    }
+
+    fun setVisibility(isVisible: Boolean) {
+        this.isVisible.value = isVisible
     }
 }

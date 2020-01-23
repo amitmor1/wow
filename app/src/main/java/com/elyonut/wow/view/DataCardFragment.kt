@@ -132,7 +132,6 @@ class DataCardFragment : Fragment() {
 
     interface OnFragmentInteractionListener {
         fun onDataCardFragmentInteraction()
-
     }
 
     companion object {

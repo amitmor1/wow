@@ -14,30 +14,6 @@
         android:layout_height="match_parent"
         tools:context=".view.MapFragment">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/status"
-            style="@style/AppButton"
-            android:layout_width="171dp"
-            android:layout_height="43dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="16dp"
-            android:layout_weight="1"
-            android:backgroundTint="#ECEBEB"
-            android:clickable="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/mainMapView" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/statusColor"
-            android:layout_width="22dp"
-            android:layout_height="42dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="false"
-            android:textColor="#00000000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/status" />
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/mapLayers"
             android:layout_width="wrap_content"
@@ -45,8 +21,8 @@
             android:layout_margin="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_layers"
             android:elevation="4dp"
+            android:src="@drawable/ic_layers"
             app:layout_constraintEnd_toEndOf="@+id/mainMapView"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -108,10 +84,10 @@
             android:id="@+id/alert_Pop_Up"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:elevation="6dp"
             android:clickable="true"
+            android:elevation="6dp"
             android:focusable="true"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="@+id/mainMapView"
             app:layout_constraintTop_toTopOf="parent" />
 

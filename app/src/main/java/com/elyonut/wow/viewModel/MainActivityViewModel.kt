@@ -1,6 +1,9 @@
 package com.elyonut.wow.viewModel
 
 import android.app.Application
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.os.Build
 import android.view.MenuItem
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -18,6 +21,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val coverageSettingsSelected = MutableLiveData<Boolean>()
     val shouldDefineArea = MutableLiveData<Boolean>()
     val shouldOpenAlertsFragment = MutableLiveData<Boolean>()
+    val shouldOpenThreatsFragment = MutableLiveData<Boolean>()
 
     fun onNavigationItemSelected(item: MenuItem): Boolean {
         var shouldCloseDrawer = true
@@ -44,6 +48,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             item.itemId == R.id.coverage_settings -> {
                 coverageSettingsSelected.value = true
                 shouldCloseDrawer = false
+            }
+            item.itemId == R.id.visibility_status -> {
+                shouldOpenThreatsFragment.value = true
             }
         }
 
