@@ -12,6 +12,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.VISIBLE
@@ -64,8 +65,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private var listenerMap: OnMapFragmentInteractionListener? = null
 
     private lateinit var broadcastReceiver: BroadcastReceiver
-    var zoomFilter = IntentFilter(Constants.ZOOM_LOCATION_ACTION)
-    var alertAcceptedFilter = IntentFilter(Constants.ALERT_ACCEPTED_ACTION)
+    private var zoomFilter = IntentFilter(Constants.ZOOM_LOCATION_ACTION)
+    private var alertAcceptedFilter = IntentFilter(Constants.ALERT_ACCEPTED_ACTION)
     private lateinit var alertsManager: AlertsManager
 
     override fun onCreateView(
