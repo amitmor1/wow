@@ -181,7 +181,6 @@ class MainActivity : AppCompatActivity(),
 
     private fun initNavigationMenu() {
         val navigationView = findViewById<NavigationView>(R.id.navigationView)
-        val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
         navigationView.setNavigationItemSelectedListener(this)
 
         val layers = mainViewModel.getLayersList()?.toTypedArray()
@@ -190,6 +189,7 @@ class MainActivity : AppCompatActivity(),
             val layersSubMenu = menu.getItem(0).subMenu
             layers.forEachIndexed { index, layerModel ->
                 val menuItem = layersSubMenu.add(R.id.nav_layers, index, index, layerModel.name)
+                val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
                 checkBoxView.tag = layerModel
                 menuItem.actionView = checkBoxView
                 checkBoxView.setOnCheckedChangeListener { _, _ ->

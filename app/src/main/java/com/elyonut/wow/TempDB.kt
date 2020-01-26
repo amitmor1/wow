@@ -10,20 +10,21 @@ import java.io.InputStreamReader
 class TempDB(var context: Context) {
     fun getFeatures(): ArrayList<LayerModel>? {
 
-        // threat features
-        val gson = GsonBuilder().create()
-        val buffer = BufferedReader(InputStreamReader(context.assets.open("constructionFeatures2.geojson")))
-//        var buffer = BufferedReader(InputStreamReader(context.assets.open("constructionFeatures.geojson")))
-        val features = gson.fromJson(buffer, Array<FeatureModel>::class.java)
-        val layerModel = LayerModel(Constants.THREAT_LAYER_ID, "threat", features.toList())
         val layersList = ArrayList<LayerModel>()
-        layersList.add(layerModel)
 
-        //trains features
-//        buffer = BufferedReader(InputStreamReader(context.assets.open("trains.geojson")))
-//        features = gson.fromJson(buffer, Array<FeatureModel>::class.java)
-//        layerModel = LayerModel(Constants.trainsLayerId, "trains", features.toList())
-//        layersList.add(layerModel)
+        val gson = GsonBuilder().create()
+
+        val buffer = BufferedReader(InputStreamReader(context.assets.open("constructionFeatures2.geojson")))
+        val restaurantsBuffer = BufferedReader(InputStreamReader(context.assets.open("restaurants.geojson")))
+
+        val features = gson.fromJson(buffer, Array<FeatureModel>::class.java)
+        val restaurantsFeatures = gson.fromJson(restaurantsBuffer, Array<FeatureModel>::class.java)
+
+        val layerModel = LayerModel(Constants.THREAT_LAYER_ID, "בניינים", features.toList())
+        val restaurantsLayerModel = LayerModel("restaurants", "מסעדות", restaurantsFeatures.toList())
+
+        layersList.add(layerModel)
+        layersList.add(restaurantsLayerModel)
 
         return layersList
     }
