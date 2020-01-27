@@ -22,9 +22,11 @@ class TempDB(var context: Context) {
 
         val layerModel = LayerModel(Constants.THREAT_LAYER_ID, "בניינים", features.toList())
         val restaurantsLayerModel = LayerModel("restaurants", "מסעדות", restaurantsFeatures.toList())
+        val roadsLayerModel = LayerModel("place-city-label", "שמות ישובים", emptyList())
 
         layersList.add(layerModel)
         layersList.add(restaurantsLayerModel)
+        layersList.add(roadsLayerModel)
 
         return layersList
     }
