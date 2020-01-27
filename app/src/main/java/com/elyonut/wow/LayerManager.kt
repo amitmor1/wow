@@ -80,6 +80,11 @@ class LayerManager(tempDB: TempDB) {
         var feature: FeatureModel? = null
         layersList?.forEach { it ->
             feature = it.features.find { it.id == featureID }
+
+            if(feature != null){
+                return feature?.properties?.get("namestr")!!.asString
+            }
+
         }
 
         return feature?.properties?.get("namestr")!!.asString
