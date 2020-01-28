@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.AsyncTask
 import android.util.ArrayMap
+import android.util.Log
 import android.view.Gravity
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -53,7 +54,7 @@ import java.io.InputStream
 
 private const val RECORD_REQUEST_CODE = 101
 
-class MapViewModel(application: Application) : AndroidViewModel(application){
+class MapViewModel(application: Application) : AndroidViewModel(application) {
     var selectLocationManual: Boolean = false
     var selectLocationManualConstruction: Boolean = false
     var selectLocationManualCoverage: Boolean = false
@@ -101,6 +102,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
         topographyService = TopographyService(map)
         threatAnalyzer = ThreatAnalyzer(map, topographyService)
         map.setStyle(Constants.MAPBOX_STYLE_URL) { style ->
+            addLayersToMapStyle(style)
+
             addThreatCoverageLayer(style)
             setBuildingFilter(style)
             setActiveThreatsLayer(style)
@@ -112,6 +115,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
+
+//            style.layers.forEach {
+//                Log.d("A", "layer id = " + it.id)
+//            }
+//
+//            style.sources.forEach {
+//                Log.d("A", "source id = " + it.id)
+//            }
 
             map.uiSettings.compassGravity = Gravity.RIGHT
         }
@@ -160,8 +171,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
         isLocationAdapterInitialized.value = true
     }
 
-    fun changeLocation(location: Location){
-        if(calcThreatsTask != null && calcThreatsTask!!.status != AsyncTask.Status.FINISHED){
+    fun changeLocation(location: Location) {
+        if (calcThreatsTask != null && calcThreatsTask!!.status != AsyncTask.Status.FINISHED) {
             return //Returning as the current task execution is not finished yet.
         }
         calcThreatsTask = CalcThreatStatusAsync(this, false)
@@ -171,7 +182,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
     }
 
     fun checkRiskStatus() {
-        val currentThreatsIds= getCurrentThreatIds()
+        val currentThreatsIds = getCurrentThreatIds()
         if (riskStatus.value == RiskStatus.HIGH) {
             threatAlerts.value = currentThreatsIds[ThreatLevel.High]
         }
@@ -219,7 +230,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
             fillExtrusionColor(
                 step(
                     (get("height")), color(
-                        Color.parseColor("#dbd3c1")),
+                        Color.parseColor("#dbd3c1")
+                    ),
                     stop(30, color(Color.parseColor("#ada799"))),
                     stop(60, color(Color.parseColor("#918c80"))),
                     stop(100, color(Color.parseColor("#615d55")))
@@ -279,8 +291,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
         )
     }
 
-    private fun addThreatCoverageLayer(loadedMapStyle: Style){
-        loadedMapStyle.addSource(GeoJsonSource(Constants.THREAT_COVERAGE_SOURCE_ID, getCoveragePointsJson()))
+    private fun addThreatCoverageLayer(loadedMapStyle: Style) {
+        loadedMapStyle.addSource(
+            GeoJsonSource(
+                Constants.THREAT_COVERAGE_SOURCE_ID,
+                getCoveragePointsJson()
+            )
+        )
         val circleLayer = CircleLayer(
             Constants.THREAT_COVERAGE_LAYER_ID,
             Constants.THREAT_COVERAGE_SOURCE_ID
@@ -295,12 +312,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
         loadedMapStyle.addLayer(circleLayer)
     }
 
-    fun toggleThreatCoverage(){
+    fun toggleThreatCoverage() {
         changeLayerVisibility(Constants.THREAT_COVERAGE_LAYER_ID)
     }
 
     private fun getCoveragePointsJson(): String {
-        val stream: InputStream = App.resourses.assets.open("arlozerov_coverage.geojson") //TODO what is this file, and why not in constatns
+        val stream: InputStream =
+            App.resourses.assets.open("arlozerov_coverage.geojson") //TODO what is this file, and why not in constatns
         val size = stream.available()
         val buffer = ByteArray(size)
         stream.read(buffer)
@@ -611,7 +629,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
 
     fun updateThreatFeaturesConstruction(latLng: LatLng) {
 
-        if(calcThreatsTask != null && calcThreatsTask!!.status != AsyncTask.Status.FINISHED){
+        if (calcThreatsTask != null && calcThreatsTask!!.status != AsyncTask.Status.FINISHED) {
             return //Returning as the current task execution is not finished yet.
         }
         calcThreatsTask = CalcThreatStatusAsync(this, true)
@@ -627,13 +645,20 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
         progressBar: ProgressBar
     ) {
 
-        if(calcThreatCoverageTask != null && calcThreatCoverageTask!!.status != AsyncTask.Status.FINISHED){
+        if (calcThreatCoverageTask != null && calcThreatCoverageTask!!.status != AsyncTask.Status.FINISHED) {
             return //Returning as the current task execution is not finished yet.
         }
 
 
         calcThreatCoverageTask = CalcThreatCoverageAsync(this, progressBar)
-        calcThreatCoverageTask!!.execute(ThreatCoverageData(latLng, coverageRangeMeters, coverageResolutionMeters, coverageSearchHeightMeters))
+        calcThreatCoverageTask!!.execute(
+            ThreatCoverageData(
+                latLng,
+                coverageRangeMeters,
+                coverageResolutionMeters,
+                coverageSearchHeightMeters
+            )
+        )
     }
 
     fun calculateCoverageForAll(
@@ -644,12 +669,19 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
         progressBar: ProgressBar
     ) {
 
-        if(allCoverageTask != null && allCoverageTask!!.status != AsyncTask.Status.FINISHED){
+        if (allCoverageTask != null && allCoverageTask!!.status != AsyncTask.Status.FINISHED) {
             return //Returning as the current task execution is not finished yet.
         }
 
         allCoverageTask = CalcThreatCoverageAllConstructionAsync(this, progressBar)
-        allCoverageTask!!.execute(ThreatCoverageData(latLng, coverageRangeMeters, coverageResolutionMeters, coverageSearchHeightMeters))
+        allCoverageTask!!.execute(
+            ThreatCoverageData(
+                latLng,
+                coverageRangeMeters,
+                coverageResolutionMeters,
+                coverageSearchHeightMeters
+            )
+        )
     }
 
     fun buildingThreatToCurrentLocation(building: Feature): Threat {
@@ -671,14 +703,15 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
     fun setZoomLocation(threatID: String) {
         val location = layerManager.getFeatureLocation(threatID)
         val position = CameraPosition.Builder()
-        .target(LatLng(location.latitude, location.longitude))
-        .zoom(17.0)
-        .build()
+            .target(LatLng(location.latitude, location.longitude))
+            .zoom(17.0)
+            .build()
 
         map.locationComponent.cameraMode = CameraMode.NONE
         map.easeCamera(
             CameraUpdateFactory
-        .newCameraPosition(position))
+                .newCameraPosition(position)
+        )
     }
 
     fun getFeatureName(threatID: String): String {
@@ -687,9 +720,36 @@ class MapViewModel(application: Application) : AndroidViewModel(application){
 
     private fun setCameraMoveListener() {
         map.addOnCameraMoveListener {
-            val cameraLocation = LatLng(map.cameraPosition.target.latitude, map.cameraPosition.target.longitude)
-            val currentLocation = LatLng(locationAdapter?.getCurrentLocation()!!.value!!.latitude, locationAdapter?.getCurrentLocation()!!.value!!.longitude)
-            isFocusedOnLocation.value = cameraLocation.distanceTo(currentLocation) <= Constants.MAX_DISTANCE_TO_CURRENT_LOCATION
+            val cameraLocation =
+                LatLng(map.cameraPosition.target.latitude, map.cameraPosition.target.longitude)
+            val currentLocation = LatLng(
+                locationAdapter?.getCurrentLocation()!!.value!!.latitude,
+                locationAdapter?.getCurrentLocation()!!.value!!.longitude
+            )
+            isFocusedOnLocation.value =
+                cameraLocation.distanceTo(currentLocation) <= Constants.MAX_DISTANCE_TO_CURRENT_LOCATION
+        }
+    }
+
+    private fun addLayersToMapStyle(style: Style) {
+        layerManager.layersList?.forEach { layerModel ->
+            val features = layerModel.features.map { featureModel ->
+                MapboxTransformer.transfromFeatureModelToMapboxFeature(featureModel)
+            }
+            val layerGroJsonSource =
+                GeoJsonSource(layerModel.id, FeatureCollection.fromFeatures(features))
+            style.addSource(layerGroJsonSource)
+
+            val layer: Layer = if (layerModel.id == Constants.THREAT_LAYER_ID) {
+                FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
+                    fillExtrusionColor(Color.RED), fillExtrusionOpacity(0.5f),
+                    fillExtrusionHeight(get("height"))
+                )
+            } else {
+                FillLayer(layerModel.id, layerModel.id)
+            }
+
+            style.addLayerAbove(layer, Constants.BUILDINGS_LAYER_ID)
         }
     }
 }
