@@ -3,7 +3,7 @@ package com.elyonut.wow
 class Constants {
     companion object {
         const val THREAT_LAYER_ID = "construction2"
-        const val BUILDINGS_LAYER_ID = "buildingscentertlv"
+        const val BUILDINGS_LAYER_ID = "buildingscentertlv_extended"
         const val THREAT_PROPERTY = "risk"
         const val THREAT_RADIUS_SOURCE_ID = "THREAT_RADIUS_SOURCE"
         const val THREAT_RADIUS_LAYER_ID = "THREAT_RADIUS_LAYER"
