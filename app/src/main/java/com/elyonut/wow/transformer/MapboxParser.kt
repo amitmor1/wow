@@ -3,30 +3,29 @@ package com.elyonut.wow.transformer
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.PolygonModel
 import com.mapbox.geojson.Feature
-import com.mapbox.geojson.Geometry
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
 
-class MapboxTransformer {
+class MapboxParser {
     companion object {
-        fun transfromFeatureModelToMapboxFeature(featureModel: FeatureModel): Feature {
+        fun parseToMapboxFeature(featureModel: FeatureModel): Feature {
             return Feature.fromGeometry(
-                transformPolygonToMapboxPolygon(featureModel.geometry as PolygonModel),
+                parseToMapboxPolygon(featureModel.geometry as PolygonModel),
                 featureModel.properties,
                 featureModel.id
             )
         }
 
-        fun transfromMapboxFeatureToFeatureModel(feature: Feature): FeatureModel {
+        fun parseToFeatureModel(feature: Feature): FeatureModel {
             return FeatureModel(
                 feature.id(),
                 feature.properties(),
-                transformMapboxGeometryToGeometryModel(feature.geometry() as Polygon),
+                parseToGeometryModel(feature.geometry() as Polygon),
                 feature.type()
             )
         }
 
-        private fun transformPolygonToMapboxPolygon(polygonModel: PolygonModel): Polygon {
+        private fun parseToMapboxPolygon(polygonModel: PolygonModel): Polygon {
             val points = ArrayList<Point>()
             polygonModel.coordinates.forEach { it ->
                 it.forEach {
@@ -43,7 +42,7 @@ class MapboxTransformer {
             return Polygon.fromLngLats(pointsList)
         }
 
-        private fun transformMapboxGeometryToGeometryModel(polygon: Polygon): PolygonModel {
+        private fun parseToGeometryModel(polygon: Polygon): PolygonModel {
             val points = ArrayList<List<List<Double>>>()
 
             polygon.coordinates().forEach { it ->

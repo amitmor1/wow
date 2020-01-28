@@ -3,19 +3,15 @@ package com.elyonut.wow.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.RectF
-import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.AsyncTask
 import android.util.ArrayMap
-import android.util.Log
 import android.view.Gravity
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toColor
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
@@ -27,7 +23,7 @@ import com.elyonut.wow.analysis.*
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
-import com.elyonut.wow.transformer.MapboxTransformer
+import com.elyonut.wow.transformer.MapboxParser
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -115,14 +111,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
-
-//            style.layers.forEach {
-//                Log.d("A", "layer id = " + it.id)
-//            }
-//
-//            style.sources.forEach {
-//                Log.d("A", "source id = " + it.id)
-//            }
 
             map.uiSettings.compassGravity = Gravity.RIGHT
         }
@@ -342,7 +330,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val threatRadiuses = mutableListOf<Feature>()
 
         mapAdapter.createThreatRadiusSource().forEach {
-            threatRadiuses.add(MapboxTransformer.transfromFeatureModelToMapboxFeature(it))
+            threatRadiuses.add(MapboxParser.parseToMapboxFeature(it))
         }
 
         return FeatureCollection.fromFeatures(threatRadiuses)
@@ -734,11 +722,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private fun addLayersToMapStyle(style: Style) {
         layerManager.layersList?.forEach { layerModel ->
             val features = layerModel.features.map { featureModel ->
-                MapboxTransformer.transfromFeatureModelToMapboxFeature(featureModel)
+                MapboxParser.parseToMapboxFeature(featureModel)
             }
-            val layerGroJsonSource =
+
+            val layerGeoJsonSource =
                 GeoJsonSource(layerModel.id, FeatureCollection.fromFeatures(features))
-            style.addSource(layerGroJsonSource)
+            style.addSource(layerGeoJsonSource)
 
             val layer: Layer = if (layerModel.id == Constants.THREAT_LAYER_ID) {
                 FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
@@ -749,7 +738,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 FillLayer(layerModel.id, layerModel.id)
             }
 
-            style.addLayerAbove(layer, Constants.BUILDINGS_LAYER_ID)
+            style.addLayerAt(layer, style.layers.size - 1)
         }
     }
 }

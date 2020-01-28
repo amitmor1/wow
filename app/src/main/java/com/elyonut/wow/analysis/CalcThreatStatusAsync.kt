@@ -8,7 +8,7 @@ import com.elyonut.wow.RiskStatus
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.Threat
-import com.elyonut.wow.transformer.MapboxTransformer
+import com.elyonut.wow.transformer.MapboxParser
 import com.elyonut.wow.viewModel.MapViewModel
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -52,7 +52,7 @@ class CalcThreatStatusAsync(
             val modelThreatList = ArrayList<Threat>()
             for (threat in threatList) {
                 // create feature for drawing
-                val feature = MapboxTransformer.transfromFeatureModelToMapboxFeature(threat)
+                val feature = MapboxParser.parseToMapboxFeature(threat)
                 features.add(feature)
 
                 //create threat model for UI list

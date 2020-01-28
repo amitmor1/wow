@@ -5,7 +5,7 @@ import com.elyonut.wow.Constants
 import com.elyonut.wow.IMap
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.model.FeatureModel
-import com.elyonut.wow.transformer.MapboxTransformer
+import com.elyonut.wow.transformer.MapboxParser
 import com.google.gson.JsonObject
 import com.mapbox.geojson.*
 import com.mapbox.turf.TurfConstants
@@ -43,7 +43,7 @@ class MapAdapter(var layerManager: LayerManager) : IMap {
             val properties = createThreatProperties(it)
 
             if (circlePolygonArea != null) {
-                val feature = MapboxTransformer.transfromMapboxFeatureToFeatureModel(
+                val feature = MapboxParser.parseToFeatureModel(
                     Feature.fromGeometry(
                         Polygon.fromOuterInner(
                             LineString.fromLngLats(TurfMeta.coordAll(circlePolygonArea, false))
