@@ -71,6 +71,10 @@ class LayerManager(tempDB: TempDB) {
         var feature: FeatureModel? = null
         layersList?.forEach { it ->
             feature = it.features.find { it.id == featureID }
+
+            if(feature != null){
+                return LatLngModel(feature?.properties?.get("latitude")!!.asDouble, feature?.properties?.get("longitude")!!.asDouble)
+            }
         }
 
         return LatLngModel(feature?.properties?.get("latitude")!!.asDouble, feature?.properties?.get("longitude")!!.asDouble)
