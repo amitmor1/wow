@@ -17,12 +17,11 @@ import com.elyonut.wow.AlertsViewModelFactory
 import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.AlertsViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
-import org.w3c.dom.Text
 
 class AlertsFragment : Fragment() {
     private var listener: OnAlertsFragmentInteractionListener? = null
     private lateinit var alertsRecyclerView: RecyclerView
-    private lateinit var emptyView: TextView
+    private lateinit var noAlertsMessage: TextView
     private lateinit var onClickHandler: OnClickInterface
     private var layoutManager: RecyclerView.LayoutManager? = null
     private lateinit var sharedViewModel: SharedViewModel
@@ -51,7 +50,7 @@ class AlertsFragment : Fragment() {
         ).get(AlertsViewModel::class.java)
 
         alertsRecyclerView = view.findViewById(R.id.alerts_list)
-        emptyView = view.findViewById(R.id.empty_alerts_view)
+        noAlertsMessage = view.findViewById(R.id.empty_alerts_view)
 
         alertsRecyclerView.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
@@ -59,7 +58,7 @@ class AlertsFragment : Fragment() {
         alertsRecyclerView.itemAnimator = DefaultItemAnimator()
         alertsRecyclerView.adapter = alertsViewModel.alertsAdapter
 
-        setEmptyView()
+        setFragmentContent()
         setObservers()
 
         return view
@@ -71,7 +70,7 @@ class AlertsFragment : Fragment() {
                 when (view.id) {
                     R.id.deleteAlert -> {
                         alertsViewModel.deleteAlertClicked(position)
-                        setEmptyView()
+                        setFragmentContent()
                     }
                     R.id.zoomToLocation -> {
                         alertsViewModel.zoomToLocationClicked(alertsManager.alerts.value!![position])
@@ -84,14 +83,13 @@ class AlertsFragment : Fragment() {
         }
     }
 
-    private fun setEmptyView() {
+    private fun setFragmentContent() {
         if (alertsManager.alerts.value!!.isEmpty()) {
             alertsRecyclerView.visibility = View.GONE
-            emptyView.visibility = View.VISIBLE
-        }
-        else {
+            noAlertsMessage.visibility = View.VISIBLE
+        } else {
             alertsRecyclerView.visibility = View.VISIBLE
-            emptyView.visibility = View.GONE
+            noAlertsMessage.visibility = View.GONE
         }
     }
 

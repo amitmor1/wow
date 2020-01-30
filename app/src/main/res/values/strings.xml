@@ -50,6 +50,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="area_of_interest">תחום עניין</string>
     <string name="alerts">התראות</string>
-    <string name="no_alerts_message">אין התראות</string>
-    <string name="no_threat_message">אין בניינים</string>
+    <string name="empty_alerts_message">אין התראות</string>
+    <string name="empty_buildings_message">אין בניינים</string>
 </resources>

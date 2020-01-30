@@ -29,7 +29,7 @@ class ThreatFragment : Fragment() {
     private lateinit var threatDataset: ArrayList<Threat>
 
     private lateinit var threatsRecyclerView: RecyclerView
-    private lateinit var emptyView: TextView
+    private lateinit var noBuildingsMessage: TextView
     private var layoutManager: RecyclerView.LayoutManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +48,7 @@ class ThreatFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_threat_list, container, false)
 
         threatsRecyclerView = view.findViewById(R.id.threat_list)
-        emptyView = view.findViewById(R.id.empty_buildings_view)
+        noBuildingsMessage = view.findViewById(R.id.empty_buildings_view)
 
         threatsRecyclerView.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
@@ -61,19 +61,19 @@ class ThreatFragment : Fragment() {
         }
 
         threatsRecyclerView.adapter = ThreatRecyclerViewAdapter(threatDataset, listener)
-        setEmptyView()
+        setFragmentContent()
 
         return view
     }
 
-    private fun setEmptyView() {
+    private fun setFragmentContent() {
         if (threatDataset.isEmpty()) {
             threatsRecyclerView.visibility = View.GONE
-            emptyView.visibility = View.VISIBLE
+            noBuildingsMessage.visibility = View.VISIBLE
         }
         else {
             threatsRecyclerView.visibility = View.VISIBLE
-            emptyView.visibility = View.GONE
+            noBuildingsMessage.visibility = View.GONE
         }
     }
 
