@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +28,10 @@ class ThreatFragment : Fragment() {
 
     private lateinit var threatDataset: ArrayList<Threat>
 
+    private lateinit var threatsRecyclerView: RecyclerView
+    private lateinit var emptyView: TextView
+    private var layoutManager: RecyclerView.LayoutManager? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,18 +47,34 @@ class ThreatFragment : Fragment() {
         threatDataset = arguments!!.getParcelableArrayList("threats")
         val view = inflater.inflate(R.layout.fragment_threat_list, container, false)
 
-        // Set the adapter
-        if (view is RecyclerView) {
-            with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-                layoutDirection = View.LAYOUT_DIRECTION_RTL
-                adapter = ThreatRecyclerViewAdapter(threatDataset, listener)
-            }
+        threatsRecyclerView = view.findViewById(R.id.threat_list)
+        emptyView = view.findViewById(R.id.empty_buildings_view)
+
+        threatsRecyclerView.setHasFixedSize(true)
+        layoutManager = LinearLayoutManager(context)
+        threatsRecyclerView.layoutManager = layoutManager
+        threatsRecyclerView.itemAnimator = DefaultItemAnimator()
+
+        layoutManager = when {
+            columnCount <= 1 -> LinearLayoutManager(context)
+            else -> GridLayoutManager(context, columnCount)
         }
+
+        threatsRecyclerView.adapter = ThreatRecyclerViewAdapter(threatDataset, listener)
+        setEmptyView()
+
         return view
+    }
+
+    private fun setEmptyView() {
+        if (threatDataset.isEmpty()) {
+            threatsRecyclerView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+        }
+        else {
+            threatsRecyclerView.visibility = View.VISIBLE
+            emptyView.visibility = View.GONE
+        }
     }
 
     override fun onAttach(context: Context) {
