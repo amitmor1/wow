@@ -55,7 +55,6 @@ class AlertFragment(private var alert: AlertModel) : Fragment() {
         Picasso.with(context).load(alert.image).into(view.alert_image)
         view.alert_message.text = alert.message
         view.current_time.text = alert.time
-
         view.deleteAlert.visibility =  View.GONE
 
         if (!alert.isRead) {
