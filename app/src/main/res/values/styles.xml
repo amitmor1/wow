@@ -9,8 +9,9 @@
         <item name="android:color">@color/primaryTextColor</item>
         <item name="android:editTextColor">@color/primaryTextColor</item>
         <item name="android:textColor">@android:color/background_dark</item>
-        <item name="floatingActionButtonStyle">FloatingButtonStyle</item>
         <item name="android:backgroundDimEnabled">false</item>
+        <item name="floatingActionButtonStyle">FloatingButtonStyle</item>
+        <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
     </style>
 
     <style name="AppButton" parent="AppTheme">
@@ -30,5 +31,9 @@
 
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="colorAccent">@color/dialogButtonText</item>
+    </style>
+
+    <style name="CheckBoxStyle" parent="AppTheme">
+        <item name="android:buttonTint">@color/colorPrimary</item>
     </style>
 </resources>
