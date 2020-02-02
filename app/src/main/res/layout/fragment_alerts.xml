@@ -27,7 +27,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/empty_alerts_view"
+            android:id="@+id/no_alerts_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"

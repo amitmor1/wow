@@ -50,7 +50,7 @@ class AlertsFragment : Fragment() {
         ).get(AlertsViewModel::class.java)
 
         alertsRecyclerView = view.findViewById(R.id.alerts_list)
-        noAlertsMessage = view.findViewById(R.id.empty_alerts_view)
+        noAlertsMessage = view.findViewById(R.id.no_alerts_message)
 
         alertsRecyclerView.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)

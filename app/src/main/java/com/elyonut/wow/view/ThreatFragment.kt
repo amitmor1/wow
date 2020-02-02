@@ -48,7 +48,7 @@ class ThreatFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_threat_list, container, false)
 
         threatsRecyclerView = view.findViewById(R.id.threat_list)
-        noBuildingsMessage = view.findViewById(R.id.empty_buildings_view)
+        noBuildingsMessage = view.findViewById(R.id.no_buildings_message)
 
         threatsRecyclerView.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(context)
