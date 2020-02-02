@@ -13,7 +13,7 @@ class AlertsManager(var context: Context) {
     var deletedAlertPosition = MutableLiveData<Int>()
     var shouldPopAlert = MutableLiveData<Boolean>()
     var shouldRemoveAlert = MutableLiveData<Boolean>()
-    var idCounter = 0
+    private var idCounter = 0
 
     init {
         alerts.value = LinkedList()
@@ -40,13 +40,6 @@ class AlertsManager(var context: Context) {
         shouldRemoveAlert.value = true
         shouldPopAlert.value = true
         deletedAlertPosition.value = position
-    }
-
-    fun deleteAlert(alert: AlertModel) {
-        alerts.value?.remove(alert)
-        shouldRemoveAlert.value = true
-        shouldPopAlert.value = true
-        updateAlertsList()
     }
 
     fun zoomToLocation(alert: AlertModel) {

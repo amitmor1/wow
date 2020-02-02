@@ -17,9 +17,4 @@ class AlertViewModel(application: Application, var alertsManager: AlertsManager)
         alertsManager.acceptAlert(alert)
         alertsManager.shouldRemoveAlert.value = true
     }
-
-    fun deleteAlertClicked(alert: AlertModel) {
-        alertsManager.deleteAlert(alert)
-        alertsManager.shouldRemoveAlert.value = true
-    }
 }

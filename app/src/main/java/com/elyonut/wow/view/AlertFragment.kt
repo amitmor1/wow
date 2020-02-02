@@ -18,6 +18,7 @@ import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.viewModel.AlertViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
+import com.mapbox.mapboxsdk.style.layers.Property
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.alert_item.view.*
 
@@ -54,6 +55,7 @@ class AlertFragment(private var alert: AlertModel) : Fragment() {
         Picasso.with(context).load(alert.image).into(view.alert_image)
         view.alert_message.text = alert.message
         view.current_time.text = alert.time
+        view.deleteAlert.visibility =  View.GONE
 
         if (!alert.isRead) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -81,10 +83,6 @@ class AlertFragment(private var alert: AlertModel) : Fragment() {
 
         view.alertAccepted.setOnClickListener {
             alertViewModel.acceptAlertClicked(alert)
-        }
-
-        view.deleteAlert.setOnClickListener {
-            alertViewModel.deleteAlertClicked(alert)
         }
     }
 
