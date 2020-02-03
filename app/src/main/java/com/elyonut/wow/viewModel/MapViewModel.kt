@@ -720,7 +720,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun addLayersToMapStyle(style: Style) {
-        layerManager.layersList?.forEach { layerModel ->
+        layerManager.layers?.forEach { layerModel ->
             val features = layerModel.features.map { featureModel ->
                 MapboxParser.parseToMapboxFeature(featureModel)
             }
