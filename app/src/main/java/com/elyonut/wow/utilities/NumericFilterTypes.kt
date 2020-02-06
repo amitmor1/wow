@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.utilities
 
 enum class NumericFilterTypes(val hebrewName: String) {
     RANGE("טווח"),

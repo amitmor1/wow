@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.interfaces
 
 import android.graphics.Color
 import com.elyonut.wow.model.FeatureModel

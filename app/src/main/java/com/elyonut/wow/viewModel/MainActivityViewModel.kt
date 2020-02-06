@@ -6,7 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.R
-import com.elyonut.wow.TempDB
+import com.elyonut.wow.utilities.TempDB
 import com.elyonut.wow.model.LayerModel
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {

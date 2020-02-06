@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
-import com.elyonut.wow.Constants
+import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.CoverageSettingsViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -39,7 +39,6 @@ class CoverageSettingsFragment : Fragment() {
         initCloseButton(view)
 
         return view
-
     }
 
     private fun initTextValues(view: View) {
@@ -50,6 +49,7 @@ class CoverageSettingsFragment : Fragment() {
         resolution.setText(sharedViewModel.coverageResolutionMeters.toString(), TextView.BufferType.EDITABLE)
 
         val height =  view.searchHeightValue
+
         if(sharedViewModel.coverageSearchHeightMeters != Constants.DEFAULT_COVERAGE_HEIGHT_METERS) {
             height.setText(
                 sharedViewModel.coverageSearchHeightMeters.toString(),
@@ -59,10 +59,6 @@ class CoverageSettingsFragment : Fragment() {
 
         val heightCheck = view.searchHeightCheckBox
         heightCheck.isChecked = sharedViewModel.coverageSearchHeightMetersChecked
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
     }
 
     private fun initSaveButton(view: View) {

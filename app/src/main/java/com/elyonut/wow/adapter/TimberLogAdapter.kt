@@ -1,6 +1,6 @@
 package com.elyonut.wow.adapter
 
-import com.elyonut.wow.ILogger
+import com.elyonut.wow.interfaces.ILogger
 import timber.log.Timber
 
 class TimberLogAdapter : ILogger {

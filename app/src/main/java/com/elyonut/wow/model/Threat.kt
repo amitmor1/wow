@@ -3,7 +3,6 @@ package com.elyonut.wow.model
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE
-import com.elyonut.wow.RiskStatus
 import com.mapbox.geojson.Feature
 
 class Threat() : Parcelable {

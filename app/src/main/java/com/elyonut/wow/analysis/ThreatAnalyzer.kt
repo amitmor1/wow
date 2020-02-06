@@ -3,8 +3,8 @@ package com.elyonut.wow.analysis
 import android.graphics.RectF
 import android.os.Build
 import com.elyonut.wow.App
-import com.elyonut.wow.Constants
-import com.elyonut.wow.ILogger
+import com.elyonut.wow.utilities.Constants
+import com.elyonut.wow.interfaces.ILogger
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.*
 import com.mapbox.geojson.Feature

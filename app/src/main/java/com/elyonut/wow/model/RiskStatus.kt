@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.model
 
 import android.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.interfaces
 
 interface IPermissions {
 

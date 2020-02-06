@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.utilities
 
 import android.annotation.SuppressLint
 import android.content.Context

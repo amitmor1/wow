@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.utilities
 
 import android.content.Context
 import com.elyonut.wow.model.FeatureModel
