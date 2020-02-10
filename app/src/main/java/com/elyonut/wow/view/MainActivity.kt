@@ -32,6 +32,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import java.util.*
 
@@ -71,6 +72,7 @@ class MainActivity : AppCompatActivity(),
         initAreaOfInterest()
         initToolbar()
         initNavigationMenu()
+        initFilterSection()
         initBottomNavigationView()
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -82,15 +84,24 @@ class MainActivity : AppCompatActivity(),
                 sharedViewModel.selectedLayerId.value = it
             }
         })
+
+        mainViewModel.chosenTypeToFilter.observe(this, Observer<Pair<String, Boolean>> {
+            mainViewModel.chosenTypeToFilter.value?.let {
+                sharedViewModel.chosenTypeToFilter.value = it
+            }
+        })
+
         mainViewModel.selectedExperimentalOption.observe(
             this,
             Observer { sharedViewModel.selectExperimentalOption(it) }
         )
+
         mainViewModel.filterSelected.observe(this, Observer {
             if (it) {
                 filterButtonClicked()
             }
         })
+
         mainViewModel.shouldDefineArea.observe(this, Observer {
             if (it) {
                 sharedViewModel.shouldDefineArea.value = it
@@ -184,6 +195,7 @@ class MainActivity : AppCompatActivity(),
         navigationView.setNavigationItemSelectedListener(this)
 
         val layers = mainViewModel.getLayersList()?.toTypedArray()
+
         if (layers != null) {
             val menu = navigationView.menu
             val layersSubMenu = menu.getItem(0).subMenu
@@ -191,6 +203,24 @@ class MainActivity : AppCompatActivity(),
                 val menuItem = layersSubMenu.add(R.id.nav_layers, index, index, layerModel.name)
                 val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
                 checkBoxView.tag = layerModel
+                menuItem.actionView = checkBoxView
+                checkBoxView.setOnCheckedChangeListener { _, _ ->
+                    (::onNavigationItemSelected)(menuItem)
+                }
+            }
+        }
+    }
+
+    private fun initFilterSection() {
+        val layerTypeValues = mainViewModel.getLayerTypeValues()?.toTypedArray()
+
+        if (layerTypeValues != null) {
+            val menu = navigationView.menu
+            val layersSubMenu = menu.getItem(2).subMenu
+            layerTypeValues.forEachIndexed { index, buildingType ->
+                val menuItem = layersSubMenu.add(R.id.filter_options, index, index, buildingType)
+                val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
+                checkBoxView.tag = buildingType
                 menuItem.actionView = checkBoxView
                 checkBoxView.setOnCheckedChangeListener { _, _ ->
                     (::onNavigationItemSelected)(menuItem)

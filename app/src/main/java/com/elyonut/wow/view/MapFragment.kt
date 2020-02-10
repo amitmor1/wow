@@ -29,6 +29,7 @@ import com.elyonut.wow.*
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.RiskStatus
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.viewModel.FilterHandler
 import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.viewModel.MapViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -160,6 +161,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         sharedViewModel.selectedLayerId.observe(this, Observer<String> {
             it?.let { mapViewModel.layerSelected(it) }
         })
+
+//        sharedViewModel.chosenTypeToFilter.observe(this, Observer<Pair<String, Boolean>> {
+//
+//        })
+
         sharedViewModel.selectedExperimentalOption.observe(
             this,
             Observer<Int> { applyExperimentalOption(it) }
@@ -184,6 +190,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             if (it) {
                 enableAreaSelection(view, it)
             }
+        })
+
+        sharedViewModel.chosenTypeToFilter.observe(this, Observer<Pair<String, Boolean>> {
+            mapViewModel.filterLayerByType(it)
+
         })
 
         mapViewModel.isFocusedOnLocation.observe(this, Observer {
