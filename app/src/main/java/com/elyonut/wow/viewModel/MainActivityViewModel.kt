@@ -7,10 +7,12 @@ import android.os.Build
 import android.view.MenuItem
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.elyonut.wow.Constants
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.R
 import com.elyonut.wow.TempDB
 import com.elyonut.wow.model.LayerModel
+import com.google.android.material.checkbox.MaterialCheckBox
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -22,6 +24,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val shouldDefineArea = MutableLiveData<Boolean>()
     val shouldOpenAlertsFragment = MutableLiveData<Boolean>()
     val shouldOpenThreatsFragment = MutableLiveData<Boolean>()
+    val chosenTypeToFilter = MutableLiveData<Pair<String, Boolean>>()
 
     fun onNavigationItemSelected(item: MenuItem): Boolean {
         var shouldCloseDrawer = true
@@ -33,6 +36,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             }
             item.itemId == R.id.filterButton -> {
                 filterSelected.value = true
+                shouldCloseDrawer = false
+            }
+            item.groupId == R.id.filter_options -> {
+                chosenTypeToFilter.value = Pair(item.actionView.tag as String, (item.actionView as MaterialCheckBox).isChecked)
                 shouldCloseDrawer = false
             }
             item.groupId == R.id.nav_experiments ->
@@ -59,6 +66,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun getLayersList(): List<LayerModel>? {
         return layerManager.layersList
+    }
+
+    fun getLayerTypeValues(): List<String>? {
+        return layerManager.getValuesOfLayerProperty(Constants.THREAT_LAYER_ID, "type")
     }
 }
 

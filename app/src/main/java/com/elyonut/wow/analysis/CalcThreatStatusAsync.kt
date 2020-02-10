@@ -8,7 +8,7 @@ import com.elyonut.wow.RiskStatus
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.Threat
-import com.elyonut.wow.transformer.MapboxParser
+import com.elyonut.wow.parser.MapboxParser
 import com.elyonut.wow.viewModel.MapViewModel
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection

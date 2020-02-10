@@ -23,7 +23,7 @@ import com.elyonut.wow.analysis.*
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
-import com.elyonut.wow.transformer.MapboxParser
+import com.elyonut.wow.parser.MapboxParser
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -46,7 +46,6 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import java.io.InputStream
-
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -740,6 +739,29 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
             style.addLayerAt(layer, style.layers.size - 1)
         }
+    }
+
+    fun filterLayerByType(newFilter: Pair<String, Boolean>) {
+        val layer = map.style!!.getLayer(Constants.THREAT_LAYER_ID)
+        (layer as FillExtrusionLayer).setFilter(
+            if (!newFilter.second) {
+                if (layer.filter != null) {
+                    all(
+                        layer.filter,
+                        all(neq(get("type"), newFilter.first))
+                    )
+                } else {
+                    all(
+                        all(neq(get("type"), newFilter.first))
+                    )
+                }
+            } else {
+                any(
+                    layer.filter,
+                    all(eq(get("type"), newFilter.first))
+                )
+            }
+        )
     }
 }
 

@@ -5,7 +5,7 @@ import com.elyonut.wow.Constants
 import com.elyonut.wow.IMap
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.model.FeatureModel
-import com.elyonut.wow.transformer.MapboxParser
+import com.elyonut.wow.parser.MapboxParser
 import com.google.gson.JsonObject
 import com.mapbox.geojson.*
 import com.mapbox.turf.TurfConstants

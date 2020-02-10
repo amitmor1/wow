@@ -1,4 +1,4 @@
-package com.elyonut.wow.transformer
+package com.elyonut.wow.parser
 
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.PolygonModel
