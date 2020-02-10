@@ -31,6 +31,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var alertsManager = AlertsManager(application)
     var isVisible = MutableLiveData<Boolean>()
     var shouldOpenThreatsFragment = MutableLiveData<Boolean>()
+    val chosenTypeToFilter = MutableLiveData<Pair<String, Boolean>>()
 
     fun applySaveCoverageSettingsButtonClicked(coverageRange: Double, resolution: Double, height: Double?, heightChecked: Boolean) {
         this.coverageRangeMeters = coverageRange

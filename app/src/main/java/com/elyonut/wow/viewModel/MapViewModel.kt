@@ -27,10 +27,10 @@ import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.RiskStatus
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
-import com.elyonut.wow.transformer.MapboxParser
-import com.elyonut.wow.utilities.Constants
+import com.elyonut.wow.parser.MapboxParser
 import com.elyonut.wow.utilities.NumericFilterTypes
 import com.elyonut.wow.utilities.TempDB
+import com.elyonut.wow.utilities.Constants
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -53,7 +53,6 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import java.io.InputStream
-
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -747,6 +746,32 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
             style.addLayerAt(layer, style.layers.size - 1)
         }
+    }
+
+    fun filterLayerByType(newFilter: Pair<String, Boolean>) {
+        val layer = map.style!!.getLayer(Constants.THREAT_LAYER_ID)
+        val typeToFilter = newFilter.first
+        val isChecked = newFilter.second
+
+        (layer as FillExtrusionLayer).setFilter(
+            if (isChecked) {
+                any(
+                    layer.filter,
+                    all(eq(get("type"), typeToFilter))
+                )
+            } else {
+                if (layer.filter != null) {
+                    all(
+                        layer.filter,
+                        all(neq(get("type"), typeToFilter))
+                    )
+                } else {
+                    all(
+                        all(neq(get("type"), typeToFilter))
+                    )
+                }
+            }
+        )
     }
 }
 
