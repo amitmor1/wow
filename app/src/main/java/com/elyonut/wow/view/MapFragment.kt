@@ -5,19 +5,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -30,7 +27,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.*
 import com.elyonut.wow.model.AlertModel
+import com.elyonut.wow.model.RiskStatus
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.viewModel.MapViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -277,11 +276,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
 
     private fun filter(shouldApplyFilter: Boolean) {
         if (!shouldApplyFilter) {
-            mapViewModel.removeFilter(map.style!!, sharedViewModel.chosenLayerId)
+            mapViewModel.removeFilter(map.style!!, sharedViewModel.layerToFilterId)
         } else {
             mapViewModel.applyFilter(
                 map.style!!,
-                sharedViewModel.chosenLayerId,
+                sharedViewModel.layerToFilterId,
                 sharedViewModel.chosenPropertyId,
                 sharedViewModel.isStringType,
                 sharedViewModel.numericType,

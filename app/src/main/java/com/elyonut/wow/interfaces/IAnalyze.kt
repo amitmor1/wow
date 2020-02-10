@@ -1,6 +1,7 @@
-package com.elyonut.wow
+package com.elyonut.wow.interfaces
 
 import android.location.Location
+import com.elyonut.wow.model.RiskStatus
 import java.util.*
 import kotlin.collections.ArrayList
 

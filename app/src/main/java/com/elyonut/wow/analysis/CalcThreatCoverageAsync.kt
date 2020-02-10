@@ -2,8 +2,8 @@ package com.elyonut.wow.analysis
 
 import android.os.AsyncTask
 import android.widget.ProgressBar
-import com.elyonut.wow.Constants
-import com.elyonut.wow.ILogger
+import com.elyonut.wow.utilities.Constants
+import com.elyonut.wow.interfaces.ILogger
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.viewModel.MapViewModel
@@ -35,7 +35,8 @@ class CalcThreatCoverageAsync(
     }
 
     override fun onPostExecute(result: List<Coordinate>) {
-        val threatCoverageSource: GeoJsonSource? = mapViewModel.threatAnalyzer.mapboxMap.style?.getSourceAs(Constants.THREAT_COVERAGE_SOURCE_ID)
+        val threatCoverageSource: GeoJsonSource? = mapViewModel.threatAnalyzer.mapboxMap.style?.getSourceAs(
+            Constants.THREAT_COVERAGE_SOURCE_ID)
 
         val features = result.map { c-> Feature.fromGeometry(Point.fromLngLat(c.longitude, c.latitude)) }
 

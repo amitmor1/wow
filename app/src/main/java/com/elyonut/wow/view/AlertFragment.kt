@@ -12,13 +12,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.elyonut.wow.AlertViewModelFactory
+import com.elyonut.wow.viewModel.AlertViewModelFactory
 import com.elyonut.wow.AlertsManager
 import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.viewModel.AlertViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
-import com.mapbox.mapboxsdk.style.layers.Property
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.alert_item.view.*
 

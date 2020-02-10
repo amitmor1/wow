@@ -1,4 +1,4 @@
-package com.elyonut.wow
+package com.elyonut.wow.utilities
 
 class Constants {
     companion object {
@@ -9,7 +9,6 @@ class Constants {
         const val THREAT_RADIUS_LAYER_ID = "THREAT_RADIUS_LAYER"
         const val SELECTED_BUILDING_SOURCE_ID = "SELECTED_BUILDING_SOURCE"
         const val SELECTED_BUILDING_LAYER_ID = "SELECTED_BUILDING_LAYER"
-        // const val MAPBOX_STYLE_URL = "mapbox://styles/wowdev/cjxa62y1k0iao1ctmsmw51jvl"
         const val MAPBOX_STYLE_URL = "mapbox://styles/wowdev/ck2abkdff0mc91clfa04mr7ff"
         const val ACTIVE_THREATS_SOURCE_ID = "ACTIVE_THREATS_SOURCE"
         const val ACTIVE_THREATS_LAYER_ID = "ACTIVE_THREATS_LAYER"
