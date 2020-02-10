@@ -163,10 +163,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             it?.let { mapViewModel.layerSelected(it) }
         })
 
-//        sharedViewModel.chosenTypeToFilter.observe(this, Observer<Pair<String, Boolean>> {
-//
-//        })
-
         sharedViewModel.selectedExperimentalOption.observe(
             this,
             Observer<Int> { applyExperimentalOption(it) }
