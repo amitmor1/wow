@@ -750,23 +750,26 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     fun filterLayerByType(newFilter: Pair<String, Boolean>) {
         val layer = map.style!!.getLayer(Constants.THREAT_LAYER_ID)
+        val typeToFilter = newFilter.first
+        val isChecked = newFilter.second
+
         (layer as FillExtrusionLayer).setFilter(
-            if (!newFilter.second) {
+            if (isChecked) {
+                any(
+                    layer.filter,
+                    all(eq(get("type"), typeToFilter))
+                )
+            } else {
                 if (layer.filter != null) {
                     all(
                         layer.filter,
-                        all(neq(get("type"), newFilter.first))
+                        all(neq(get("type"), typeToFilter))
                     )
                 } else {
                     all(
-                        all(neq(get("type"), newFilter.first))
+                        all(neq(get("type"), typeToFilter))
                     )
                 }
-            } else {
-                any(
-                    layer.filter,
-                    all(eq(get("type"), newFilter.first))
-                )
             }
         )
     }

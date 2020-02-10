@@ -39,7 +39,7 @@ class LayerManager(tempDB: TempDB) {
     }
 
     fun getValuesOfLayerProperty(layerId: String, propertyName: String): List<String>? {
-           return getLayer(layerId)?.map { a -> a.properties?.get(propertyName).toString() }?.distinct()
+           return getLayer(layerId)?.map { a -> a.properties?.get(propertyName)!!.asString}?.distinct()
     }
 
     fun getFeatureLocation(featureID: String): LatLngModel {
