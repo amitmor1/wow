@@ -69,5 +69,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun getLayerTypeValues(): List<String>? {
         return layerManager.getValuesOfLayerProperty(Constants.THREAT_LAYER_ID, "type")
     }
+
+    fun getLayerTypeValues(): List<String>? {
+        return layerManager.getValuesOfLayerProperty(Constants.THREAT_LAYER_ID, "type")
+    }
 }
 
