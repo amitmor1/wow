@@ -1,12 +1,13 @@
 package com.elyonut.wow.viewModel
 
 import android.app.Application
+import android.view.animation.Transformation
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
-import com.elyonut.wow.utilities.NumericFilterTypes
-//import com.elyonut.wow.utilities.NumericFilterTypes
-import com.elyonut.wow.utilities.TempDB
+import com.elyonut.wow.NumericFilterTypes
+//import com.elyonut.wow.NumericFilterTypes
+import com.elyonut.wow.TempDB
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 

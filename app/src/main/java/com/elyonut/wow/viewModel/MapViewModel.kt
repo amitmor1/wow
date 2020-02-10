@@ -20,17 +20,10 @@ import com.elyonut.wow.adapter.MapAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.analysis.*
-import com.elyonut.wow.interfaces.ILocationManager
-import com.elyonut.wow.interfaces.ILogger
-import com.elyonut.wow.interfaces.IPermissions
 import com.elyonut.wow.model.Coordinate
-import com.elyonut.wow.model.RiskStatus
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.transformer.MapboxParser
-import com.elyonut.wow.utilities.Constants
-import com.elyonut.wow.utilities.NumericFilterTypes
-import com.elyonut.wow.utilities.TempDB
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -727,7 +720,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun addLayersToMapStyle(style: Style) {
-        layerManager.layers?.forEach { layerModel ->
+        layerManager.layersList?.forEach { layerModel ->
             val features = layerModel.features.map { featureModel ->
                 MapboxParser.parseToMapboxFeature(featureModel)
             }

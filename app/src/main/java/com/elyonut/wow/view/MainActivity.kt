@@ -19,8 +19,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.elyonut.wow.utilities.Constants
-import com.elyonut.wow.interfaces.ILogger
+import com.elyonut.wow.Constants
+import com.elyonut.wow.ILogger
 import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.AlertModel

@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.elyonut.wow.utilities.NumericFilterTypes
+import com.elyonut.wow.NumericFilterTypes
 import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.FilterViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -46,7 +46,7 @@ class FilterFragment : Fragment(), AdapterView.OnItemSelectedListener {
         filterViewModel.numericTypeChosen.observe(this, Observer { numericTypeChosen(view, it) })
         filterViewModel.shouldApplyFilter.observe(this, Observer { applyFilter(it, view) })
         filterViewModel.chosenLayerId.observe(this, Observer<String> {
-            sharedViewModel.layerToFilterId = it
+            sharedViewModel.chosenLayerId = it
             initPropertiesSpinner(view, it)
         })
         filterViewModel.chosenProperty.observe(this, Observer<String> {

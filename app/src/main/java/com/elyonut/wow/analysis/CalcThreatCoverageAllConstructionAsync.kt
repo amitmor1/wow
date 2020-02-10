@@ -2,10 +2,18 @@ package com.elyonut.wow.analysis
 
 import android.os.AsyncTask
 import android.widget.ProgressBar
-import com.elyonut.wow.utilities.Constants
-import com.elyonut.wow.interfaces.ILogger
+import com.elyonut.wow.Constants
+import com.elyonut.wow.ILogger
 import com.elyonut.wow.adapter.TimberLogAdapter
+import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.viewModel.MapViewModel
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.style.layers.Property
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
 class CalcThreatCoverageAllConstructionAsync(
     private val mapViewModel: MapViewModel,

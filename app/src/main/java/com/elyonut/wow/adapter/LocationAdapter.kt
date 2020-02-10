@@ -6,7 +6,7 @@ import android.location.Location
 import android.location.LocationManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.elyonut.wow.interfaces.ILocationManager
+import com.elyonut.wow.ILocationManager
 import com.mapbox.android.core.location.*
 import com.mapbox.mapboxsdk.location.LocationComponent
 import java.lang.ref.WeakReference

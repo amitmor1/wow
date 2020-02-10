@@ -1,9 +1,6 @@
 package com.elyonut.wow
 
 import android.location.Location
-import com.elyonut.wow.interfaces.IAnalyze
-import com.elyonut.wow.model.RiskStatus
-import com.elyonut.wow.utilities.Constants
 import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -19,7 +16,7 @@ class AnalyzeManager(private val layerManager: LayerManager) : IAnalyze {
     override fun calcRiskStatus(location: Location): Pair<RiskStatus, HashMap<RiskStatus, ArrayList<String>>> {
         val allFeatures = layerManager.getLayer(Constants.THREAT_LAYER_ID)
         var threatLocation: LatLng
-        lateinit var riskStatus: RiskStatus
+        lateinit var riskStatus:RiskStatus
         val threatIdsByRiskStatus = HashMap<RiskStatus, ArrayList<String>>()
         var currentThreatId: String?
 

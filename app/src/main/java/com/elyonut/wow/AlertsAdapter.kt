@@ -1,4 +1,4 @@
-package com.elyonut.wow.adapter
+package com.elyonut.wow
 
 import android.content.Context
 import android.graphics.Color
@@ -11,11 +11,11 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.elyonut.wow.R
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.view.AlertsFragment
 import com.squareup.picasso.Picasso
 import java.util.*
+import kotlin.collections.ArrayList
 
 class AlertsAdapter(
     var context: Context,

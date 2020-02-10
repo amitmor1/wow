@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.AlertsManager
-import com.elyonut.wow.viewModel.AlertsViewModelFactory
+import com.elyonut.wow.AlertsViewModelFactory
 import com.elyonut.wow.R
 import com.elyonut.wow.viewModel.AlertsViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -46,11 +46,7 @@ class AlertsFragment : Fragment() {
 
         alertsViewModel = ViewModelProviders.of(
             this,
-            AlertsViewModelFactory(
-                activity!!.application,
-                alertsManager,
-                onClickHandler
-            )
+            AlertsViewModelFactory(activity!!.application, alertsManager, onClickHandler)
         ).get(AlertsViewModel::class.java)
 
         alertsRecyclerView = view.findViewById(R.id.alerts_list)

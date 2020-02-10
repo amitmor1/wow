@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.elyonut.wow.adapter.MapLayersAdapter
+import com.elyonut.wow.MapLayersAdapter
 import com.elyonut.wow.R
 import android.view.Gravity
 
@@ -28,8 +28,7 @@ class MapLayersFragment: DialogFragment() {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL,true)
         mapLayersRecyclerView.layoutManager = layoutManager
         mapLayersRecyclerView.itemAnimator = DefaultItemAnimator()
-        mapLayersAdapter =
-            MapLayersAdapter(context!!, arrayListOf("a", "b"))
+        mapLayersAdapter = MapLayersAdapter(context!!, arrayListOf("a", "b"))
         mapLayersRecyclerView.adapter = mapLayersAdapter
 
 

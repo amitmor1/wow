@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.model.AlertModel
-import com.elyonut.wow.utilities.Constants
 import java.util.*
 
 class AlertsManager(var context: Context) {

@@ -1,10 +1,10 @@
 package com.elyonut.wow.analysis
 
 import android.os.AsyncTask
-import com.elyonut.wow.utilities.Constants
-import com.elyonut.wow.interfaces.ILogger
-import com.elyonut.wow.model.RiskData
-import com.elyonut.wow.model.RiskStatus
+import com.elyonut.wow.Constants
+import com.elyonut.wow.ILogger
+import com.elyonut.wow.RiskData
+import com.elyonut.wow.RiskStatus
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.Threat

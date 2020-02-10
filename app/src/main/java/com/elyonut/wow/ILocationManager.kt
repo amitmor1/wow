@@ -1,4 +1,4 @@
-package com.elyonut.wow.interfaces
+package com.elyonut.wow
 
 import android.location.Location
 import androidx.lifecycle.LiveData

@@ -2,7 +2,7 @@ package com.elyonut.wow.analysis
 
 import android.util.ArrayMap
 import com.elyonut.wow.App
-import com.elyonut.wow.utilities.Constants
+import com.elyonut.wow.Constants
 import com.elyonut.wow.analysis.quadtree.Envelope
 import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.FeatureModel

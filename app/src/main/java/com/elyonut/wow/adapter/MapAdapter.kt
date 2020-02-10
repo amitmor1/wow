@@ -1,8 +1,8 @@
 package com.elyonut.wow.adapter
 
 import android.graphics.Color
-import com.elyonut.wow.utilities.Constants
-import com.elyonut.wow.interfaces.IMap
+import com.elyonut.wow.Constants
+import com.elyonut.wow.IMap
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.transformer.MapboxParser

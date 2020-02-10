@@ -1,12 +1,15 @@
 package com.elyonut.wow.viewModel
 
 import android.app.Application
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.os.Build
 import android.view.MenuItem
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.R
-import com.elyonut.wow.utilities.TempDB
+import com.elyonut.wow.TempDB
 import com.elyonut.wow.model.LayerModel
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -22,7 +25,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun onNavigationItemSelected(item: MenuItem): Boolean {
         var shouldCloseDrawer = true
-
         when {
             item.groupId == R.id.nav_layers -> {
                 val layerModel = item.actionView.tag as LayerModel
@@ -56,7 +58,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun getLayersList(): List<LayerModel>? {
-        return layerManager.layers
+        return layerManager.layersList
     }
 }
 
