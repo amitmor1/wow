@@ -4,11 +4,11 @@ import android.app.Application
 import android.view.MenuItem
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.elyonut.wow.Constants
 import com.elyonut.wow.LayerManager
 import com.elyonut.wow.R
 import com.elyonut.wow.utilities.TempDB
 import com.elyonut.wow.model.LayerModel
+import com.elyonut.wow.utilities.Constants
 import com.google.android.material.checkbox.MaterialCheckBox
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -64,10 +64,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun getLayersList(): List<LayerModel>? {
         return layerManager.layers
-    }
-
-    fun getLayerTypeValues(): List<String>? {
-        return layerManager.getValuesOfLayerProperty(Constants.THREAT_LAYER_ID, "type")
     }
 
     fun getLayerTypeValues(): List<String>? {
