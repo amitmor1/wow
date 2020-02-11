@@ -214,6 +214,11 @@ class MainActivity : AppCompatActivity(),
     private fun initFilterSection() {
         val layerTypeValues = mainViewModel.getLayerTypeValues()?.toTypedArray()
 
+//        val me = navigationView.menu
+//        val check = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
+//        check.tag = "all"
+//        me.getItem(2).actionView = check
+
         if (layerTypeValues != null) {
             val menu = navigationView.menu
             val layersSubMenu = menu.getItem(2).subMenu
