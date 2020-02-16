@@ -29,7 +29,7 @@ class MapLayersFragment: DialogFragment() {
         mapLayersRecyclerView.layoutManager = layoutManager
         mapLayersRecyclerView.itemAnimator = DefaultItemAnimator()
         mapLayersAdapter =
-            MapLayersAdapter(context!!, arrayListOf("a", "b"))
+            MapLayersAdapter(context!!, arrayListOf("map a", "map b", "map c", "map d", "map e", "map f"))
         mapLayersRecyclerView.adapter = mapLayersAdapter
 
 
