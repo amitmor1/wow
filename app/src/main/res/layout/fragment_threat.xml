@@ -10,7 +10,7 @@
         android:orientation="horizontal"
         android:textAlignment="center"
         android:layout_weight="0.6"
-        android:layout_paddingLeft="@dimen/text_margin">
+        android:layout_marginLeft="@dimen/text_margin">
 
         <ImageView
             android:id="@+id/threat_level_color"
