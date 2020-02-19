@@ -13,10 +13,7 @@
         android:title="filter" />
     <item
         android:id="@+id/t"
-        android:title="סינון חדש"
-
-        android:checkable="true"
-        app:actionViewClass="android.widget.CheckBox">
+        android:title="סינון חדש">
         <menu>
             <group
                 android:id="@+id/filter_options"

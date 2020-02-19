@@ -773,6 +773,37 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             }
         )
     }
+
+    fun filterLayerByAllTypes(filters: ArrayList<Pair<String, Boolean>>) {
+        val layer = map.style!!.getLayer(Constants.THREAT_LAYER_ID)
+
+        filters.forEach {
+            addFilterToLayer(it, layer!!)
+        }
+
+    }
+
+    fun addFilterToLayer(filter: Pair<String, Boolean>, layer: Layer) {
+        (layer as FillExtrusionLayer).setFilter(
+            if (!filter.second) {
+                if (layer.filter != null) {
+                    all(
+                        layer.filter,
+                        all(neq(get("type"), filter.first))
+                    )
+                } else {
+                    all(
+                        all(neq(get("type"), filter.first))
+                    )
+                }
+            } else {
+                any(
+                    layer.filter,
+                    all(eq(get("type"), filter.first))
+                )
+            }
+        )
+    }
 }
 
 class FilterHandler {

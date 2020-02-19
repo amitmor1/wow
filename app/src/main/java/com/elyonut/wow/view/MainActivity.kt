@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
 import android.widget.CheckBox
@@ -28,6 +29,7 @@ import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.internal.NavigationSubMenu
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.mapbox.geojson.Polygon
@@ -91,6 +93,10 @@ class MainActivity : AppCompatActivity(),
             }
         })
 
+        mainViewModel.shouldSelectAllFilter.observe(this, Observer {
+
+        })
+
         mainViewModel.selectedExperimentalOption.observe(
             this,
             Observer { sharedViewModel.selectExperimentalOption(it) }
@@ -141,8 +147,7 @@ class MainActivity : AppCompatActivity(),
         val unreadMessages = alerts.count { !it.isRead }
         if (unreadMessages == 0) {
             bottom_navigation.removeBadge(R.id.alerts)
-        }
-        else {
+        } else {
             bottom_navigation.getOrCreateBadge(R.id.alerts).number = unreadMessages
         }
     }
@@ -173,7 +178,7 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private fun coverageSettingsButtonClicked(){
+    private fun coverageSettingsButtonClicked() {
         val coverageSettingsFragment = CoverageSettingsFragment.newInstance()
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.apply {
@@ -213,23 +218,25 @@ class MainActivity : AppCompatActivity(),
 
     private fun initFilterSection() {
         val layerTypeValues = mainViewModel.getLayerTypeValues()?.toTypedArray()
+        val menu = navigationView.menu
+        val layersSubMenu = menu.getItem(2).subMenu
+        lateinit var menuItem: MenuItem
 
-//        val me = navigationView.menu
-//        val check = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
-//        check.tag = "all"
-//        me.getItem(2).actionView = check
+        menuItem = layersSubMenu.add(R.id.filter_options, R.id.select_all, Menu.NONE, "all")
+        val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
+        checkBoxView.tag = "all"
+        menuItem.actionView = checkBoxView
+        checkBoxView.setOnCheckedChangeListener { _, _ ->
+            (::onNavigationItemSelected)(menuItem)
+        }
 
-        if (layerTypeValues != null) {
-            val menu = navigationView.menu
-            val layersSubMenu = menu.getItem(2).subMenu
-            layerTypeValues.forEachIndexed { index, buildingType ->
-                val menuItem = layersSubMenu.add(R.id.filter_options, index, index, buildingType)
-                val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
-                checkBoxView.tag = buildingType
-                menuItem.actionView = checkBoxView
-                checkBoxView.setOnCheckedChangeListener { _, _ ->
-                    (::onNavigationItemSelected)(menuItem)
-                }
+        layerTypeValues?.forEachIndexed { index, buildingType ->
+            val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
+            val menuItem = layersSubMenu.add(R.id.filter_options, index, index, buildingType)
+            checkBoxView.tag = buildingType
+            menuItem.actionView = checkBoxView
+            checkBoxView.setOnCheckedChangeListener { _, _ ->
+                (::onNavigationItemSelected)(menuItem)
             }
         }
     }
@@ -267,7 +274,7 @@ class MainActivity : AppCompatActivity(),
     private fun openAlertsFragment() {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
 
-       fragmentTransaction.apply {
+        fragmentTransaction.apply {
             add(R.id.fragment_container, alertsFragmentInstance)
             addToBackStack(alertsFragmentInstance.javaClass.simpleName)
             commit()
