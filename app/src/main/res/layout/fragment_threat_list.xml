@@ -24,26 +24,29 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.6"
+                android:layout_weight="0.3"
                 android:textAlignment="center"
+                android:textStyle="bold"
                 android:text="בניין"
                 android:textAppearance="?attr/textAppearanceListItem" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.7"
+                android:layout_weight="0.3"
                 android:textAlignment="center"
+                android:textStyle="bold"
                 android:text="רמת וודאות"
                 android:textAppearance="?attr/textAppearanceListItem" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.7"
+                android:layout_weight="0.3"
                 android:textAlignment="center"
+                android:textStyle="bold"
                 android:text="מרחק"
                 android:textAppearance="?attr/textAppearanceListItem" />
 
