@@ -31,6 +31,7 @@ import com.elyonut.wow.parser.MapboxParser
 import com.elyonut.wow.utilities.NumericFilterTypes
 import com.elyonut.wow.utilities.TempDB
 import com.elyonut.wow.utilities.Constants
+import com.elyonut.wow.utilities.Maps
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -103,11 +104,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         map = mapboxMap
         topographyService = TopographyService(map)
         threatAnalyzer = ThreatAnalyzer(map, topographyService)
-        map.setStyle(Constants.MAPBOX_STYLE_URL) { style ->
+        map.setStyle(Maps.MAPBOX_MAP1) { style ->
             addLayersToMapStyle(style)
 
             addThreatCoverageLayer(style)
-            setBuildingFilter(style)
             setActiveThreatsLayer(style)
             setSelectedBuildingLayer(style)
             // addRadiusLayer(style)
@@ -216,22 +216,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
-    }
-
-    private fun setBuildingFilter(loadedMapStyle: Style) {
-        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
-        (buildingLayer as FillExtrusionLayer).withProperties(
-            fillExtrusionColor(
-                step(
-                    (get("height")), color(
-                        Color.parseColor("#dbd3c1")
-                    ),
-                    stop(30, color(Color.parseColor("#ada799"))),
-                    stop(60, color(Color.parseColor("#918c80"))),
-                    stop(100, color(Color.parseColor("#615d55")))
-                )
-            ), fillExtrusionOpacity(0.5f)
-        )
     }
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
