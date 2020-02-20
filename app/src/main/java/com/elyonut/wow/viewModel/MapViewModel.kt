@@ -764,23 +764,26 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun addFilterToLayer(filter: Pair<String, Boolean>, layer: Layer) {
+        val typeToFilter = filter.first
+        val isChecked = filter.second
+
         (layer as FillExtrusionLayer).setFilter(
-            if (!filter.second) {
+            if (isChecked) {
+                any(
+                    layer.filter,
+                    all(eq(get("type"), typeToFilter))
+                )
+            } else {
                 if (layer.filter != null) {
                     all(
                         layer.filter,
-                        all(neq(get("type"), filter.first))
+                        all(neq(get("type"), typeToFilter))
                     )
                 } else {
                     all(
-                        all(neq(get("type"), filter.first))
+                        all(neq(get("type"), typeToFilter))
                     )
                 }
-            } else {
-                any(
-                    layer.filter,
-                    all(eq(get("type"), filter.first))
-                )
             }
         )
     }
