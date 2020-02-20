@@ -38,7 +38,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 shouldCloseDrawer = false
             }
             item.itemId == R.id.select_all -> {
-                shouldSelectAllFilter.value = item.isChecked
+                shouldSelectAllFilter.value = (item.actionView as MaterialCheckBox).isChecked
             }
             item.groupId == R.id.filter_options -> {
                 chosenTypeToFilter.value = Pair(item.actionView.tag as String, (item.actionView as MaterialCheckBox).isChecked)

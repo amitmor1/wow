@@ -193,6 +193,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
 
         })
 
+        sharedViewModel.shouldSelectAllFilter.observe(this, Observer {
+            mapViewModel.filterLayerByAllTypes(it)
+        })
+
         mapViewModel.isFocusedOnLocation.observe(this, Observer {
             setCurrentLocationButtonIcon(it, view)
         })

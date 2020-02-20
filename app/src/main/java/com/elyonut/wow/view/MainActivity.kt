@@ -6,12 +6,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.SubMenu
 import android.view.WindowManager
 import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.core.view.forEach
 import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -29,6 +31,7 @@ import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.internal.NavigationSubMenu
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
@@ -94,7 +97,8 @@ class MainActivity : AppCompatActivity(),
         })
 
         mainViewModel.shouldSelectAllFilter.observe(this, Observer {
-
+            sharedViewModel.shouldSelectAllFilter.value = it
+            filterAllClicked(it)
         })
 
         mainViewModel.selectedExperimentalOption.observe(
@@ -218,26 +222,26 @@ class MainActivity : AppCompatActivity(),
 
     private fun initFilterSection() {
         val layerTypeValues = mainViewModel.getLayerTypeValues()?.toTypedArray()
-        val menu = navigationView.menu
-        val layersSubMenu = menu.getItem(2).subMenu
-        lateinit var menuItem: MenuItem
+        addSubMenuItem(navigationView.menu.getItem(2).subMenu, R.id.select_all, getString(R.string.select_all) )
+        layerTypeValues?.forEachIndexed { index, buildingType ->
+            addSubMenuItem(navigationView.menu.getItem(2).subMenu, index, buildingType)
+        }
+    }
 
-        menuItem = layersSubMenu.add(R.id.filter_options, R.id.select_all, Menu.NONE, "all")
+    private fun addSubMenuItem(subMenu: SubMenu, id: Int, name: String) {
+        val menuItem = subMenu.add(R.id.filter_options, id, Menu.NONE, name)
         val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
-        checkBoxView.tag = "all"
+        checkBoxView.tag = name
         menuItem.actionView = checkBoxView
         checkBoxView.setOnCheckedChangeListener { _, _ ->
             (::onNavigationItemSelected)(menuItem)
         }
+    }
 
-        layerTypeValues?.forEachIndexed { index, buildingType ->
-            val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
-            val menuItem = layersSubMenu.add(R.id.filter_options, index, index, buildingType)
-            checkBoxView.tag = buildingType
-            menuItem.actionView = checkBoxView
-            checkBoxView.setOnCheckedChangeListener { _, _ ->
-                (::onNavigationItemSelected)(menuItem)
-            }
+    private fun filterAllClicked(shouldFilter: Boolean) {
+        val menu = navigationView.menu
+        menu.getItem(2).subMenu.forEach { menuItem ->
+            (menuItem.actionView as MaterialCheckBox).isChecked = shouldFilter
         }
     }
 
