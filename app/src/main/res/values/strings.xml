@@ -34,6 +34,7 @@
     <string name="show_hide_threats_coverage">הצג / הסתר כיסוי מבנים</string>
     <string name="calculate_point_coverage">חישוב טווח יעיל</string>
     <string name="calculate_all_coverage">חשב מבנים לשכבת אויב</string>
+    <string name="nameStr">namestr</string>
     <string name="eAmount">eAmount</string>
     <string name="knowledgeType">knowledgeType</string>
     <string name="type">type</string>

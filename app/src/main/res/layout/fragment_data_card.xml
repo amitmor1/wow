@@ -87,12 +87,6 @@
                     android:textSize="22sp" />
 
                 <TextView
-                    android:id="@+id/timePassed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/time_passed" />
-
-                <TextView
                     android:id="@+id/knowledgeType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
