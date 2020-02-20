@@ -22,6 +22,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val shouldOpenAlertsFragment = MutableLiveData<Boolean>()
     val shouldOpenThreatsFragment = MutableLiveData<Boolean>()
     val chosenTypeToFilter = MutableLiveData<Pair<String, Boolean>>()
+    val isSelectAllChecked = MutableLiveData<Boolean>()
 
     fun onNavigationItemSelected(item: MenuItem): Boolean {
         var shouldCloseDrawer = true
@@ -35,6 +36,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             item.itemId == R.id.filterButton -> {
                 filterSelected.value = true
                 shouldCloseDrawer = false
+            }
+            item.itemId == R.id.select_all -> {
+                isSelectAllChecked.value = (item.actionView as MaterialCheckBox).isChecked
             }
             item.groupId == R.id.filter_options -> {
                 chosenTypeToFilter.value = Pair(item.actionView.tag as String, (item.actionView as MaterialCheckBox).isChecked)

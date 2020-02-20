@@ -29,7 +29,6 @@ import com.elyonut.wow.*
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.RiskStatus
 import com.elyonut.wow.model.Threat
-import com.elyonut.wow.viewModel.FilterHandler
 import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.viewModel.MapViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -191,6 +190,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         sharedViewModel.chosenTypeToFilter.observe(this, Observer<Pair<String, Boolean>> {
             mapViewModel.filterLayerByType(it)
 
+        })
+
+        sharedViewModel.isSelectAllChecked.observe(this, Observer {
+            mapViewModel.filterLayerByAllTypes(it)
         })
 
         mapViewModel.isFocusedOnLocation.observe(this, Observer {

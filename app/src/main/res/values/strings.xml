@@ -52,4 +52,5 @@
     <string name="alerts">התראות</string>
     <string name="empty_alerts_message">אין התראות</string>
     <string name="empty_buildings_message">אין בניינים</string>
+    <string name="select_all">בחר הכל</string>
 </resources>
