@@ -783,7 +783,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun addFilterToLayer(filter: Pair<String, Boolean>, layer: Layer) {
+    private fun addFilterToLayer(filter: Pair<String, Boolean>, layer: Layer) {
         (layer as FillExtrusionLayer).setFilter(
             if (!filter.second) {
                 if (layer.filter != null) {
