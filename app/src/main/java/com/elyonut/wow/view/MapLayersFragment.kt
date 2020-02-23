@@ -12,6 +12,7 @@ import com.elyonut.wow.adapter.MapLayersAdapter
 import com.elyonut.wow.R
 import android.view.Gravity
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
 import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.model.MapLayer
 import com.elyonut.wow.utilities.Maps
@@ -32,12 +33,10 @@ class MapLayersFragment: DialogFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_map_layers, container, false)
         mapLayersRecyclerView = view.findViewById(R.id.map_layers_list)
-        mapLayersRecyclerView.setHasFixedSize(true)
-        layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL,true)
-        mapLayersRecyclerView.layoutManager = layoutManager
+        mapLayersRecyclerView.layoutManager = GridLayoutManager(context, 3)
         mapLayersRecyclerView.itemAnimator = DefaultItemAnimator()
 
-        mapsList = arrayListOf(MapLayer(Maps.MAPBOX_STYLE_URL, "default"), MapLayer(Maps.MAPBOX_MAP1, "a"), MapLayer(Maps.MAPBOX_MAP2, "b"), MapLayer(Maps.MAPBOX_MAP3, "c"), MapLayer(Maps.MAPBOX_MAP4, "d"))
+        mapsList = arrayListOf(MapLayer(Maps.MAPBOX_STYLE_URL, "Basic"), MapLayer(Maps.MAPBOX_MAP1, "Blue"), MapLayer(Maps.MAPBOX_MAP2, "Red"), MapLayer(Maps.MAPBOX_MAP3, "Green"), MapLayer(Maps.MAPBOX_MAP4, "Purple"))
 
         initClickInterface()
 
