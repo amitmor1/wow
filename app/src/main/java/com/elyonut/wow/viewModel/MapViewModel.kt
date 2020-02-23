@@ -724,7 +724,13 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                     fillExtrusionColor(Color.RED), fillExtrusionOpacity(0.5f),
                     fillExtrusionHeight(get("height"))
                 )
-            } else {
+            } else if(layerModel.id == Constants.BUILDINGS_LAYER_ID){
+                FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
+                    fillExtrusionColor(Color.LTGRAY), fillExtrusionOpacity(0.5f),
+                    fillExtrusionHeight(get("height"))
+                )
+            }
+            else {
                 FillLayer(layerModel.id, layerModel.id)
             }
 
