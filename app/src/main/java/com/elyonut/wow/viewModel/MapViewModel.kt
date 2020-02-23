@@ -719,19 +719,20 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 GeoJsonSource(layerModel.id, FeatureCollection.fromFeatures(features))
             style.addSource(layerGeoJsonSource)
 
-            val layer: Layer = if (layerModel.id == Constants.THREAT_LAYER_ID) {
-                FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
-                    fillExtrusionColor(Color.RED), fillExtrusionOpacity(0.5f),
-                    fillExtrusionHeight(get("height"))
-                )
-            } else if(layerModel.id == Constants.BUILDINGS_LAYER_ID){
-                FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
-                    fillExtrusionColor(Color.LTGRAY), fillExtrusionOpacity(0.5f),
-                    fillExtrusionHeight(get("height"))
-                )
-            }
-            else {
-                FillLayer(layerModel.id, layerModel.id)
+            val layer: Layer = when (layerModel.id) {
+                Constants.THREAT_LAYER_ID ->
+                    FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
+                        fillExtrusionColor(Color.RED), fillExtrusionOpacity(0.5f),
+                        fillExtrusionHeight(get("height"))
+                    )
+                Constants.BUILDINGS_LAYER_ID ->
+                    FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
+                        fillExtrusionColor(Color.LTGRAY), fillExtrusionOpacity(0.8f),
+                        fillExtrusionHeight(get("height"))
+                    )
+                else -> {
+                    FillLayer(layerModel.id, layerModel.id)
+                }
             }
 
             style.addLayerAt(layer, style.layers.size - 1)
