@@ -6,22 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.adapter.MapLayersAdapter
 import com.elyonut.wow.R
 import android.view.Gravity
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
+import com.elyonut.wow.MapsManager
 import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.model.MapLayer
-import com.elyonut.wow.utilities.Maps
 import com.elyonut.wow.viewModel.SharedViewModel
 
 class MapLayersFragment: DialogFragment() {
     private lateinit var mapLayersRecyclerView: RecyclerView
     private var mapLayersAdapter: MapLayersAdapter? = null
-    private var layoutManager: RecyclerView.LayoutManager? = null
     private lateinit var onClickHandler: OnClickInterface
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var mapsList: ArrayList<MapLayer>
@@ -36,7 +34,7 @@ class MapLayersFragment: DialogFragment() {
         mapLayersRecyclerView.layoutManager = GridLayoutManager(context, 3)
         mapLayersRecyclerView.itemAnimator = DefaultItemAnimator()
 
-        mapsList = arrayListOf(MapLayer(Maps.MAPBOX_STYLE_URL, "Basic"), MapLayer(Maps.MAPBOX_MAP1, "Blue"), MapLayer(Maps.MAPBOX_MAP2, "Red"), MapLayer(Maps.MAPBOX_MAP3, "Green"), MapLayer(Maps.MAPBOX_MAP4, "Purple"))
+        mapsList = MapsManager().maps!!
 
         initClickInterface()
 
