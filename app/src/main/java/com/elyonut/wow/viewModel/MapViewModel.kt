@@ -104,21 +104,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         map = mapboxMap
         topographyService = TopographyService(map)
         threatAnalyzer = ThreatAnalyzer(map, topographyService)
-        map.setStyle(Maps.MAPBOX_STYLE_URL) { style ->
-            addLayersToMapStyle(style)
-
-            addThreatCoverageLayer(style)
-            setActiveThreatsLayer(style)
-            setSelectedBuildingLayer(style)
-            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
-            circleSource = initCircleSource(style)
-            fillSource = initLineSource(style)
-            initCircleLayer(style)
-            initLineLayer(style)
-            locationSetUp(style)
-
-            map.uiSettings.compassGravity = Gravity.RIGHT
-        }
+        setMapStyle(Maps.MAPBOX_STYLE_URL)
 
         setCameraMoveListener()
     }
@@ -175,7 +161,21 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setMapStyle(URL: String){
-        map.setStyle(URL)
+        map.setStyle(URL) { style ->
+            addLayersToMapStyle(style)
+
+           // addThreatCoverageLayer(style)
+            setActiveThreatsLayer(style)
+            setSelectedBuildingLayer(style)
+            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
+            circleSource = initCircleSource(style)
+            fillSource = initLineSource(style)
+            initCircleLayer(style)
+            initLineLayer(style)
+            locationSetUp(style)
+
+            map.uiSettings.compassGravity = Gravity.RIGHT
+        }
     }
 
     fun checkRiskStatus() {
