@@ -707,6 +707,29 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             }
         )
     }
+
+    //ToDo:
+    //    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
+////        model.onMapClick()
+//        val loadedMapStyle = mapboxMap.style
+//
+//        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+//            return false
+//        }
+//
+//        val point = mapboxMap.projection.toScreenLocation(latLng)
+//        val features =
+//            mapboxMap.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+//
+//        if (features.size > 0) {
+//            selectedBuildingId.value = features.first().id()
+//            val selectedBuildingSource =
+//                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+//            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+//        }
+//
+//        return true
+//    }
 }
 
 class FilterHandler {
