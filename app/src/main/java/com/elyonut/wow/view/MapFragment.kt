@@ -30,6 +30,7 @@ import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.RiskStatus
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.utilities.Constants
+import com.elyonut.wow.utilities.Maps
 import com.elyonut.wow.viewModel.MapViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -72,7 +73,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Mapbox.getInstance(listenerMap as Context, Constants.MAPBOX_ACCESS_TOKEN)
+        Mapbox.getInstance(listenerMap as Context, Maps.MAPBOX_ACCESS_TOKEN)
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         mapViewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
@@ -87,7 +88,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         initArea()
         setObservers(view)
         initFocusOnMyLocationButton(view)
-//        initShowRadiusLayerButton(view)
         initBroadcastReceiver()
         initMapLayersButton(view)
 
@@ -205,6 +205,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                 alertsManager.shouldPopAlert.value = false
                 setAlertPopUp(alertsManager.alerts.value?.findLast { !it.isRead }!!)
             }
+        })
+
+        sharedViewModel.mapStyleURL.observe(this, Observer {
+            mapViewModel.setMapStyle(it)
         })
     }
 

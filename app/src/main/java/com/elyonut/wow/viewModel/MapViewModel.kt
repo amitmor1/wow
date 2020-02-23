@@ -31,6 +31,7 @@ import com.elyonut.wow.parser.MapboxParser
 import com.elyonut.wow.utilities.NumericFilterTypes
 import com.elyonut.wow.utilities.TempDB
 import com.elyonut.wow.utilities.Constants
+import com.elyonut.wow.utilities.Maps
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -103,14 +104,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         map = mapboxMap
         topographyService = TopographyService(map)
         threatAnalyzer = ThreatAnalyzer(map, topographyService)
-        map.setStyle(Constants.MAPBOX_STYLE_URL) { style ->
+        map.setStyle(Maps.MAPBOX_STYLE_URL) { style ->
             addLayersToMapStyle(style)
 
             addThreatCoverageLayer(style)
-            setBuildingFilter(style)
             setActiveThreatsLayer(style)
             setSelectedBuildingLayer(style)
-            // addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
@@ -175,6 +174,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+    fun setMapStyle(URL: String){
+        map.setStyle(URL)
+    }
+
     fun checkRiskStatus() {
         val currentThreatsIds = getCurrentThreatIds()
         if (riskStatus.value == RiskStatus.HIGH) {
@@ -216,22 +219,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
-    }
-
-    private fun setBuildingFilter(loadedMapStyle: Style) {
-        val buildingLayer = loadedMapStyle.getLayer(Constants.BUILDINGS_LAYER_ID)
-        (buildingLayer as FillExtrusionLayer).withProperties(
-            fillExtrusionColor(
-                step(
-                    (get("height")), color(
-                        Color.parseColor("#dbd3c1")
-                    ),
-                    stop(30, color(Color.parseColor("#ada799"))),
-                    stop(60, color(Color.parseColor("#918c80"))),
-                    stop(100, color(Color.parseColor("#615d55")))
-                )
-            ), fillExtrusionOpacity(0.5f)
-        )
     }
 
     private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
@@ -306,10 +293,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         loadedMapStyle.addLayer(circleLayer)
     }
 
-    fun toggleThreatCoverage() {
-        changeLayerVisibility(Constants.THREAT_COVERAGE_LAYER_ID)
-    }
-
     private fun getCoveragePointsJson(): String {
         val stream: InputStream =
             App.resourses.assets.open("arlozerov_coverage.geojson") //TODO what is this file, and why not in constatns
@@ -319,53 +302,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         stream.close()
         val jsonObj = String(buffer, charset("UTF-8"))
         return jsonObj
-    }
-
-    private fun addRadiusLayer(loadedStyle: Style) {
-        createRadiusSource(loadedStyle)
-        createRadiusLayer(loadedStyle)
-    }
-
-    private fun createRadiusSource(loadedStyle: Style) {
-        val circleGeoJsonSource =
-            GeoJsonSource(Constants.THREAT_RADIUS_SOURCE_ID, getThreatRadiuses())
-        loadedStyle.addSource(circleGeoJsonSource)
-    }
-
-    private fun getThreatRadiuses(): FeatureCollection {
-        val threatRadiuses = mutableListOf<Feature>()
-
-        mapAdapter.createThreatRadiusSource().forEach {
-            threatRadiuses.add(MapboxParser.parseToMapboxFeature(it))
-        }
-
-        return FeatureCollection.fromFeatures(threatRadiuses)
-    }
-
-    private fun createRadiusLayer(loadedStyle: Style) {
-        val fillLayer = FillLayer(
-            Constants.THREAT_RADIUS_LAYER_ID,
-            Constants.THREAT_RADIUS_SOURCE_ID
-        )
-        fillLayer.setProperties(
-            fillColor(
-                step(
-                    get(Constants.THREAT_PROPERTY),
-                    color(RiskStatus.NONE.color),
-                    stop(0, color(RiskStatus.LOW.color)),
-                    stop(0.4, color(RiskStatus.MEDIUM.color)),
-                    stop(0.7, color(RiskStatus.HIGH.color))
-                )
-            ),
-            fillOpacity(.4f),
-            visibility(NONE)
-        )
-
-        loadedStyle.addLayer(fillLayer)
-    }
-
-    fun showRadiusLayerButtonClicked(layerId: String) {
-        changeLayerVisibility(layerId)
     }
 
     fun layerSelected(layerId: String) {
@@ -433,29 +369,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun removeFilter(style: Style, layerId: String) {
         FilterHandler.removeFilter(style, layerId)
     }
-
-
-//    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
-////        model.onMapClick()
-//        val loadedMapStyle = mapboxMap.style
-//
-//        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
-//            return false
-//        }
-//
-//        val point = mapboxMap.projection.toScreenLocation(latLng)
-//        val features =
-//            mapboxMap.queryRenderedFeatures(point, getString(R.string.buildings_layer))
-//
-//        if (features.size > 0) {
-//            selectedBuildingId.value = features.first().id()
-//            val selectedBuildingSource =
-//                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
-//            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
-//        }
-//
-//        return true
-//    }
 
     fun drawPolygonMode(latLng: LatLng) {
         val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.latitude)
@@ -735,13 +648,20 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 GeoJsonSource(layerModel.id, FeatureCollection.fromFeatures(features))
             style.addSource(layerGeoJsonSource)
 
-            val layer: Layer = if (layerModel.id == Constants.THREAT_LAYER_ID) {
-                FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
-                    fillExtrusionColor(Color.RED), fillExtrusionOpacity(0.5f),
-                    fillExtrusionHeight(get("height"))
-                )
-            } else {
-                FillLayer(layerModel.id, layerModel.id)
+            val layer: Layer = when (layerModel.id) {
+                Constants.THREAT_LAYER_ID ->
+                    FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
+                        fillExtrusionColor(Color.RED), fillExtrusionOpacity(0.5f),
+                        fillExtrusionHeight(get("height"))
+                    )
+                Constants.BUILDINGS_LAYER_ID ->
+                    FillExtrusionLayer(layerModel.id, layerModel.id).withProperties(
+                        fillExtrusionColor(Color.LTGRAY), fillExtrusionOpacity(0.8f),
+                        fillExtrusionHeight(get("height"))
+                    )
+                else -> {
+                    FillLayer(layerModel.id, layerModel.id)
+                }
             }
 
             style.addLayerAt(layer, style.layers.size - 1)

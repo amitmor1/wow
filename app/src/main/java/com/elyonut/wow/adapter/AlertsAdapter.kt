@@ -12,6 +12,7 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.R
+import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.view.AlertsFragment
 import com.squareup.picasso.Picasso
@@ -20,11 +21,11 @@ import java.util.*
 class AlertsAdapter(
     var context: Context,
     alerts: LinkedList<AlertModel>,
-    onClickHandler: AlertsFragment.OnClickInterface
+    onClickHandler: OnClickInterface
 ) : RecyclerView.Adapter<AlertsAdapter.AlertsViewHolder>() {
 
     var alerts = LinkedList<AlertModel>()
-    var onClickInterface: AlertsFragment.OnClickInterface
+    var onClickInterface: OnClickInterface
 
     init {
         this.alerts = alerts

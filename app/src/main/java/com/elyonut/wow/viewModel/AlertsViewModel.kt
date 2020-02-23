@@ -4,10 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.elyonut.wow.adapter.AlertsAdapter
 import com.elyonut.wow.AlertsManager
+import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.view.AlertsFragment
 
-class AlertsViewModel(application: Application, var alertsManager: AlertsManager, onClickHandler: AlertsFragment.OnClickInterface): AndroidViewModel(application) {
+class AlertsViewModel(application: Application, var alertsManager: AlertsManager, onClickHandler: OnClickInterface): AndroidViewModel(application) {
     var alertsAdapter: AlertsAdapter? = null
 
     init {
