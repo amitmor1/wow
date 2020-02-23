@@ -12,6 +12,7 @@ import com.elyonut.wow.adapter.MapLayersAdapter
 import com.elyonut.wow.R
 import android.view.Gravity
 import androidx.lifecycle.ViewModelProviders
+import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.model.MapLayer
 import com.elyonut.wow.utilities.Maps
 import com.elyonut.wow.viewModel.SharedViewModel
@@ -23,10 +24,6 @@ class MapLayersFragment: DialogFragment() {
     private lateinit var onClickHandler: OnClickInterface
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var mapsList: ArrayList<MapLayer>
-
-    interface OnClickInterface {
-        fun setClick(view: View, position: Int)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,7 +37,7 @@ class MapLayersFragment: DialogFragment() {
         mapLayersRecyclerView.layoutManager = layoutManager
         mapLayersRecyclerView.itemAnimator = DefaultItemAnimator()
 
-        mapsList = arrayListOf(MapLayer(Maps.MAPBOX_MAP1, "a"), MapLayer(Maps.MAPBOX_MAP2, "b"), MapLayer(Maps.MAPBOX_MAP3, "c"), MapLayer(Maps.MAPBOX_MAP4, "d"))
+        mapsList = arrayListOf(MapLayer(Maps.MAPBOX_STYLE_URL, "default"), MapLayer(Maps.MAPBOX_MAP1, "a"), MapLayer(Maps.MAPBOX_MAP2, "b"), MapLayer(Maps.MAPBOX_MAP3, "c"), MapLayer(Maps.MAPBOX_MAP4, "d"))
 
         initClickInterface()
 
@@ -61,7 +58,7 @@ class MapLayersFragment: DialogFragment() {
     }
 
     private fun initClickInterface() {
-        onClickHandler = object : MapLayersFragment.OnClickInterface {
+        onClickHandler = object : OnClickInterface {
             override fun setClick(view: View, position: Int) {
                 when (view.id) {
                     R.id.map_type_image -> {

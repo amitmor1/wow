@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.AlertsManager
 import com.elyonut.wow.viewModel.AlertsViewModelFactory
 import com.elyonut.wow.R
+import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.viewModel.AlertsViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 
@@ -27,10 +28,6 @@ class AlertsFragment : Fragment() {
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var alertsViewModel: AlertsViewModel
     private lateinit var alertsManager: AlertsManager
-
-    interface OnClickInterface {
-        fun setClick(view: View, position: Int)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

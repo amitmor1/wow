@@ -104,7 +104,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         map = mapboxMap
         topographyService = TopographyService(map)
         threatAnalyzer = ThreatAnalyzer(map, topographyService)
-        map.setStyle(Maps.MAPBOX_MAP1) { style ->
+        map.setStyle(Maps.MAPBOX_STYLE_URL) { style ->
             addLayersToMapStyle(style)
 
             addThreatCoverageLayer(style)
@@ -686,22 +686,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private fun addFilterToLayer(filter: Pair<String, Boolean>, layer: Layer) {
         val typeToFilter = filter.first
         val isChecked = filter.second
-
-//        (layer as FillExtrusionLayer).setFilter(
-//            when (isChecked) {
-//                true -> any(
-//                    layer.filter,
-//                    all(eq(get("type"), typeToFilter))
-//                )
-//                null -> all(
-//                    all(neq(get("type"), typeToFilter))
-//                )
-//                else -> all(
-//                    layer.filter,
-//                    all(neq(get("type"), typeToFilter))
-//                )
-//            }
-//        )
 
         (layer as FillExtrusionLayer).setFilter(
             if (isChecked) {

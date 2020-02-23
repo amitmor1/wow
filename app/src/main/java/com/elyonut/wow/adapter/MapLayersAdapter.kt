@@ -8,16 +8,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.R
+import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.model.MapLayer
 import com.elyonut.wow.view.MapLayersFragment
 
 class MapLayersAdapter(
     var context: Context,
     var mapLayers: ArrayList<MapLayer>,
-    onClickHandler: MapLayersFragment.OnClickInterface
+    onClickHandler: OnClickInterface
 ) : RecyclerView.Adapter<MapLayersAdapter.MapLayersViewHolder>() {
 
-    var onClickInterface: MapLayersFragment.OnClickInterface = onClickHandler
+    var onClickInterface: OnClickInterface = onClickHandler
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MapLayersViewHolder {
         return MapLayersViewHolder(
