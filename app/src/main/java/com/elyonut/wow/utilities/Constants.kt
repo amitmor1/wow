@@ -9,13 +9,10 @@ class Constants {
         const val THREAT_RADIUS_LAYER_ID = "THREAT_RADIUS_LAYER"
         const val SELECTED_BUILDING_SOURCE_ID = "SELECTED_BUILDING_SOURCE"
         const val SELECTED_BUILDING_LAYER_ID = "SELECTED_BUILDING_LAYER"
-        const val MAPBOX_STYLE_URL = "mapbox://styles/wowdev/ck2abkdff0mc91clfa04mr7ff"
         const val ACTIVE_THREATS_SOURCE_ID = "ACTIVE_THREATS_SOURCE"
         const val ACTIVE_THREATS_LAYER_ID = "ACTIVE_THREATS_LAYER"
         const val THREAT_COVERAGE_SOURCE_ID = "THREAT_COVERAGE_SOURCE"
         const val THREAT_COVERAGE_LAYER_ID = "THREAT_COVERAGE_LAYER"
-        const val MAPBOX_ACCESS_TOKEN =
-            "pk.eyJ1Ijoid293ZGV2IiwiYSI6ImNqd2o2NWJvZDBnMHkzeXFrY2JncDA4YnAifQ.nBIwjHkMCNx5H25pCTl4Vg"
         const val REGULAR_OPACITY = 0.4f
         const val HIGH_OPACITY = 0.7f
         const val CIRCLE_SOURCE_ID = "circle-source-id"
