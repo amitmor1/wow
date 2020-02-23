@@ -28,6 +28,7 @@ import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.utilities.Maps
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = getSharedPreferences("com.elyonut.wow.prefs", Context.MODE_PRIVATE)
-        Mapbox.getInstance(applicationContext, Constants.MAPBOX_ACCESS_TOKEN)
+        Mapbox.getInstance(applicationContext, Maps.MAPBOX_ACCESS_TOKEN)
         setContentView(R.layout.activity_main)
         logger.initLogger()
 

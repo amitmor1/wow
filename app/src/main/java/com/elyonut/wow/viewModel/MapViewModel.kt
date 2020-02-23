@@ -110,7 +110,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             addThreatCoverageLayer(style)
             setActiveThreatsLayer(style)
             setSelectedBuildingLayer(style)
-            // addRadiusLayer(style)
             setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
@@ -173,6 +172,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         val latLng = LatLng(location.latitude, location.longitude)
         calcThreatsTask!!.execute(latLng)
 
+    }
+
+    fun setMapStyle(URL: String){
+        map.setStyle(URL)
     }
 
     fun checkRiskStatus() {
@@ -290,10 +293,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         loadedMapStyle.addLayer(circleLayer)
     }
 
-    fun toggleThreatCoverage() {
-        changeLayerVisibility(Constants.THREAT_COVERAGE_LAYER_ID)
-    }
-
     private fun getCoveragePointsJson(): String {
         val stream: InputStream =
             App.resourses.assets.open("arlozerov_coverage.geojson") //TODO what is this file, and why not in constatns
@@ -303,53 +302,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         stream.close()
         val jsonObj = String(buffer, charset("UTF-8"))
         return jsonObj
-    }
-
-    private fun addRadiusLayer(loadedStyle: Style) {
-        createRadiusSource(loadedStyle)
-        createRadiusLayer(loadedStyle)
-    }
-
-    private fun createRadiusSource(loadedStyle: Style) {
-        val circleGeoJsonSource =
-            GeoJsonSource(Constants.THREAT_RADIUS_SOURCE_ID, getThreatRadiuses())
-        loadedStyle.addSource(circleGeoJsonSource)
-    }
-
-    private fun getThreatRadiuses(): FeatureCollection {
-        val threatRadiuses = mutableListOf<Feature>()
-
-        mapAdapter.createThreatRadiusSource().forEach {
-            threatRadiuses.add(MapboxParser.parseToMapboxFeature(it))
-        }
-
-        return FeatureCollection.fromFeatures(threatRadiuses)
-    }
-
-    private fun createRadiusLayer(loadedStyle: Style) {
-        val fillLayer = FillLayer(
-            Constants.THREAT_RADIUS_LAYER_ID,
-            Constants.THREAT_RADIUS_SOURCE_ID
-        )
-        fillLayer.setProperties(
-            fillColor(
-                step(
-                    get(Constants.THREAT_PROPERTY),
-                    color(RiskStatus.NONE.color),
-                    stop(0, color(RiskStatus.LOW.color)),
-                    stop(0.4, color(RiskStatus.MEDIUM.color)),
-                    stop(0.7, color(RiskStatus.HIGH.color))
-                )
-            ),
-            fillOpacity(.4f),
-            visibility(NONE)
-        )
-
-        loadedStyle.addLayer(fillLayer)
-    }
-
-    fun showRadiusLayerButtonClicked(layerId: String) {
-        changeLayerVisibility(layerId)
     }
 
     fun layerSelected(layerId: String) {
@@ -417,29 +369,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun removeFilter(style: Style, layerId: String) {
         FilterHandler.removeFilter(style, layerId)
     }
-
-
-//    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
-////        model.onMapClick()
-//        val loadedMapStyle = mapboxMap.style
-//
-//        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
-//            return false
-//        }
-//
-//        val point = mapboxMap.projection.toScreenLocation(latLng)
-//        val features =
-//            mapboxMap.queryRenderedFeatures(point, getString(R.string.buildings_layer))
-//
-//        if (features.size > 0) {
-//            selectedBuildingId.value = features.first().id()
-//            val selectedBuildingSource =
-//                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
-//            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
-//        }
-//
-//        return true
-//    }
 
     fun drawPolygonMode(latLng: LatLng) {
         val mapTargetPoint = Point.fromLngLat(latLng.longitude, latLng.latitude)
@@ -757,6 +686,22 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private fun addFilterToLayer(filter: Pair<String, Boolean>, layer: Layer) {
         val typeToFilter = filter.first
         val isChecked = filter.second
+
+//        (layer as FillExtrusionLayer).setFilter(
+//            when (isChecked) {
+//                true -> any(
+//                    layer.filter,
+//                    all(eq(get("type"), typeToFilter))
+//                )
+//                null -> all(
+//                    all(neq(get("type"), typeToFilter))
+//                )
+//                else -> all(
+//                    layer.filter,
+//                    all(neq(get("type"), typeToFilter))
+//                )
+//            }
+//        )
 
         (layer as FillExtrusionLayer).setFilter(
             if (isChecked) {

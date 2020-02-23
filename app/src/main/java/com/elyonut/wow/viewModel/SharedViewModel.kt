@@ -33,12 +33,13 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var shouldOpenThreatsFragment = MutableLiveData<Boolean>()
     val chosenTypeToFilter = MutableLiveData<Pair<String, Boolean>>()
     val isSelectAllChecked = MutableLiveData<Boolean>()
+    val mapStyleURL = MutableLiveData<String>()
 
     fun applySaveCoverageSettingsButtonClicked(coverageRange: Double, resolution: Double, height: Double?, heightChecked: Boolean) {
         this.coverageRangeMeters = coverageRange
         this.coverageResolutionMeters = resolution
 
-        if( height!= null ){
+        if(height!= null){
             this.coverageSearchHeightMeters = height
         }
 

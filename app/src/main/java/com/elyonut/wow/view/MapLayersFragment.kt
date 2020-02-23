@@ -11,11 +11,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.elyonut.wow.adapter.MapLayersAdapter
 import com.elyonut.wow.R
 import android.view.Gravity
+import androidx.lifecycle.ViewModelProviders
+import com.elyonut.wow.model.MapLayer
+import com.elyonut.wow.utilities.Maps
+import com.elyonut.wow.viewModel.SharedViewModel
 
 class MapLayersFragment: DialogFragment() {
     private lateinit var mapLayersRecyclerView: RecyclerView
     private var mapLayersAdapter: MapLayersAdapter? = null
     private var layoutManager: RecyclerView.LayoutManager? = null
+    private lateinit var onClickHandler: OnClickInterface
+    private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var mapsList: ArrayList<MapLayer>
+
+    interface OnClickInterface {
+        fun setClick(view: View, position: Int)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,10 +39,16 @@ class MapLayersFragment: DialogFragment() {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL,true)
         mapLayersRecyclerView.layoutManager = layoutManager
         mapLayersRecyclerView.itemAnimator = DefaultItemAnimator()
-        mapLayersAdapter =
-            MapLayersAdapter(context!!, arrayListOf("a", "b"))
-        mapLayersRecyclerView.adapter = mapLayersAdapter
 
+        mapsList = arrayListOf(MapLayer(Maps.MAPBOX_MAP1, "a"), MapLayer(Maps.MAPBOX_MAP2, "b"), MapLayer(Maps.MAPBOX_MAP3, "c"), MapLayer(Maps.MAPBOX_MAP4, "d"))
+
+        initClickInterface()
+
+        mapLayersAdapter =
+            MapLayersAdapter(context!!, mapsList, onClickHandler)
+        mapLayersRecyclerView.adapter = mapLayersAdapter
+        sharedViewModel =
+            activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
         val window = dialog!!.window
         window!!.setGravity(Gravity.TOP or Gravity.LEFT)
@@ -41,5 +58,17 @@ class MapLayersFragment: DialogFragment() {
         window.attributes = params
 
         return view
+    }
+
+    private fun initClickInterface() {
+        onClickHandler = object : MapLayersFragment.OnClickInterface {
+            override fun setClick(view: View, position: Int) {
+                when (view.id) {
+                    R.id.map_type_image -> {
+                        sharedViewModel.mapStyleURL.value = mapsList[position].id
+                    }
+                }
+            }
+        }
     }
 }

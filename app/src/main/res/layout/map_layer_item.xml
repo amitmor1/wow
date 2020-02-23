@@ -40,9 +40,8 @@
         </androidx.cardview.widget.CardView>
     </FrameLayout>
 
-
     <TextView
-        android:id="@+id/map_type_description"
+        android:id="@+id/map_type_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
