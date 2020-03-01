@@ -16,6 +16,8 @@ import com.elyonut.wow.MapsManager
 import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.model.MapLayer
 import com.elyonut.wow.viewModel.SharedViewModel
+import kotlinx.android.synthetic.main.alert_item.view.*
+import kotlinx.android.synthetic.main.map_layer_item.view.*
 
 class MapLayersFragment: DialogFragment() {
     private lateinit var mapLayersRecyclerView: RecyclerView
@@ -34,7 +36,7 @@ class MapLayersFragment: DialogFragment() {
         mapLayersRecyclerView.layoutManager = GridLayoutManager(context, 3)
         mapLayersRecyclerView.itemAnimator = DefaultItemAnimator()
 
-        mapsList = MapsManager().maps!!
+        mapsList = MapsManager(context!!).maps!!
 
         initClickInterface()
 

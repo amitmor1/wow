@@ -105,8 +105,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         topographyService = TopographyService(map)
         threatAnalyzer = ThreatAnalyzer(map, topographyService)
         setMapStyle(Maps.MAPBOX_STYLE_URL)
-
         setCameraMoveListener()
+        map.uiSettings.compassGravity = Gravity.RIGHT
     }
 
     private fun locationSetUp(loadedMapStyle: Style) {
@@ -163,18 +163,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun setMapStyle(URL: String){
         map.setStyle(URL) { style ->
             addLayersToMapStyle(style)
-
-           // addThreatCoverageLayer(style)
             setActiveThreatsLayer(style)
             setSelectedBuildingLayer(style)
             setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
-            circleSource = initCircleSource(style)
-            fillSource = initLineSource(style)
+     //       circleSource = initCircleSource(style)
+      //      fillSource = initLineSource(style)
             initCircleLayer(style)
             initLineLayer(style)
             locationSetUp(style)
-
-            map.uiSettings.compassGravity = Gravity.RIGHT
         }
     }
 
@@ -633,6 +629,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 locationAdapter?.getCurrentLocation()!!.value!!.latitude,
                 locationAdapter?.getCurrentLocation()!!.value!!.longitude
             )
+
             isFocusedOnLocation.value =
                 cameraLocation.distanceTo(currentLocation) <= Constants.MAX_DISTANCE_TO_CURRENT_LOCATION
         }
