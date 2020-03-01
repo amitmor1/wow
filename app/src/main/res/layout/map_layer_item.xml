@@ -10,7 +10,6 @@
         android:id="@+id/map_item_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/card_edge"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
