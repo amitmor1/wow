@@ -16,7 +16,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.elyonut.wow.*
 import com.elyonut.wow.adapter.LocationAdapter
-import com.elyonut.wow.adapter.MapAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
 import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.analysis.*
@@ -54,6 +53,7 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import java.io.InputStream
+import javax.security.auth.callback.Callback
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -68,8 +68,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         PermissionsAdapter(getApplication())
     internal var locationAdapter: ILocationManager? = null
     val layerManager = LayerManager(tempDB)
-    private val mapAdapter: MapAdapter =
-        MapAdapter(layerManager)
     var selectedBuildingId = MutableLiveData<String>()
     var isPermissionRequestNeeded = MutableLiveData<Boolean>()
     var isAlertVisible = MutableLiveData<Boolean>()
@@ -104,42 +102,28 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         map = mapboxMap
         topographyService = TopographyService(map)
         threatAnalyzer = ThreatAnalyzer(map, topographyService)
-        map.setStyle(Maps.MAPBOX_STYLE_URL) { style ->
-            addLayersToMapStyle(style)
-
-            addThreatCoverageLayer(style)
-            setActiveThreatsLayer(style)
-            setSelectedBuildingLayer(style)
-            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
-            circleSource = initCircleSource(style)
-            fillSource = initLineSource(style)
-            initCircleLayer(style)
-            initLineLayer(style)
-            locationSetUp(style)
-
-            map.uiSettings.compassGravity = Gravity.RIGHT
-        }
-
+        setMapStyle(Maps.MAPBOX_STYLE_URL) {locationSetUp()}
         setCameraMoveListener()
+        map.uiSettings.compassGravity = Gravity.RIGHT
     }
 
-    private fun locationSetUp(loadedMapStyle: Style) {
+    private fun locationSetUp() {
         if (permissions.isLocationPermitted()) {
-            startLocationService(loadedMapStyle)
+            startLocationService()
         } else {
             isPermissionRequestNeeded.value = true
         }
     }
 
     @SuppressLint("MissingPermission")
-    fun startLocationService(loadedMapStyle: Style) {
+    fun startLocationService() {
         val myLocationComponentOptions = LocationComponentOptions.builder(getApplication())
             .trackingGesturesManagement(true)
             .accuracyColor(ContextCompat.getColor(getApplication(), R.color.myLocationColor))
             .build()
 
         val locationComponentActivationOptions =
-            LocationComponentActivationOptions.builder(getApplication(), loadedMapStyle)
+            LocationComponentActivationOptions.builder(getApplication(), map.style!!)
                 .locationComponentOptions(myLocationComponentOptions).build()
 
         map.locationComponent.apply {
@@ -155,7 +139,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 map.locationComponent
             )
 
-
         if (!locationAdapter!!.isGpsEnabled()) {
             isAlertVisible.value = true
         }
@@ -168,14 +151,26 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         if (calcThreatsTask != null && calcThreatsTask!!.status != AsyncTask.Status.FINISHED) {
             return //Returning as the current task execution is not finished yet.
         }
+
         calcThreatsTask = CalcThreatStatusAsync(this, false)
         val latLng = LatLng(location.latitude, location.longitude)
         calcThreatsTask!!.execute(latLng)
 
     }
 
-    fun setMapStyle(URL: String){
-        map.setStyle(URL)
+    fun setMapStyle(URL: String, callback: (() -> Unit)? = null){
+        map.setStyle(URL) { style ->
+            addLayersToMapStyle(style)
+            addThreatCoverageLayer(style)
+            setActiveThreatsLayer(style)
+            setSelectedBuildingLayer(style)
+            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
+            circleSource = initCircleSource(style)
+            fillSource = initLineSource(style)
+            initCircleLayer(style)
+            initLineLayer(style)
+            callback?.invoke()
+        }
     }
 
     fun checkRiskStatus() {
@@ -215,7 +210,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                             Toast.LENGTH_LONG
                         )
                 } else {
-                    startLocationService((map.style!!))
+                    startLocationService()
                 }
             }
         }
@@ -279,6 +274,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 getCoveragePointsJson()
             )
         )
+
         val circleLayer = CircleLayer(
             Constants.THREAT_COVERAGE_LAYER_ID,
             Constants.THREAT_COVERAGE_SOURCE_ID
@@ -633,6 +629,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 locationAdapter?.getCurrentLocation()!!.value!!.latitude,
                 locationAdapter?.getCurrentLocation()!!.value!!.longitude
             )
+
             isFocusedOnLocation.value =
                 cameraLocation.distanceTo(currentLocation) <= Constants.MAX_DISTANCE_TO_CURRENT_LOCATION
         }
@@ -707,6 +704,29 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             }
         )
     }
+
+    //ToDo:
+    //    fun onMapClick(mapboxMap: MapboxMap, latLng: LatLng): Boolean {
+////        model.onMapClick()
+//        val loadedMapStyle = mapboxMap.style
+//
+//        if (loadedMapStyle == null || !loadedMapStyle.isFullyLoaded) {
+//            return false
+//        }
+//
+//        val point = mapboxMap.projection.toScreenLocation(latLng)
+//        val features =
+//            mapboxMap.queryRenderedFeatures(point, getString(R.string.buildings_layer))
+//
+//        if (features.size > 0) {
+//            selectedBuildingId.value = features.first().id()
+//            val selectedBuildingSource =
+//                loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+//            selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
+//        }
+//
+//        return true
+//    }
 }
 
 class FilterHandler {

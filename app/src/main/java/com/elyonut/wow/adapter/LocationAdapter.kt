@@ -76,7 +76,7 @@ class LocationAdapter(
                 }
             }
 
-            lastUpdatedLocation!!.value = location
+            lastUpdatedLocation?.value = location
             locationAdapterWeakReference.get()?.locationComponent?.forceLocationUpdate(location)
         }
 

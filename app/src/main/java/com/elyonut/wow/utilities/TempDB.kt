@@ -26,9 +26,9 @@ class TempDB(var context: Context) {
         val restaurantsLayerModel = LayerModel("restaurants", "מסעדות", restaurantsFeatures.toList())
         val centerTLVLayerModel = LayerModel(Constants.BUILDINGS_LAYER_ID, "מרכז תל אביב", centerTLVFeatures.toList())
 
-        layersList.add(layerModel)
         layersList.add(restaurantsLayerModel)
         layersList.add(centerTLVLayerModel)
+        layersList.add(layerModel)
 
         return layersList
     }
