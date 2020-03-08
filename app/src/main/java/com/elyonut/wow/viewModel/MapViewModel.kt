@@ -161,6 +161,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun setMapStyle(URL: String, callback: (() -> Unit)? = null){
         map.setStyle(URL) { style ->
             addLayersToMapStyle(style)
+            addThreatCoverageLayer(style)
             setActiveThreatsLayer(style)
             setSelectedBuildingLayer(style)
             setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
@@ -273,6 +274,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 getCoveragePointsJson()
             )
         )
+
         val circleLayer = CircleLayer(
             Constants.THREAT_COVERAGE_LAYER_ID,
             Constants.THREAT_COVERAGE_SOURCE_ID
