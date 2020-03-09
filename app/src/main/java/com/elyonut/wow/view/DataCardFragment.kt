@@ -114,6 +114,11 @@ class DataCardFragment : Fragment() {
                 super.onSwipeRight()
                 dataCardViewModel.close()
             }
+
+            override fun onSwipeLeft() {
+                super.onSwipeLeft()
+                dataCardViewModel.close()
+            }
         })
     }
 
