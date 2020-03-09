@@ -1,20 +1,20 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:id="@+id/dataCardParentLayout"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:layout_marginEnd="4dp"
-             android:layout_marginStart="4dp"
-             android:clickable="true"
-             android:focusable="true"
-             app:layout_constraintTop_toBottomOf="parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dataCardParentLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:layout_constraintTop_toBottomOf="parent">
 
     <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="238dp"
-            android:id="@+id/buildingDataCard"
-            app:layout_constraintTop_toBottomOf="parent">
+        android:id="@+id/buildingDataCard"
+        android:layout_width="match_parent"
+        android:layout_height="238dp"
+        app:layout_constraintTop_toBottomOf="parent">
 
         <ImageView
             android:id="@+id/buildingStateColor"
@@ -45,8 +45,7 @@
                 android:layout_marginEnd="8dp"
                 android:contentDescription="@string/type_image"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/sunflower" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/closeButton"
@@ -90,7 +89,7 @@
                     android:id="@+id/knowledgeType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="סוג ידיעה"/>
+                    android:text="סוג ידיעה" />
 
                 <TextView
                     android:id="@+id/eAmount"
@@ -102,7 +101,7 @@
                     android:id="@+id/type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="סוג הקבוצה"/>
+                    android:text="סוג הקבוצה" />
 
                 <TextView
                     android:id="@+id/range"
@@ -119,7 +118,7 @@
                     android:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n\n ועוד מלא"
                     android:visibility="gone"
                     tools:text="עוד טקסטטט \n ועוד \n ועוד \n\n\n\n\n\n\n\n\n ועוד מלא"
-                    tools:visibility="visible"/>
+                    tools:visibility="visible" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

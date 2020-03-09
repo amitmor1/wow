@@ -14,7 +14,9 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.elyonut.wow.*
+import com.elyonut.wow.App
+import com.elyonut.wow.LayerManager
+import com.elyonut.wow.R
 import com.elyonut.wow.adapter.LocationAdapter
 import com.elyonut.wow.adapter.PermissionsAdapter
 import com.elyonut.wow.adapter.TimberLogAdapter
@@ -27,10 +29,10 @@ import com.elyonut.wow.model.RiskStatus
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.model.ThreatLevel
 import com.elyonut.wow.parser.MapboxParser
-import com.elyonut.wow.utilities.NumericFilterTypes
-import com.elyonut.wow.utilities.TempDB
 import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.utilities.Maps
+import com.elyonut.wow.utilities.NumericFilterTypes
+import com.elyonut.wow.utilities.TempDB
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -42,18 +44,22 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression.get
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.*
 import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.mapboxsdk.style.layers.FillLayer
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.FeatureCollection
-import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import java.io.InputStream
-import javax.security.auth.callback.Callback
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.forEach
+import kotlin.collections.isEmpty
+import kotlin.collections.isNotEmpty
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.set
+import kotlin.collections.toTypedArray
 
 private const val RECORD_REQUEST_CODE = 101
 
@@ -90,7 +96,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private var calcThreatsTask: CalcThreatStatusAsync? = null
     private var calcThreatCoverageTask: CalcThreatCoverageAsync? = null
     private var allCoverageTask: CalcThreatCoverageAllConstructionAsync? = null
-    var threatAlerts = MutableLiveData<ArrayList<String>>()
+    var threatAlerts = MutableLiveData<ArrayList<Threat>>()
     var isFocusedOnLocation = MutableLiveData<Boolean>()
 
     init {
@@ -174,24 +180,24 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun checkRiskStatus() {
-        val currentThreatsIds = getCurrentThreatIds()
+        val currentThreats = getCurrentThreats()
         if (riskStatus.value == RiskStatus.HIGH) {
-            threatAlerts.value = currentThreatsIds[ThreatLevel.High]
+            threatAlerts.value = currentThreats[ThreatLevel.High]
         }
     }
 
-    private fun getCurrentThreatIds(): ArrayMap<ThreatLevel, ArrayList<String>> {
-        val threatIds = ArrayMap<ThreatLevel, ArrayList<String>>()
+    private fun getCurrentThreats(): ArrayMap<ThreatLevel, ArrayList<Threat>> {
+        val threats = ArrayMap<ThreatLevel, ArrayList<Threat>>()
 
-        threatIds[ThreatLevel.Low] = ArrayList()
-        threatIds[ThreatLevel.Medium] = ArrayList()
-        threatIds[ThreatLevel.High] = ArrayList()
+        threats[ThreatLevel.Low] = ArrayList()
+        threats[ThreatLevel.Medium] = ArrayList()
+        threats[ThreatLevel.High] = ArrayList()
 
-        threats.value?.forEach {
-            threatIds[it.level]?.add(it.feature.id()!!)
+        this.threats.value?.forEach {
+            threats[it.level]?.add(it)
         }
 
-        return threatIds
+        return threats
     }
 
     @SuppressLint("ShowToast")

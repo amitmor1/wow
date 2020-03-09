@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.elyonut.wow.utilities.OnSwipeTouchListener
 import com.elyonut.wow.R
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.utilities.BuildingTypeMapping
 import com.elyonut.wow.viewModel.DataCardViewModel
 import kotlinx.android.synthetic.main.fragment_data_card.view.*
 
@@ -60,6 +61,7 @@ class DataCardFragment : Fragment() {
         view.moreContent.text = builder.toString()
 
         view.buildingStateColor.background.setColorFilter(Threat.color(threat), PorterDuff.Mode.MULTIPLY)
+        view.dataTypeImage.setImageResource(BuildingTypeMapping.mapping[feature?.get(getString(R.string.type))?.asString]!!)
     }
 
     private fun initObservers(view: View) {
