@@ -137,7 +137,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         })
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {
-                requestPermissions1()
+                requestPermissions()
             }
         })
         mapViewModel.selectedBuildingId.observe(
@@ -315,7 +315,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         ).commit()
     }
 
-    private fun requestPermissions1() {
+    private fun requestPermissions() {
         requestPermissions(
             arrayOf(
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -414,6 +414,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         loadedMapStyle.removeLayer("layer-selected-location")
         loadedMapStyle.removeSource("source-marker-click")
         loadedMapStyle.removeImage("marker-icon-alertID")
+
         val selectedBuildingSource =
             loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
