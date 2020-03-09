@@ -30,8 +30,8 @@ class MapsManager(context: Context) {
                 context.resources.getIdentifier("green_map", "drawable", context.packageName)
             ),
             MapLayer(
-                "https://api.tomtom.com/map/1/style/20.0.0-8/basic_main.json?key=lAaAl01ZjuZaiSc4Y4h6yMIY1mPmobUv",
-                "TOMTOM"
+                Maps.MAPBOX_SATELLITE,
+                "Satellite"
             )
         )
     }
