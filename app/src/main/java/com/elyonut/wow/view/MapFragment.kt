@@ -29,6 +29,7 @@ import com.elyonut.wow.*
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.RiskStatus
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.utilities.BuildingTypeMapping
 import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.utilities.Maps
 import com.elyonut.wow.viewModel.MapViewModel
@@ -230,15 +231,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         }
     }
 
-    private fun sendNotification(threatAlerts: ArrayList<String>) {
-        threatAlerts.forEach { threatID ->
-            if (shouldSendAlert(threatID)) {
+    private fun sendNotification(threatAlerts: ArrayList<Threat>) {
+        threatAlerts.forEach { threat ->
+            if (shouldSendAlert(threat.feature.id()!!)) {
                 val message =
                     getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(
-                        threatID
+                        threat.feature.id()!!
                     )
 
-                updateAlertsContainer(threatID, message)
+
+                val featureType = threat.feature.properties()?.get(getString(R.string.type))?.asString
+                addAlertToContainer(threat.feature.id()!!, message, BuildingTypeMapping.mapping[featureType]!!)
             }
         }
     }
@@ -262,14 +265,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         }
     }
 
-    private fun updateAlertsContainer(threatID: String, message: String) {
+    private fun addAlertToContainer(threatID: String, message: String, image: Int) {
         val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val currentDateTime = dateFormat.format(Date())
         val alert =
             AlertModel(
                 threatId = threatID,
                 message = message,
-                image = R.drawable.sunflower,
+                image = image,
                 time = currentDateTime
             )
         alertsManager.addAlert(alert)
