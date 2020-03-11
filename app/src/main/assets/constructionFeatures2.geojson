@@ -243,7 +243,7 @@
         "height": 142,
         "latitude": 32.090533,
         "longitude": 34.796034,
-        "namestr": "",
+        "namestr": "נט ארוך יו",
         "eAmount": "team",
         "range": 300,
         "knowledgeType": "intelligence"
@@ -528,5 +528,46 @@
         "type": "Polygon"
       },
       "id": "df59d6a51bacd6b2c3b582fea44b208e"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "mikush",
+        "namestr": "",
+        "latitude": 32.086774,
+        "longitude": 34.79499,
+        "height": 0,
+        "eAmount": "one",
+        "knowledgeType": "intelligence",
+        "range": 500
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              34.794867,
+              32.086905
+            ],
+            [
+              34.795171,
+              32.086865
+            ],
+            [
+              34.795138,
+              32.086635
+            ],
+            [
+              34.794831,
+              32.086675
+            ],
+            [
+              34.794867,
+              32.086905
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "id": "efa74d7eaf890141c7c35b1fe53347af"
     }
   ]
