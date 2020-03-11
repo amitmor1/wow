@@ -6,9 +6,9 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProviders
 
 class DataCardViewModel(application: Application) : AndroidViewModel(application) {
-
     var isReadMoreButtonClicked = MutableLiveData<Boolean>()
     var shouldCloseCard = MutableLiveData<Boolean>()
 

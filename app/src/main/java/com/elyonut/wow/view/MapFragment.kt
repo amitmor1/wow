@@ -57,7 +57,6 @@ import kotlin.collections.ArrayList
 private const val RECORD_REQUEST_CODE = 101
 
 class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener {
-
     private lateinit var mapView: MapView
     private lateinit var map: MapboxMap
     private lateinit var mapViewModel: MapViewModel
@@ -137,7 +136,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         })
         mapViewModel.isPermissionRequestNeeded.observe(this, Observer<Boolean> {
             if (it != null && it) {
-                requestPermissions1()
+                requestPermissions()
             }
         })
         mapViewModel.selectedBuildingId.observe(
@@ -204,6 +203,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             if (shouldPop && alertsManager.alerts.value!!.count { !it.isRead } > 0) {
                 alertsManager.shouldPopAlert.value = false
                 setAlertPopUp(alertsManager.alerts.value?.findLast { !it.isRead }!!)
+            }
+        })
+
+        sharedViewModel.shoulRemoveSelectedBuildingLayer.observe(this, Observer {
+            shouldRemoveLayer ->
+            if (shouldRemoveLayer){
+                val selectedBuildingSource =
+                    map.style?.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+                selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
             }
         })
 
@@ -279,7 +287,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized) {
             val riskStatusObserver = Observer<RiskStatus> { newStatus ->
-                sharedViewModel.setVisibility((newStatus == RiskStatus.HIGH || newStatus == RiskStatus.MEDIUM))
+                sharedViewModel.isVisible.value = (newStatus == RiskStatus.HIGH || newStatus == RiskStatus.MEDIUM)
                 mapViewModel.checkRiskStatus()
             }
 
@@ -315,7 +323,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         ).commit()
     }
 
-    private fun requestPermissions1() {
+    private fun requestPermissions() {
         requestPermissions(
             arrayOf(
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -371,15 +379,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         }
     }
 
-//    private fun initShowRadiusLayerButton(view: View) {
-//        val radiusLayerButton: View = view.findViewById(R.id.radiusLayer)
-//        radiusLayerButton.setOnClickListener {
-//            //mapViewModel.showRadiusLayerButtonClicked(Constants.THREAT_RADIUS_LAYER_ID)
-//            // TODO: mvvm
-//            mapViewModel.toggleThreatCoverage()
-//        }
-//    }
-
     private fun initMapLayersButton(view: View) {
         val mapLayersButton: View = view.findViewById(R.id.mapLayers)
         mapLayersButton.setOnClickListener {
@@ -414,11 +413,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         loadedMapStyle.removeLayer("layer-selected-location")
         loadedMapStyle.removeSource("source-marker-click")
         loadedMapStyle.removeImage("marker-icon-alertID")
+
         val selectedBuildingSource =
             loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
-        mapViewModel.setLayerVisibility(Constants.THREAT_COVERAGE_LAYER_ID, visibility(NONE))
 
+        mapViewModel.setLayerVisibility(Constants.THREAT_COVERAGE_LAYER_ID, visibility(NONE))
 
         if (mapViewModel.isAreaSelectionMode) {
             mapViewModel.drawPolygonMode(latLng)

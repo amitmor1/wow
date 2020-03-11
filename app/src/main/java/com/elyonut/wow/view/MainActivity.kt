@@ -29,6 +29,7 @@ import com.elyonut.wow.adapter.TimberLogAdapter
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.utilities.Maps
+import com.elyonut.wow.utilities.Menus
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -103,7 +104,7 @@ class MainActivity : AppCompatActivity(),
 
         mainViewModel.selectedExperimentalOption.observe(
             this,
-            Observer { sharedViewModel.selectExperimentalOption(it) }
+            Observer { sharedViewModel.selectedExperimentalOption.value = it }
         )
 
         mainViewModel.filterSelected.observe(this, Observer {
@@ -131,7 +132,7 @@ class MainActivity : AppCompatActivity(),
         })
 
         mainViewModel.shouldOpenThreatsFragment.observe(this, Observer {
-            sharedViewModel.openThreatFragment(it)
+            sharedViewModel.shouldOpenThreatsFragment.value = it
         })
 
         sharedViewModel.shouldDefineArea.observe(this, Observer {
@@ -207,7 +208,7 @@ class MainActivity : AppCompatActivity(),
 
         if (layers != null) {
             val menu = navigationView.menu
-            val layersSubMenu = menu.getItem(Constants.LAYERS_MENU).subMenu
+            val layersSubMenu = menu.getItem(Menus.LAYERS_MENU).subMenu
             layers.forEachIndexed { index, layerModel ->
                 val menuItem = layersSubMenu.add(R.id.nav_layers, index, index, layerModel.name)
                 val checkBoxView = layoutInflater.inflate(R.layout.widget_check, null) as CheckBox
@@ -222,9 +223,9 @@ class MainActivity : AppCompatActivity(),
 
     private fun initFilterSection() {
         val layerTypeValues = mainViewModel.getLayerTypeValues()?.toTypedArray()
-        addSubMenuItem(navigationView.menu.getItem(Constants.FILTER_SUB_MENU).subMenu, R.id.select_all, getString(R.string.select_all) )
+        addSubMenuItem(navigationView.menu.getItem(Menus.FILTER_SUB_MENU).subMenu, R.id.select_all, getString(R.string.select_all) )
         layerTypeValues?.forEachIndexed { index, buildingType ->
-            addSubMenuItem(navigationView.menu.getItem(Constants.FILTER_SUB_MENU).subMenu, index, buildingType)
+            addSubMenuItem(navigationView.menu.getItem(Menus.FILTER_SUB_MENU).subMenu, index, buildingType)
         }
     }
 
@@ -240,7 +241,7 @@ class MainActivity : AppCompatActivity(),
 
     private fun filterAllClicked(shouldFilter: Boolean) {
         val menu = navigationView.menu
-        menu.getItem(Constants.FILTER_SUB_MENU).subMenu.forEach { menuItem ->
+        menu.getItem(Menus.FILTER_SUB_MENU).subMenu.forEach { menuItem ->
             (menuItem.actionView as MaterialCheckBox).isChecked = shouldFilter
         }
     }
@@ -260,14 +261,14 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun changVisibilityState(isVisible: Boolean) {
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        val awarenessTab = findViewById<BottomNavigationView>(R.id.bottom_navigation).menu[Menus.AWARENESS]
 
         if (isVisible) {
-            bottomNavigationView.menu[1].title = getString(R.string.visible)
-            bottomNavigationView.menu[1].icon = getDrawable(R.drawable.ic_visibility)
+            awarenessTab.title = getString(R.string.visible)
+            awarenessTab.icon = getDrawable(R.drawable.ic_visibility)
         } else {
-            bottomNavigationView.menu[1].title = getString(R.string.invisible)
-            bottomNavigationView.menu[1].icon = getDrawable(R.drawable.ic_visibility_off)
+            awarenessTab.title = getString(R.string.invisible)
+            awarenessTab.icon = getDrawable(R.drawable.ic_visibility_off)
         }
     }
 

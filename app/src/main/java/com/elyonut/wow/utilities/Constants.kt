@@ -5,8 +5,6 @@ class Constants {
         const val THREAT_LAYER_ID = "construction2"
         const val BUILDINGS_LAYER_ID = "buildingscentertlv_extended"
         const val THREAT_PROPERTY = "risk"
-        const val THREAT_RADIUS_SOURCE_ID = "THREAT_RADIUS_SOURCE"
-        const val THREAT_RADIUS_LAYER_ID = "THREAT_RADIUS_LAYER"
         const val SELECTED_BUILDING_SOURCE_ID = "SELECTED_BUILDING_SOURCE"
         const val SELECTED_BUILDING_LAYER_ID = "SELECTED_BUILDING_LAYER"
         const val ACTIVE_THREATS_SOURCE_ID = "ACTIVE_THREATS_SOURCE"
@@ -28,7 +26,5 @@ class Constants {
         const val EARTH_RADIUS_KM = 6371.0
         const val MAX_DISTANCE_TO_CURRENT_LOCATION = 20
         const val ALERT_INTERVAL_IN_SECONDS = 180
-        const val FILTER_SUB_MENU = 2
-        const val LAYERS_MENU = 0
     }
 }
