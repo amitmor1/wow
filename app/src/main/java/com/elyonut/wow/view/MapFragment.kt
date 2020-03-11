@@ -209,7 +209,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         sharedViewModel.shoulRemoveSelectedBuildingLayer.observe(this, Observer {
             shouldRemoveLayer ->
             if (shouldRemoveLayer){
-                map.style?.removeLayer(Constants.SELECTED_BUILDING_LAYER_ID)
+                val selectedBuildingSource =
+                    map.style?.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+                selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
             }
         })
 
