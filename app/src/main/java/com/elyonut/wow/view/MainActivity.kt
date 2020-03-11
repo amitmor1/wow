@@ -261,14 +261,14 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun changVisibilityState(isVisible: Boolean) {
-        val avarenessTab = findViewById<BottomNavigationView>(R.id.bottom_navigation).menu[Menus.AWARENESS]
+        val awarenessTab = findViewById<BottomNavigationView>(R.id.bottom_navigation).menu[Menus.AWARENESS]
 
         if (isVisible) {
-            avarenessTab.title = getString(R.string.visible)
-            avarenessTab.icon = getDrawable(R.drawable.ic_visibility)
+            awarenessTab.title = getString(R.string.visible)
+            awarenessTab.icon = getDrawable(R.drawable.ic_visibility)
         } else {
-            avarenessTab.title = getString(R.string.invisible)
-            avarenessTab.icon = getDrawable(R.drawable.ic_visibility_off)
+            awarenessTab.title = getString(R.string.invisible)
+            awarenessTab.icon = getDrawable(R.drawable.ic_visibility_off)
         }
     }
 
