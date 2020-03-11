@@ -34,6 +34,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val chosenTypeToFilter = MutableLiveData<Pair<String, Boolean>>()
     val isSelectAllChecked = MutableLiveData<Boolean>()
     val mapStyleURL = MutableLiveData<String>()
+    val shoulRemoveSelectedBuildingLayer = MutableLiveData<Boolean>()
 
     fun applySaveCoverageSettingsButtonClicked(coverageRange: Double, resolution: Double, height: Double?, heightChecked: Boolean) {
         this.coverageRangeMeters = coverageRange
@@ -44,17 +45,5 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         this.coverageSearchHeightMetersChecked = heightChecked
-    }
-
-    fun selectExperimentalOption(itemId: Int) {
-        selectedExperimentalOption.value = itemId
-    }
-
-    fun openThreatFragment(shouldOpen: Boolean) {
-        shouldOpenThreatsFragment.value = shouldOpen
-    }
-
-    fun setVisibility(isVisible: Boolean) {
-        this.isVisible.value = isVisible
     }
 }

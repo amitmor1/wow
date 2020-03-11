@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity(),
 
         mainViewModel.selectedExperimentalOption.observe(
             this,
-            Observer { sharedViewModel.selectExperimentalOption(it) }
+            Observer { sharedViewModel.selectedExperimentalOption.value = it }
         )
 
         mainViewModel.filterSelected.observe(this, Observer {
@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity(),
         })
 
         mainViewModel.shouldOpenThreatsFragment.observe(this, Observer {
-            sharedViewModel.openThreatFragment(it)
+            sharedViewModel.shouldOpenThreatsFragment.value = it
         })
 
         sharedViewModel.shouldDefineArea.observe(this, Observer {

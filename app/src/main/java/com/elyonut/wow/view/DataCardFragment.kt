@@ -9,10 +9,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.elyonut.wow.utilities.OnSwipeTouchListener
 import com.elyonut.wow.R
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.viewModel.DataCardViewModel
+import com.elyonut.wow.viewModel.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_data_card.view.*
 
 // const variables
@@ -23,6 +25,7 @@ class DataCardFragment : Fragment() {
 
     private var listener: OnFragmentInteractionListener? = null
     private lateinit var dataCardViewModel: DataCardViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,6 +35,10 @@ class DataCardFragment : Fragment() {
         dataCardViewModel =
             ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
                 .create(DataCardViewModel::class.java)
+        sharedViewModel =
+            activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
+
+
         view.buildingDataCard.layoutParams = dataCardViewModel.getRelativeLayoutParams(CARD_SIZE_RELATION_TO_SCREEN)
         initObservers(view)
         initReadMoreButton(view)
@@ -64,7 +71,9 @@ class DataCardFragment : Fragment() {
 
     private fun initObservers(view: View) {
         dataCardViewModel.isReadMoreButtonClicked.observe(viewLifecycleOwner, Observer<Boolean> { extendDataCard(view) })
-        dataCardViewModel.shouldCloseCard.observe(viewLifecycleOwner, Observer<Boolean> { closeCard() })
+        dataCardViewModel.shouldCloseCard.observe(viewLifecycleOwner, Observer<Boolean> {
+            closeCard()
+        })
     }
 
     private fun extendDataCard(view: View) {
@@ -104,7 +113,7 @@ class DataCardFragment : Fragment() {
 
     private fun initCloseCardButton(view: View) {
         view.closeButton?.setOnClickListener {
-            dataCardViewModel.close()
+            onCloseCard()
         }
     }
 
@@ -112,14 +121,19 @@ class DataCardFragment : Fragment() {
         view.buildingDataCard.setOnTouchListener(object : OnSwipeTouchListener(this@DataCardFragment.context!!) {
             override fun onSwipeRight() {
                 super.onSwipeRight()
-                dataCardViewModel.close()
+                onCloseCard()
             }
 
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                dataCardViewModel.close()
+                onCloseCard()
             }
         })
+    }
+
+    private fun onCloseCard(){
+        dataCardViewModel.close()
+        sharedViewModel.shoulRemoveSelectedBuildingLayer.value = true
     }
 
     override fun onAttach(context: Context) {
