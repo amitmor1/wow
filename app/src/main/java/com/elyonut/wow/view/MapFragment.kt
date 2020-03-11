@@ -231,7 +231,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                         threat.feature.id()!!
                     )
 
-                updateAlertsContainer(threat.feature.id()!!, message, BuildingTypeMapping.mapping[threat.feature.properties()?.get(getString(R.string.type))?.asString]!!)
+
+                val featureType = threat.feature.properties()?.get(getString(R.string.type))?.asString
+                addAlertToContainer(threat.feature.id()!!, message, BuildingTypeMapping.mapping[featureType]!!)
             }
         }
     }
@@ -255,7 +257,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         }
     }
 
-    private fun updateAlertsContainer(threatID: String, message: String, image: Int) {
+    private fun addAlertToContainer(threatID: String, message: String, image: Int) {
         val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val currentDateTime = dateFormat.format(Date())
         val alert =

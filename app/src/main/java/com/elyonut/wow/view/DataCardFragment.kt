@@ -61,7 +61,8 @@ class DataCardFragment : Fragment() {
         view.moreContent.text = builder.toString()
 
         view.buildingStateColor.background.setColorFilter(Threat.color(threat), PorterDuff.Mode.MULTIPLY)
-        view.dataTypeImage.setImageResource(BuildingTypeMapping.mapping[feature?.get(getString(R.string.type))?.asString]!!)
+        val featureType = feature?.get(getString(R.string.type))?.asString
+        view.dataTypeImage.setImageResource(BuildingTypeMapping.mapping[featureType]!!)
     }
 
     private fun initObservers(view: View) {
