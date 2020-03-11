@@ -53,8 +53,14 @@ class DataCardFragment : Fragment() {
 
     private fun initThreatInfo(view: View, threat: Threat){
         val feature = threat.feature.properties()
+        val featureName = feature?.get(getString(R.string.nameStr))?.asString
 
-        view.dataType.text = feature?.get(getString(R.string.nameStr))?.asString;
+        view.dataType.text = if (featureName.isNullOrBlank()) {
+            getString(R.string.empty_building_name)
+        } else {
+            featureName
+        }
+
         view.knowledgeType.text = getString(R.string.knowledgeType_title) + ": " + feature?.get(getString(R.string.knowledgeType))?.asString
         view.eAmount.text = getString(R.string.eAmount_title) + ": " + feature?.get(getString(R.string.eAmount))?.asString
         view.type.text = getString(R.string.type_title)+ ": " + feature?.get(getString(R.string.type))?.asString

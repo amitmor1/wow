@@ -207,14 +207,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             }
         })
 
-        sharedViewModel.shoulRemoveSelectedBuildingLayer.observe(this, Observer {
-            shouldRemoveLayer ->
-            if (shouldRemoveLayer){
-                val selectedBuildingSource =
-                    map.style?.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
-                selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
-            }
-        })
+        sharedViewModel.shoulRemoveSelectedBuildingLayer.observe(
+            this,
+            Observer { shouldRemoveLayer ->
+                if (shouldRemoveLayer) {
+                    val selectedBuildingSource =
+                        map.style?.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
+                    selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
+                }
+            })
 
         sharedViewModel.mapStyleURL.observe(this, Observer {
             mapViewModel.setMapStyle(it)
@@ -234,14 +235,18 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private fun sendNotification(threatAlerts: ArrayList<Threat>) {
         threatAlerts.forEach { threat ->
             if (shouldSendAlert(threat.feature.id()!!)) {
+
                 val message =
-                    getString(R.string.inside_threat_notification_content) + mapViewModel.getFeatureName(
-                        threat.feature.id()!!
-                    )
+                    getString(R.string.inside_threat_notification_content) + " " + mapViewModel.getFeatureName(threat.feature.id()!!)
 
 
-                val featureType = threat.feature.properties()?.get(getString(R.string.type))?.asString
-                addAlertToContainer(threat.feature.id()!!, message, BuildingTypeMapping.mapping[featureType]!!)
+                val featureType =
+                    threat.feature.properties()?.get(getString(R.string.type))?.asString
+                addAlertToContainer(
+                    threat.feature.id()!!,
+                    message,
+                    BuildingTypeMapping.mapping[featureType]!!
+                )
             }
         }
     }
@@ -290,7 +295,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private fun observeRiskStatus(isLocationAdapterInitialized: Boolean) {
         if (isLocationAdapterInitialized) {
             val riskStatusObserver = Observer<RiskStatus> { newStatus ->
-                sharedViewModel.isVisible.value = (newStatus == RiskStatus.HIGH || newStatus == RiskStatus.MEDIUM)
+                sharedViewModel.isVisible.value =
+                    (newStatus == RiskStatus.HIGH || newStatus == RiskStatus.MEDIUM)
                 mapViewModel.checkRiskStatus()
             }
 

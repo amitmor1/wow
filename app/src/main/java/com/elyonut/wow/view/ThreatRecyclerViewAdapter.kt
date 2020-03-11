@@ -1,5 +1,7 @@
 package com.elyonut.wow.view
 
+import android.content.Context
+import android.content.res.Resources
 import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +24,8 @@ import kotlinx.android.synthetic.main.fragment_threat.view.*
  */
 class ThreatRecyclerViewAdapter(
     private val mValues: ArrayList<Threat>,
-    private val mListener: OnListFragmentInteractionListener?
+    private val mListener: OnListFragmentInteractionListener?,
+    private val context: Context
 ) : RecyclerView.Adapter<ThreatRecyclerViewAdapter.ViewHolder>() {
 
     private val mOnClickListener: View.OnClickListener
@@ -44,10 +47,16 @@ class ThreatRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
-        holder.mIdView.text = item.name
+
+        holder.mIdView.text = if (item.name.isNotBlank()) {
+            item.name
+        } else {
+            context.getString(R.string.empty_building_name)
+        }
+
         holder.mContentView.text = item.level.toString()
         holder.mThreatLevel.background.setColorFilter(Threat.color(item), PorterDuff.Mode.MULTIPLY)
-        holder.mThreatDistance.text = String.format("%.3f",item.distanceMeters)
+        holder.mThreatDistance.text = String.format("%.3f", item.distanceMeters)
 
         with(holder.mView) {
             tag = item
