@@ -75,6 +75,9 @@ class AlertsManager(var context: Context) {
 
         updateAlertsList()
         isAlertAccepted.value = true
+    }
 
+    fun getAlertByThreatId(threatId: String): AlertModel? {
+        return alerts.value?.find { it.threatId == threatId }
     }
 }

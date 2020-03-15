@@ -237,11 +237,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             if (shouldSendAlert(threat.feature.id()!!)) {
 
                 val message =
-                    getString(R.string.inside_threat_notification_content) + " " + mapViewModel.getFeatureName(threat.feature.id()!!)
-
+                    getString(R.string.inside_threat_notification_content) + " " + mapViewModel.getFeatureName(
+                        threat.feature.id()!!
+                    )
 
                 val featureType =
                     threat.feature.properties()?.get(getString(R.string.type))?.asString
+
                 addAlertToContainer(
                     threat.feature.id()!!,
                     message,
@@ -281,6 +283,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                 time = currentDateTime
             )
         alertsManager.addAlert(alert)
+    }
+
+    private fun removeAlert() {
+//        val alert = alertsManager.getAlertByThreatId(threatID)
+        alertsManager.shouldRemoveAlert.value = true
     }
 
     private fun setAlertPopUp(alert: AlertModel) {

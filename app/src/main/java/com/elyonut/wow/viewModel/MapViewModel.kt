@@ -181,9 +181,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     fun checkRiskStatus() {
         val currentThreats = getCurrentThreats()
-        if (riskStatus.value == RiskStatus.HIGH) {
-            threatAlerts.value = currentThreats[ThreatLevel.High]
-        }
+//        if (riskStatus.value == RiskStatus.HIGH) {
+//            threatAlerts.value = currentThreats[ThreatLevel.High]
+//        }
+        threatAlerts.value = currentThreats[ThreatLevel.High]
     }
 
     private fun getCurrentThreats(): ArrayMap<ThreatLevel, ArrayList<Threat>> {
