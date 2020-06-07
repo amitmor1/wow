@@ -3,8 +3,8 @@ package com.elyonut.wow.utilities
 class Constants {
     companion object {
         const val THREAT_LAYER_ID = "construction2"
+        const val THREAT_LAYER_NAME = "בניינים"
         const val BUILDINGS_LAYER_ID = "buildingscentertlv_extended"
-        const val THREAT_PROPERTY = "risk"
         const val SELECTED_BUILDING_SOURCE_ID = "SELECTED_BUILDING_SOURCE"
         const val SELECTED_BUILDING_LAYER_ID = "SELECTED_BUILDING_LAYER"
         const val ACTIVE_THREATS_SOURCE_ID = "ACTIVE_THREATS_SOURCE"
@@ -19,12 +19,12 @@ class Constants {
         const val LINE_LAYER_ID = "line-layer-id"
         const val AREA_OF_INTEREST_KEY = "areaOfInterest"
         const val ZOOM_LOCATION_ACTION = "ZOOM_LOCATION"
-        const val ALERT_ACCEPTED_ACTION = "ALERT_ACCEPTED"
         const val DEFAULT_COVERAGE_RANGE_METERS = 300.0
         const val DEFAULT_COVERAGE_RESOLUTION_METERS = 10.0
         const val DEFAULT_COVERAGE_HEIGHT_METERS = -10000.0
         const val EARTH_RADIUS_KM = 6371.0
         const val MAX_DISTANCE_TO_CURRENT_LOCATION = 20
         const val ALERT_INTERVAL_IN_SECONDS = 180
+        const val LOCATION_CHECK_INTERVAL = 5000L // 5 seconds
     }
 }

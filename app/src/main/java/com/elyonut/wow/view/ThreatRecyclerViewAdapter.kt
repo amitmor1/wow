@@ -17,13 +17,8 @@ import com.elyonut.wow.model.Threat
 
 import kotlinx.android.synthetic.main.fragment_threat.view.*
 
-/**
- * [RecyclerView.Adapter] that can display a [Threat] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
- */
 class ThreatRecyclerViewAdapter(
-    private val mValues: ArrayList<Threat>,
+    private val mValues: List<Threat>,
     private val mListener: OnListFragmentInteractionListener?,
     private val context: Context
 ) : RecyclerView.Adapter<ThreatRecyclerViewAdapter.ViewHolder>() {
@@ -54,10 +49,7 @@ class ThreatRecyclerViewAdapter(
             context.getString(R.string.empty_building_name)
         }
 
-        holder.mContentView.text = item.level.toString()
-        holder.mThreatLevel.background.setColorFilter(Threat.color(item), PorterDuff.Mode.MULTIPLY)
         holder.mThreatDistance.text = String.format("%.3f", item.distanceMeters)
-
         with(holder.mView) {
             tag = item
             setOnClickListener(mOnClickListener)
@@ -68,12 +60,6 @@ class ThreatRecyclerViewAdapter(
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
         val mIdView: TextView = mView.threat_id
-        val mContentView: TextView = mView.threat_level
-        val mThreatLevel: ImageView = mView.threat_level_color
         val mThreatDistance: TextView = mView.threat_distance
-
-        override fun toString(): String {
-            return super.toString() + " '" + mContentView.text + "'"
-        }
     }
 }
