@@ -2,34 +2,14 @@ package com.elyonut.wow.viewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.elyonut.wow.adapter.AlertsAdapter
+import androidx.lifecycle.LiveData
 import com.elyonut.wow.AlertsManager
-import com.elyonut.wow.interfaces.OnClickInterface
 import com.elyonut.wow.model.AlertModel
-import com.elyonut.wow.view.AlertsFragment
 
-class AlertsViewModel(application: Application, var alertsManager: AlertsManager, onClickHandler: OnClickInterface): AndroidViewModel(application) {
-    var alertsAdapter: AlertsAdapter? = null
+class AlertsViewModel(application: Application, var alertsManager: AlertsManager): AndroidViewModel(application) {
 
-    init {
-        alertsAdapter = AlertsAdapter(
-            application,
-            alertsManager.alerts.value!!,
-            onClickHandler
-        )
-    }
-
-    fun addAlert() {
-        alertsAdapter?.notifyItemInserted(0)
-    }
-
-    fun setAlertAccepted() {
-        alertsAdapter?.notifyDataSetChanged()
-    }
-
-    fun deleteAlert(position: Int) {
-        alertsAdapter?.notifyItemRemoved(position)
-        alertsAdapter?.notifyItemRangeChanged(position, alertsManager.alerts.value!!.count())
+    fun getAlerts(): LiveData<List<AlertModel>> {
+        return alertsManager.alerts
     }
 
     fun zoomToLocationClicked(alert: AlertModel) {
@@ -37,10 +17,10 @@ class AlertsViewModel(application: Application, var alertsManager: AlertsManager
     }
 
     fun acceptAlertClicked(alert: AlertModel) {
-        alertsManager.acceptAlert(alert)
+        alertsManager.markAsRead(alert)
     }
 
-    fun deleteAlertClicked(position: Int) {
-        alertsManager.deleteAlert(position)
+    fun deleteAlertClicked(alert: AlertModel) {
+        alertsManager.deleteAlert(alert)
     }
 }
