@@ -150,10 +150,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         sharedViewModel.selectedLayerId.observe(this, Observer {
             it?.let { mapViewModel.layerSelected(it) }
         })
-        sharedViewModel.selectedExperimentalOption.observe(
-            this,
-            Observer { applyExtraOptions(it) }
-        )
         sharedViewModel.shouldDefineArea.observe(this, Observer {
             if (it) {
                 enableAreaSelection()

@@ -15,7 +15,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 
 class SharedViewModel(application: Application) : AndroidViewModel(application) {
     val selectedLayerId = MutableLiveData<String>()
-    val selectedExperimentalOption = MutableLiveData<Int>()
     val selectedThreatItem = MutableLiveData<Threat>()
     var layerToFilterId = ""
     var chosenPropertyId = ""

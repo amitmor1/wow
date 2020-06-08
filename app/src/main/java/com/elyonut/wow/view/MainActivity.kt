@@ -122,11 +122,6 @@ class MainActivity : AppCompatActivity(),
             filterAllClicked(it)
         })
 
-        mainViewModel.selectedExperimentalOption.observe(
-            this,
-            Observer { sharedViewModel.selectedExperimentalOption.value = it }
-        )
-
         mainViewModel.filterSelected.observe(this, Observer {
             if (it) {
                 filterButtonClicked()

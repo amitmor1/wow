@@ -71,26 +71,6 @@ class ThreatAnalyzer private constructor(context: Context) {
         }
     }
 
-    // when in Los it means the building is a threat?
-    // can we take it somewhere else so we won't need the map here?
-    fun getBuildingsWithinLOS(
-        currentLocation: LatLng,
-        buildingAtLocation: Feature?
-    ): List<FeatureModel> {
-        val currentLocationCoordinate =
-            Coordinate(currentLocation.latitude, currentLocation.longitude)
-        val buildings =
-            vectorLayersManager.getLayerById(Constants.BUILDINGS_LAYER_ID)
-
-        return buildings?.filter {
-            topographyService.isInRangeAndLOS(
-                currentLocationCoordinate,
-                MapboxParser.parseToMapboxFeature(it),
-                buildingAtLocation
-            )
-        } ?: arrayListOf()
-    }
-
     // Do we need this?
     fun calculateCoverage(
         currentLocation: LatLng,
