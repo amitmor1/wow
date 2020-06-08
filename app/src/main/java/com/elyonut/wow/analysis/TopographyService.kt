@@ -8,7 +8,11 @@ import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.PolygonModel
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.parser.MapboxParser
 import com.mapbox.geojson.*
+import com.mapbox.mapboxsdk.geometry.LatLng
+import kotlinx.coroutines.*
+import timber.log.Timber
 import java.io.InputStream
 import kotlin.math.*
 
@@ -29,33 +33,40 @@ object TopographyService {
         this.vectorIndex.loadBuildingFromGeoJson(jsonObj)
     }
 
-    fun isThreatBuilding(
+    suspend fun getBuildingsWithinLOS(
+        currentLocation: LatLng,
+        buildingAtLocation: Feature?,
+        buildings: List<FeatureModel>?
+    ): List<FeatureModel> {
+        val currentLocationCoordinate =
+            Coordinate(currentLocation.latitude, currentLocation.longitude)
+
+        return withContext(Dispatchers.Default) {
+            buildings?.filter {
+                isInRangeAndLOS(
+                    currentLocationCoordinate,
+                    MapboxParser.parseToMapboxFeature(it),
+                    buildingAtLocation
+                )
+            }
+        } ?: arrayListOf()
+    }
+
+    fun isInRangeAndLOS(
         currentLocation: Coordinate,
         building: Feature,
         buildingAtLocation: Feature?
     ): Boolean {
         val threatCoordinates = getGeometryCoordinates(building.geometry()!!)
-        val threatType = building.getProperty("type")?.asString
+        val threatRangeMeters = 1000.0
 
-        if (threatType != null && threatType.contains("mikush")) {
-            return isInRange(currentLocation, threatCoordinates, KnowledgeBase.MIKUSH_RANGE_METERS)
+        return if (isInRange(currentLocation, threatCoordinates, threatRangeMeters)) {
+            Timber.d("still calculating buildings")
+            val threatHeight = building.getNumberProperty("height").toDouble()
+            isLOS(buildingAtLocation, currentLocation, threatCoordinates, threatHeight)
+        } else {
+            false
         }
-
-        val threatRangeMeters = KnowledgeBase.getRangeMeters(threatType)
-
-        var inRange = false
-        for (coord in threatCoordinates) {
-            val distance = distanceMeters(currentLocation, coord)
-            inRange = distance <= threatRangeMeters
-            if (inRange) {
-                break
-            }
-
-            return false
-        }
-
-        val threatHeight = building.getNumberProperty("height").toDouble()
-        return isLOS(buildingAtLocation, currentLocation, threatCoordinates, threatHeight)
     }
 
     fun isLOS(
@@ -67,14 +78,14 @@ object TopographyService {
 
         var locationCoordinates = listOf(currentLocation)
 
-        if (buildingAtLocation != null) {
-            locationCoordinates = getCoordinatesForAnalysis(buildingAtLocation.geometry()!!)
-            val locationHeight = buildingAtLocation.getNumberProperty("height").toDouble()
-            locationCoordinates.forEach { bc -> bc.heightMeters = locationHeight }
+        buildingAtLocation?.let {
+            locationCoordinates = getCoordinatesForAnalysis(it.geometry()!!)
+            val locationHeight = it.getNumberProperty("height").toDouble()
+            locationCoordinates.forEach { coordinate -> coordinate.heightMeters = locationHeight }
         }
 
         val buildingCoordinates = explodeCornerCoordinates(threatCoordinates)
-        buildingCoordinates.forEach { bc -> bc.heightMeters = threatHeight }
+        buildingCoordinates.forEach { coordinate -> coordinate.heightMeters = threatHeight }
 
         return isLOS(locationCoordinates, buildingCoordinates)
 
@@ -89,12 +100,11 @@ object TopographyService {
         }
 
         val threatRangeMeters = KnowledgeBase.getRangeMeters(threatType)
-
         val threatCoordinates = getCoordinates(threat.geometry)
 
         var inRange = false
-        for (coord in threatCoordinates) {
-            val distance = distanceMeters(currentLocation, coord)
+        for (coordinate in threatCoordinates) {
+            val distance = distanceMeters(currentLocation, coordinate)
             if (distance <= threatRangeMeters) {
                 inRange = true
                 break
@@ -102,9 +112,9 @@ object TopographyService {
         }
 
         if (inRange) {
-            val threatHeight = threat.properties?.get("height")!!.asDouble
+            val threatHeight = threat.properties.get("height")!!.asDouble
             val threatCoordinatesExploded =
-                getExplodedFromCache(threat.id!!, threatCoordinates, threatHeight)
+                getExplodedFromCache(threat.id, threatCoordinates, threatHeight)
 
             return isLOSLocalIndex(currentLocation, threatCoordinatesExploded)
         }
@@ -126,10 +136,10 @@ object TopographyService {
     }
 
     fun getBuildingsAtZone(featureModel: FeatureModel): List<VectorEnvelope> {
-        val featureCoords = getCoordinates(featureModel.geometry)
+        val featureCoordinates = getCoordinates(featureModel.geometry)
 
         val multipleVectors =
-            vectorIndex.getMultipleVectors(getEnvelope(featureCoords), getPolygon(featureCoords))
+            vectorIndex.getMultipleVectors(getEnvelope(featureCoordinates), getPolygon(featureCoordinates))
 
         return if (multipleVectors != null && multipleVectors.size > 0) {
             multipleVectors
@@ -186,7 +196,7 @@ object TopographyService {
         if (buildingAtLocation != null) {
             locationCoordinates = getCoordinatesForAnalysis(buildingAtLocation.polygon)
             val locationHeight = buildingAtLocation.properties["height"]!!.toDouble()
-            locationCoordinates.forEach { bc -> bc.heightMeters = locationHeight }
+            locationCoordinates.forEach { coordinate -> coordinate.heightMeters = locationHeight }
         }
 
         return isLOS(locationCoordinates, threatCoordinatesExploded)
@@ -269,7 +279,7 @@ object TopographyService {
         skipFirst: Boolean,
         distanceOfPoints: Double
     ): ArrayList<Coordinate> {
-        val aCoordiates = ArrayList<Coordinate>()
+        val coordinates = ArrayList<Coordinate>()
 
         // The distance between the latitudes
         val latDis = toPoint.latitude - fromPoint.latitude
@@ -287,16 +297,16 @@ object TopographyService {
         while (i < samples) {
             if (!skipFirst || i > 0) {
                 val aPoint = Coordinate(currentLat, currentLong)
-                aCoordiates.add(aPoint)
+                coordinates.add(aPoint)
             }
             currentLat += deltaLat
             currentLong += deltaLong
             i++
         }
         // add the last point
-        aCoordiates.add(toPoint)
+        coordinates.add(toPoint)
 
-        return aCoordiates
+        return coordinates
     }
 
     fun getVisiblePoints(
@@ -618,5 +628,4 @@ object TopographyService {
 
         return (Math.toDegrees(theta) + 360) % 360
     }
-
 }

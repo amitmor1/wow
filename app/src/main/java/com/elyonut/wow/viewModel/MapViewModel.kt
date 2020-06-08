@@ -41,6 +41,8 @@ import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.collections.ArrayList
@@ -56,7 +58,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     var selectLocationManual: Boolean = false
     var selectLocationManualConstruction: Boolean = false
     var selectLocationManualCoverage: Boolean = false
-    var selectLocationManualCoverageAll: Boolean = false
     lateinit var map: MapboxMap
     private var locationService: ILocationService = LocationService.getInstance(getApplication())
     private val permissions: IPermissions = PermissionsService.getInstance(application)
@@ -218,7 +219,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             visibility(NONE)
         )
 
-        loadedMapStyle.addLayer(circleLayer)
+        loadedMapStyle.addLayerBelow(circleLayer, Constants.BUILDINGS_LAYER_ID)
     }
 
     // TODO maybe rename
@@ -463,10 +464,18 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     // Beginning of onMapClick by our beloved uniqAI
     private fun updateBuildingsWithinLOS(latLng: LatLng) {
-        _buildingsWithinLOS.value = threatAnalyzer.getBuildingsWithinLOS(
-            latLng,
-            getBuildingAtLocation(latLng, Constants.BUILDINGS_LAYER_ID)
-        ).map { MapboxParser.parseToMapboxFeature(it) }
+//        _buildingsWithinLOS.value = threatAnalyzer.getBuildingsWithinLOS(
+//            latLng,
+//            getBuildingAtLocation(latLng, Constants.BUILDINGS_LAYER_ID)
+//        ).map { MapboxParser.parseToMapboxFeature(it) }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            _buildingsWithinLOS.value = topographyService.getBuildingsWithinLOS(
+                latLng,
+                getBuildingAtLocation(latLng, Constants.BUILDINGS_LAYER_ID),
+                vectorLayersManager.getLayerById(Constants.BUILDINGS_LAYER_ID)
+            ).map { MapboxParser.parseToMapboxFeature(it) }
+        }
     }
 
     // Should we delete this?

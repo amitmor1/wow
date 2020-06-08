@@ -83,7 +83,7 @@ class ThreatAnalyzer private constructor(context: Context) {
             vectorLayersManager.getLayerById(Constants.BUILDINGS_LAYER_ID)
 
         return buildings?.filter {
-            topographyService.isThreatBuilding(
+            topographyService.isInRangeAndLOS(
                 currentLocationCoordinate,
                 MapboxParser.parseToMapboxFeature(it),
                 buildingAtLocation

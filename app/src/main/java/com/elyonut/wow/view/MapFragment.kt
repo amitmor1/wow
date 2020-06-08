@@ -403,16 +403,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
 
     // TODO rename
     private fun applyExtraOptions(id: Int) {
-        when (id) {
-            R.id.threat_select_location -> {
-                mapViewModel.selectLocationManualConstruction = true
-                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
-            }
-            R.id.calculate_coverage -> {
-                mapViewModel.selectLocationManualCoverage = true
-                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
-            }
-        }
+//        when (id) {
+//            R.id.threat_select_location -> {
+//                mapViewModel.selectLocationManualConstruction = true
+//                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
+//            }
+//            R.id.calculate_coverage -> {
+//                mapViewModel.selectLocationManualCoverage = true
+//                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
+//            }
+//        }
     }
 
     private fun addCoverage(coverageFeatures: List<Feature>) {
