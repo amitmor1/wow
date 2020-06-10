@@ -83,7 +83,6 @@ class MainActivity : AppCompatActivity(),
 
         alertsFragmentInstance = AlertsFragment.newInstance()
         navigationView = findViewById(R.id.navigationView)
-        progressBar = findViewById(R.id.progressBar)
         setObservers()
         mainViewModel.locationSetUp()
         initAreaOfInterest()
@@ -96,81 +95,63 @@ class MainActivity : AppCompatActivity(),
 
     private fun setObservers() {
         mainViewModel.isPermissionRequestNeeded.observe(this, Observer { requestPermissions() })
+        mainViewModel.mapLayers.observe(this, Observer { updateLayersCheckbox(it) })
+        mainViewModel.mapStateChanged.observe(this, Observer { sharedViewModel.mapState = it })
         mainViewModel.isPermissionDialogShown.observe(
             this,
             Observer { showLocationServiceAlertDialog() })
-        mainViewModel.isProgressBarVisible.observe(
-            this,
-            Observer { progressBar.toggleViewVisibility(it) })
-        mainViewModel.mapLayers.observe(this, Observer { updateLayersCheckbox(it) })
-        mainViewModel.mapStateChanged.observe(this, Observer { sharedViewModel.mapState = it })
-
         mainViewModel.chosenLayerId.observe(this, Observer {
             mainViewModel.chosenLayerId.value?.let {
                 sharedViewModel.selectedLayerId.postValue(it)
             }
         })
-
         mainViewModel.chosenTypeToFilter.observe(this, Observer {
             mainViewModel.chosenTypeToFilter.value?.let {
                 sharedViewModel.chosenTypeToFilter.value = it
             }
         })
-
         mainViewModel.isSelectAllChecked.observe(this, Observer {
             sharedViewModel.isSelectAllChecked.value = it
             filterAllClicked(it)
         })
-
         mainViewModel.filterSelected.observe(this, Observer {
             if (it) {
                 filterButtonClicked()
             }
         })
-
         mainViewModel.shouldDefineArea.observe(this, Observer {
             if (it) {
                 sharedViewModel.shouldDefineArea.value = it
             }
         })
-
         mainViewModel.shouldOpenAlertsFragment.observe(this, Observer {
             if (it) {
                 openAlertsFragment()
             }
         })
-
         mainViewModel.coverageSettingsSelected.observe(this, Observer {
             if (it) {
                 coverageSettingsButtonClicked()
             }
         })
-
         mainViewModel.shouldOpenThreatsFragment.observe(this, Observer {
             if (it) {
                 openThreatListFragment()
             }
         })
-
         mainViewModel.coordinatesFeaturesInCoverage.observe(
             this,
             Observer { sharedViewModel.coordinatesFeaturesInCoverage.postValue(it) })
 
         sharedViewModel.isExposed.observe(this, Observer { changeAwarenessTabState(it) })
-        sharedViewModel.mapClickedLatlng.observe(this, Observer { mapClicked(it) })
         sharedViewModel.shouldDefineArea.observe(this, Observer {
             if (!it) {
                 mainViewModel.shouldDefineArea.value = it
             }
         })
-
         sharedViewModel.alertsManager.alerts.observe(this, Observer {
             editAlertsBadge(it)
         })
-
-        sharedViewModel.coverageSearchHeightMetersChecked.observe(
-            this,
-            Observer { mainViewModel.coverageSearchHeightMetersCheckedChanged(it) })
     }
 
     private fun openThreatListFragment() {
@@ -196,10 +177,6 @@ class MainActivity : AppCompatActivity(),
                 }
             }
         }
-    }
-
-    private fun mapClicked(latLng: LatLng) {
-        mainViewModel.mapClicked(latLng)
     }
 
     private fun requestPermissions() {

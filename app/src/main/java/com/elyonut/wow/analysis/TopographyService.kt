@@ -14,6 +14,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.InputStream
+import java.util.stream.Collectors
 import kotlin.math.*
 
 object TopographyService {
@@ -52,7 +53,7 @@ object TopographyService {
         } ?: arrayListOf()
     }
 
-    fun isInRangeAndLOS(
+    private fun isInRangeAndLOS(
         currentLocation: Coordinate,
         building: Feature,
         buildingAtLocation: Feature?
@@ -135,17 +136,121 @@ object TopographyService {
         return locationCoordinates
     }
 
-    fun getBuildingsAtZone(featureModel: FeatureModel): List<VectorEnvelope> {
-        val featureCoordinates = getCoordinates(featureModel.geometry)
+    fun calculateCoverageAlpha(
+        currentLocation: LatLng,
+        rangeMeters: Double,
+        pointResolutionMeters: Double,
+        heightMeters: Double
+    ): List<Coordinate> {
+        return filterWithLOSCoordinatesAlpha(
+            currentLocation,
+            rangeMeters,
+            pointResolutionMeters,
+            heightMeters,
+            true
+        )
+    }
 
-        val multipleVectors =
-            vectorIndex.getMultipleVectors(getEnvelope(featureCoordinates), getPolygon(featureCoordinates))
+    private fun filterWithLOSCoordinatesAlpha(
+        currentLocation: LatLng,
+        rangeMeters: Double,
+        pointResolutionMeters: Double,
+        heightMeters: Double,
+        fromCache: Boolean
+    ): List<Coordinate> {
+        // First, if requested, attempt to load from cache
+        val featureIdAtLocation = featureIdAtLocation(
+            currentLocation.longitude,
+            currentLocation.latitude
+        )
 
-        return if (multipleVectors != null && multipleVectors.size > 0) {
-            multipleVectors
-        } else {
-            ArrayList()
+        var visiblePoints: List<Coordinate>? = null
+//        if (featureIdAtLocation != null && fromCache) { // we store only features in cache
+//            visiblePoints = CoverageCacheManager.getCoverage(
+//                featureIdAtLocation,
+//                rangeMeters,
+//                pointResolutionMeters,
+//                heightMeters
+//            )
+//        }
+
+        // Either fromCache was false or the object was not found, so
+        // call forceMissionCoverage to create it
+        if (visiblePoints == null || visiblePoints.isEmpty()) {
+            val currentLocationCoord =
+                Coordinate(currentLocation.latitude, currentLocation.longitude)
+            val currentLocationExploded =
+                explodeLocationCoordinate(currentLocationCoord)
+            visiblePoints = filterWithLOSCoordinatesAlpha(
+                currentLocationExploded,
+                rangeMeters,
+                pointResolutionMeters,
+                heightMeters
+            )
+
+//            if (featureIdAtLocation != null && fromCache) { // we store only features in cache
+//                CoverageCacheManager.removeCoverage(
+//                    featureIdAtLocation,
+//                    heightMeters
+//                ) //remove any existing points (lower resolution / range) on the same height
+//                CoverageCacheManager.addCoverage(
+//                    featureIdAtLocation,
+//                    rangeMeters,
+//                    pointResolutionMeters,
+//                    heightMeters,
+//                    visiblePoints
+//                )
+//            }
         }
+
+        return visiblePoints
+    }
+
+    private fun filterWithLOSCoordinatesAlpha(
+        explodedCoordinates: List<Coordinate>,
+        rangeMeters: Double,
+        pointResolutionMeters: Double,
+        heightMeters: Double
+    ): List<Coordinate> {
+
+        if (heightMeters != Constants.DEFAULT_COVERAGE_HEIGHT_METERS) {
+            explodedCoordinates.forEach { coordinate -> coordinate.heightMeters = heightMeters }
+        }
+        val visiblePoints = ArrayList<Coordinate>()
+        explodedCoordinates.forEach { origin ->
+            visiblePoints.addAll(
+                calculateVisibleProjections(
+                    origin,
+                    rangeMeters,
+                    pointResolutionMeters
+                )
+            )
+        }
+
+        //return visiblePoints
+        return visiblePoints.parallelStream()
+            .filter { coordinate -> !isInsideBuilding(coordinate) }
+            .collect(Collectors.toList()) // filter buildings
+    }
+
+    private fun calculateVisibleProjections(
+        center: Coordinate,
+        rangeMeters: Double,
+        pointResolutionMeters: Double
+    ): List<Coordinate> {
+        val visibleProjections: ArrayList<Coordinate> = ArrayList()
+        for (bearing in 0..359 step 2) {
+            val outer: Coordinate = destinationPoint(
+                center.latitude,
+                center.longitude,
+                rangeMeters,
+                bearing.toDouble()
+            )
+            val projection =
+                calcRoutePointsLinear(center, outer, false, pointResolutionMeters)
+            visibleProjections.addAll(getVisiblePoints(center, projection))
+        }
+        return visibleProjections
     }
 
     fun featureIdAtLocation(longitude: Double, latitude: Double): String? {
@@ -159,7 +264,6 @@ object TopographyService {
     fun isInsideBuilding(location: Coordinate): Boolean {
         return vectorIndex.getVectorQuad(location.longitude, location.latitude) != null
     }
-
 
     private fun getExplodedFromCache(
         featureId: String,
@@ -236,7 +340,7 @@ object TopographyService {
         return false
     }
 
-    fun isLOS(from: Coordinate, to: Coordinate): Boolean {
+    private fun isLOS(from: Coordinate, to: Coordinate): Boolean {
 
         val min: Coordinate
         val max: Coordinate
@@ -329,33 +433,33 @@ object TopographyService {
         return visiblePoints
     }
 
-    fun isPointVisible(origin: Coordinate, current: Coordinate, bestAlpha: Double): Boolean {
-        val currentAlpha = angle(origin, current, LOS_HEIGHT_METERS, LOS_HEIGHT_METERS)
-        if (currentAlpha > bestAlpha) {
-            return true
-        }
-        return false
-    }
+//    fun isPointVisible(origin: Coordinate, current: Coordinate, bestAlpha: Double): Boolean {
+//        val currentAlpha = angle(origin, current, LOS_HEIGHT_METERS, LOS_HEIGHT_METERS)
+//        if (currentAlpha > bestAlpha) {
+//            return true
+//        }
+//        return false
+//    }
 
-    fun getProjectionBestAlpha(origin: Coordinate, projection: List<Coordinate>): Double {
-        var bestAlpha = -10000.0
-        projection.forEach { current -> bestAlpha = getPointBestAlpha(origin, current, bestAlpha) }
+//    fun getProjectionBestAlpha(origin: Coordinate, projection: List<Coordinate>): Double {
+//        var bestAlpha = -10000.0
+//        projection.forEach { current -> bestAlpha = getPointBestAlpha(origin, current, bestAlpha) }
+//
+//        return bestAlpha
+//    }
 
-        return bestAlpha
-    }
-
-    private fun getPointBestAlpha(
-        origin: Coordinate,
-        current: Coordinate,
-        bestAlpha: Double
-    ): Double {
-        val currentAlpha = angle(origin, current, LOS_HEIGHT_METERS, LOS_HEIGHT_METERS)
-        var newBestAlpha = bestAlpha
-        if (currentAlpha > bestAlpha) {
-            newBestAlpha = angle(origin, current, LOS_HEIGHT_METERS, 0.0)
-        }
-        return newBestAlpha
-    }
+//    private fun getPointBestAlpha(
+//        origin: Coordinate,
+//        current: Coordinate,
+//        bestAlpha: Double
+//    ): Double {
+//        val currentAlpha = angle(origin, current, LOS_HEIGHT_METERS, LOS_HEIGHT_METERS)
+//        var newBestAlpha = bestAlpha
+//        if (currentAlpha > bestAlpha) {
+//            newBestAlpha = angle(origin, current, LOS_HEIGHT_METERS, 0.0)
+//        }
+//        return newBestAlpha
+//    }
 
     private fun angle(
         origin: Coordinate,
@@ -471,7 +575,6 @@ object TopographyService {
 
         return Envelope(maxLongitude, minLongitude, maxLatitude, minLatitude)
     }
-
 
     fun getGeometryCoordinates(featureGeometry: Geometry): List<Coordinate> {
         val geometry: Geometry

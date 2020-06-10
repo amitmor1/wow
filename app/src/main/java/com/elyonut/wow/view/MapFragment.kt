@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
@@ -26,10 +27,7 @@ import com.elyonut.wow.model.FeatureModel
 import com.elyonut.wow.model.LayerModel
 import com.elyonut.wow.model.Threat
 import com.elyonut.wow.parser.MapboxParser
-import com.elyonut.wow.utilities.BuildingTypeMapping
-import com.elyonut.wow.utilities.Constants
-import com.elyonut.wow.utilities.MapStates
-import com.elyonut.wow.utilities.Maps
+import com.elyonut.wow.utilities.*
 import com.elyonut.wow.viewModel.MapViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.mapbox.geojson.Feature
@@ -62,6 +60,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private lateinit var alertsManager: AlertsManager
     private lateinit var binding: FragmentMapBinding
     private lateinit var areaSelectionBinding: AreaSelectionBinding
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,6 +74,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         sharedViewModel =
             activity?.run { ViewModelProviders.of(activity!!)[SharedViewModel::class.java] }!!
 
+        progressBar = binding.progressBar
         alertsManager = sharedViewModel.alertsManager
         mapView = binding.mainMapView
         mapView.onCreate(savedInstanceState)
@@ -120,9 +120,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
     private fun setObservers() {
         mapViewModel.buildingsWithinLOS.observe(this, Observer { visualizeThreats(it) })
         mapViewModel.locationClickedIcon.observe(this, Observer { addIconToMap(it) })
-        mapViewModel.calculateCoverage.observe(
-            this,
-            Observer { sharedViewModel.mapClickedLatlng.postValue(it) })
+        mapViewModel.mapStateChanged.observe(this, Observer { sharedViewModel.mapState = it })
         mapViewModel.areaOfInterest.observe(this, Observer {
             sharedViewModel.areaOfInterest = it
         })
@@ -142,7 +140,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         mapViewModel.isFocusedOnLocation.observe(this, Observer {
             setFocusOnUserLocationButtonIcon(it)
         })
-        mapViewModel.mapStateChanged.observe(this, Observer { sharedViewModel.mapState = it })
+        mapViewModel.isProgressBarVisible.observe(
+            this,
+            Observer { progressBar.toggleViewVisibility(it) })
 
         sharedViewModel.selectedThreatItem.observe(this, Observer { onListFragmentInteraction(it) })
         sharedViewModel.shouldApplyFilter.observe(this, Observer { filter(it) })
@@ -170,6 +170,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
                     selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(ArrayList()))
                 }
             })
+        sharedViewModel.coverageSearchHeightMetersChecked.observe(
+            this,
+            Observer { mapViewModel.coverageSearchHeightMetersCheckedChanged(it) })
 
         alertsManager.alerts.observe(this, Observer { alerts ->
             if (alerts.isNotEmpty()) {
@@ -181,7 +184,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
 
     private fun setLateObservers() {
         mapViewModel.mapLayers.observe(this, Observer { layersUpdated(it) })
-        sharedViewModel.coordinatesFeaturesInCoverage.observe(this, Observer { addCoverage(it) })
+        mapViewModel.coordinatesFeaturesInCoverage.observe(this, Observer { addCoverage(it) })
     }
 
     private fun layersUpdated(layers: List<LayerModel>) {
@@ -335,7 +338,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         newDialogFragment.show(fragmentTransaction!!, "dialog")
     }
 
-    // TODO reformat, move to viewModel, CR
+    // TODO change the layers removal
     override fun onMapClick(latLng: LatLng): Boolean {
         val loadedMapStyle = map.style
 
@@ -351,7 +354,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
         loadedMapStyle.removeImage("marker-icon-alertID") // icon
 
         mapViewModel.onMapClicked(sharedViewModel.mapState, latLng)
-
         mapViewModel.setLayerVisibility(Constants.THREAT_COVERAGE_LAYER_ID, visibility(NONE))
 
         return true
@@ -389,26 +391,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, MapboxMap.OnMapClickListener
             return
         }
 
-//        loadedMapStyle.removeLayer("threat-source-layer")
-//        loadedMapStyle.removeSource("threat-source")
-
         val selectedBuildingSource =
             loadedMapStyle.getSourceAs<GeoJsonSource>(Constants.SELECTED_BUILDING_SOURCE_ID)
         selectedBuildingSource?.setGeoJson(FeatureCollection.fromFeatures(features))
-    }
-
-    // TODO rename
-    private fun applyExtraOptions(id: Int) {
-//        when (id) {
-//            R.id.threat_select_location -> {
-//                mapViewModel.selectLocationManualConstruction = true
-//                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
-//            }
-//            R.id.calculate_coverage -> {
-//                mapViewModel.selectLocationManualCoverage = true
-//                Toast.makeText(listenerMap as Context, "Select Location", Toast.LENGTH_LONG).show()
-//            }
-//        }
     }
 
     private fun addCoverage(coverageFeatures: List<Feature>) {

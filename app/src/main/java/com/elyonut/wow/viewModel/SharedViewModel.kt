@@ -32,7 +32,6 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     var coverageResolutionMeters: Double = Constants.DEFAULT_COVERAGE_RESOLUTION_METERS
     var coverageSearchHeightMeters: Double = Constants.DEFAULT_COVERAGE_HEIGHT_METERS
     var coverageSearchHeightMetersChecked = MutableLiveData<Boolean>()
-    var mapClickedLatlng = MutableLiveData<LatLng>()
     var alertsManager = AlertsManager(application, DB.getInstance(application).alertDatabaseDao)
     var isExposed = MutableLiveData<Boolean>()
     val chosenTypeToFilter = MutableLiveData<Pair<String, Boolean>>()

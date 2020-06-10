@@ -82,52 +82,38 @@ class ThreatAnalyzer private constructor(context: Context) {
         return filterWithLOSCoordinates(square, currentLocation)
     }
 
-    fun calculateCoverageAlpha(
-        currentLocation: LatLng,
-        rangeMeters: Double,
-        pointResolutionMeters: Double,
-        heightMeters: Double
-    ): List<Coordinate> {
-        return filterWithLOSCoordinatesAlpha(
-            currentLocation,
-            rangeMeters,
-            pointResolutionMeters,
-            heightMeters,
-            true
-        )
-    }
-
-    fun calculateCoverageAlpha(
-        pointResolutionMeters: Double,
-        heightMeters: Double
-    ) {
-        threatLayer.forEach { threat ->
-            val threatType = threat.enemyType
-            if (!threatType.contains("mikush")) {
-
-                val threatRangeMeters = KnowledgeBase.getRangeMeters(threatType)
-                val buildingsAtZone = topographyService.getBuildingsAtZone(threat)
-
-                logger.info("calculating $threatType, $threatRangeMeters meters, ${buildingsAtZone.size} buildings")
-                buildingsAtZone.forEach { building ->
-
-                    val corners = topographyService.getCoordinates(building.coordinates)
-                    corners.forEach { bc ->
-                        bc.heightMeters = building.properties["height"]!!.toDouble()
-                    }
-
-                    filterWithLOSFeatureModelAlpha(
-                        building.properties["id"]!!,
-                        corners,
-                        threatRangeMeters,
-                        pointResolutionMeters,
-                        heightMeters,
-                        true
-                    )
-                }
-            }
-        }
-    }
+    // calc coverage for all
+//    fun calculateCoverageAlpha(
+//        pointResolutionMeters: Double,
+//        heightMeters: Double
+//    ) {
+//        threatLayer.forEach { threat ->
+//            val threatType = threat.enemyType
+//            if (!threatType.contains("mikush")) {
+//
+//                val threatRangeMeters = KnowledgeBase.getRangeMeters(threatType)
+//                val buildingsAtZone = topographyService.getBuildingsAtZone(threat)
+//
+//                logger.info("calculating $threatType, $threatRangeMeters meters, ${buildingsAtZone.size} buildings")
+//                buildingsAtZone.forEach { building ->
+//
+//                    val corners = topographyService.getCoordinates(building.coordinates)
+//                    corners.forEach { bc ->
+//                        bc.heightMeters = building.properties["height"]!!.toDouble()
+//                    }
+//
+//                    filterWithLOSFeatureModelAlpha(
+//                        building.properties["id"]!!,
+//                        corners,
+//                        threatRangeMeters,
+//                        pointResolutionMeters,
+//                        heightMeters,
+//                        true
+//                    )
+//                }
+//            }
+//        }
+//    }
 
     private fun filterWithLOSModelFeatures(
         currentLocation: LatLng
@@ -159,133 +145,6 @@ class ThreatAnalyzer private constructor(context: Context) {
                 currentLocationExploded
             )
         }
-    }
-
-    private fun filterWithLOSCoordinatesAlpha(
-        currentLocation: LatLng,
-        rangeMeters: Double,
-        pointResolutionMeters: Double,
-        heightMeters: Double,
-        fromCache: Boolean
-    ): List<Coordinate> {
-        // First, if requested, attempt to load from cache
-        val featureIdAtLocation = topographyService.featureIdAtLocation(
-            currentLocation.longitude,
-            currentLocation.latitude
-        )
-
-        var visiblePoints: List<Coordinate>? = null
-//        if (featureIdAtLocation != null && fromCache) { // we store only features in cache
-//            visiblePoints = CoverageCacheManager.getCoverage(
-//                featureIdAtLocation,
-//                rangeMeters,
-//                pointResolutionMeters,
-//                heightMeters
-//            )
-//        }
-
-        // Either fromCache was false or the object was not found, so
-        // call forceMissionCoverage to create it
-        if (visiblePoints == null || visiblePoints.isEmpty()) {
-            val currentLocationCoord =
-                Coordinate(currentLocation.latitude, currentLocation.longitude)
-            val currentLocationExploded =
-                topographyService.explodeLocationCoordinate(currentLocationCoord)
-            visiblePoints = filterWithLOSCoordinatesAlpha(
-                currentLocationExploded,
-                rangeMeters,
-                pointResolutionMeters,
-                heightMeters
-            )
-
-//            if (featureIdAtLocation != null && fromCache) { // we store only features in cache
-//                CoverageCacheManager.removeCoverage(
-//                    featureIdAtLocation,
-//                    heightMeters
-//                ) //remove any existing points (lower resolution / range) on the same height
-//                CoverageCacheManager.addCoverage(
-//                    featureIdAtLocation,
-//                    rangeMeters,
-//                    pointResolutionMeters,
-//                    heightMeters,
-//                    visiblePoints
-//                )
-//            }
-        }
-
-        return visiblePoints
-    }
-
-    private fun filterWithLOSFeatureModelAlpha(
-        featureIdAtLocation: String,
-        explodedCoordinates: List<Coordinate>,
-        rangeMeters: Double,
-        pointResolutionMeters: Double,
-        heightMeters: Double,
-        fromCache: Boolean
-    ) {
-        // First, if requested, attempt to load from cache
-        var visiblePoints: List<Coordinate>? = null
-        if (fromCache) { // we store only features in cache
-            visiblePoints = CoverageCacheManager.getCoverage(
-                featureIdAtLocation,
-                rangeMeters,
-                pointResolutionMeters,
-                heightMeters
-            )
-        }
-
-        // Either fromCache was false or the object was not found, so
-        // call forceMissionCoverage to create it
-        if (visiblePoints == null || visiblePoints.isEmpty()) {
-            visiblePoints = filterWithLOSCoordinatesAlpha(
-                explodedCoordinates,
-                rangeMeters,
-                pointResolutionMeters,
-                heightMeters
-            )
-
-            if (fromCache) { // we store only features in cache
-                CoverageCacheManager.removeCoverage(
-                    featureIdAtLocation,
-                    heightMeters
-                ) //remove any existing points (lower resolution / range) on the same height
-                CoverageCacheManager.addCoverage(
-                    featureIdAtLocation,
-                    rangeMeters,
-                    pointResolutionMeters,
-                    heightMeters,
-                    visiblePoints
-                )
-            }
-        }
-    }
-
-    private fun filterWithLOSCoordinatesAlpha(
-        explodedCoordinates: List<Coordinate>,
-        rangeMeters: Double,
-        pointResolutionMeters: Double,
-        heightMeters: Double
-    ): List<Coordinate> {
-
-        if (heightMeters != Constants.DEFAULT_COVERAGE_HEIGHT_METERS) {
-            explodedCoordinates.forEach { coordinate -> coordinate.heightMeters = heightMeters }
-        }
-        val visiblePoints = ArrayList<Coordinate>()
-        explodedCoordinates.forEach { origin ->
-            visiblePoints.addAll(
-                calculateVisibleProjections(
-                    origin,
-                    rangeMeters,
-                    pointResolutionMeters
-                )
-            )
-        }
-
-        //return visiblePoints
-        return visiblePoints.parallelStream()
-            .filter { coordinate -> !topographyService.isInsideBuilding(coordinate) }
-            .collect(Collectors.toList()) // filter buildings
     }
 
     // Needs to be without Model in the name when we delete the other function
@@ -412,25 +271,5 @@ class ThreatAnalyzer private constructor(context: Context) {
         } while (runningLeft.latitude < topLeft.latitude && runningRight.latitude < topRight.latitude)
 
         return ans
-    }
-
-    private fun calculateVisibleProjections(
-        center: Coordinate,
-        rangeMeters: Double,
-        pointResolutionMeters: Double
-    ): List<Coordinate> {
-        val visibleProjections: ArrayList<Coordinate> = ArrayList()
-        for (bearing in 0..359 step 2) {
-            val outer: Coordinate = topographyService.destinationPoint(
-                center.latitude,
-                center.longitude,
-                rangeMeters,
-                bearing.toDouble()
-            )
-            val projection =
-                topographyService.calcRoutePointsLinear(center, outer, false, pointResolutionMeters)
-            visibleProjections.addAll(topographyService.getVisiblePoints(center, projection))
-        }
-        return visibleProjections
     }
 }

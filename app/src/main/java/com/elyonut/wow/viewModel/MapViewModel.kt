@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.graphics.Color
 import android.location.Location
-import android.os.AsyncTask
 import android.view.Gravity
-import android.widget.ProgressBar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
 import com.elyonut.wow.VectorLayersManager
@@ -41,10 +39,7 @@ import com.mapbox.mapboxsdk.style.layers.Property.NONE
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.collections.ArrayList
 import kotlin.collections.List
 import kotlin.collections.forEach
@@ -56,15 +51,13 @@ import kotlin.collections.toTypedArray
 class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val logger: ILogger = TimberLogAdapter()
     var selectLocationManual: Boolean = false
-    var selectLocationManualConstruction: Boolean = false
-    var selectLocationManualCoverage: Boolean = false
     lateinit var map: MapboxMap
     private var locationService: ILocationService = LocationService.getInstance(getApplication())
     private val permissions: IPermissions = PermissionsService.getInstance(application)
-    val vectorLayersManager = VectorLayersManager.getInstance(application)
+    private val vectorLayersManager = VectorLayersManager.getInstance(application)
     private var topographyService = TopographyService
     var threatAnalyzer = ThreatAnalyzer.getInstance(getApplication())
-    var currentThreats = MutableLiveData<ArrayList<Threat>>()
+    private var currentThreats = MutableLiveData<ArrayList<Threat>>()
     var mapLayers: LiveData<List<LayerModel>> =
         Transformations.map(vectorLayersManager.layers, ::layersUpdated)
     var selectedBuilding = MutableLiveData<FeatureModel>()
@@ -76,21 +69,24 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     val areaOfInterest: LiveData<Polygon>
         get() = _areaOfInterest
     var lineLayerPointList = ArrayList<Point>()
+    private var coverageSearchHeightMetersChecked: Boolean = false
     private var currentLineLayerPointList = ArrayList<Point>()
     private var currentCircleLayerFeatureList = ArrayList<Feature>()
     private lateinit var circleSource: GeoJsonSource // areaOfInterest
     private lateinit var fillSource: GeoJsonSource // areaOfInterest
     private lateinit var firstPointOfPolygon: Point // areaOfInterest
-    private var allCoverageTask: CalcThreatCoverageAllConstructionAsync? = null
     var threatAlerts = MutableLiveData<ArrayList<Threat>>()
     var isFocusedOnLocation = MutableLiveData<Boolean>()
     var shouldDisableAreaSelection = MutableLiveData<Boolean>()
-    private var _calculateCoverage = MutableLiveData<LatLng>()
-    val calculateCoverage: LiveData<LatLng>
-        get() = _calculateCoverage
     private var _locationClickedIcon = MutableLiveData<LatLng>()
     val locationClickedIcon: LiveData<LatLng>
         get() = _locationClickedIcon
+    private val _isProgressBarVisible = MutableLiveData<Boolean>()
+    val isProgressBarVisible: LiveData<Boolean>
+        get() = _isProgressBarVisible
+    private var _coordinatesFeaturesInCoverage = MutableLiveData<List<Feature>>()
+    val coordinatesFeaturesInCoverage: LiveData<List<Feature>>
+        get() = _coordinatesFeaturesInCoverage
     private var _mapStateChanged = MutableLiveData<MapStates>()
     val mapStateChanged: LiveData<MapStates>
         get() = _mapStateChanged
@@ -139,6 +135,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun initMapLocationComponent() {
         val myLocationComponentOptions = LocationComponentOptions.builder(getApplication())
             .trackingGesturesManagement(true)
@@ -166,7 +163,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             addLayersToMapStyle(style)
             addThreatCoverageLayer(style)
             setSelectedBuildingLayer(style)
-            setThreatLayerOpacity(style, Constants.REGULAR_OPACITY)
+            setLayerOpacity(Constants.THREAT_LAYER_ID, Constants.REGULAR_OPACITY, style)
             circleSource = initCircleSource(style)
             fillSource = initLineSource(style)
             initCircleLayer(style)
@@ -175,9 +172,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // TODO make generic
-    private fun setThreatLayerOpacity(loadedMapStyle: Style, opacity: Float) {
-        val threatLayer = loadedMapStyle.getLayer(Constants.THREAT_LAYER_ID)
+    private fun setLayerOpacity(layerId: String, opacity: Float, loadedMapStyle: Style) {
+        val threatLayer = loadedMapStyle.getLayer(layerId)
         (threatLayer as FillExtrusionLayer).withProperties(
             fillExtrusionOpacity(
                 opacity
@@ -462,55 +458,17 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // Beginning of onMapClick by our beloved uniqAI
-    private fun updateBuildingsWithinLOS(latLng: LatLng) {
-//        _buildingsWithinLOS.value = threatAnalyzer.getBuildingsWithinLOS(
-//            latLng,
-//            getBuildingAtLocation(latLng, Constants.BUILDINGS_LAYER_ID)
-//        ).map { MapboxParser.parseToMapboxFeature(it) }
-
-        CoroutineScope(Dispatchers.Main).launch {
-            _buildingsWithinLOS.value = topographyService.getBuildingsWithinLOS(
-                latLng,
-                getBuildingAtLocation(latLng, Constants.BUILDINGS_LAYER_ID),
-                vectorLayersManager.getLayerById(Constants.BUILDINGS_LAYER_ID)
-            ).map { MapboxParser.parseToMapboxFeature(it) }
-        }
-    }
-
-    // Should we delete this?
-    fun calculateCoverageForAll(
-        coverageResolutionMeters: Double,
-        coverageSearchHeightMeters: Double,
-        progressBar: ProgressBar
-    ) {
-
-        if (allCoverageTask != null && allCoverageTask!!.status != AsyncTask.Status.FINISHED) {
-            return //Returning as the current task execution is not finished yet.
-        }
-
-        allCoverageTask = CalcThreatCoverageAllConstructionAsync(this, progressBar)
-        allCoverageTask!!.execute(
-            ThreatCoverageData(
-                coverageResolutionMeters,
-                coverageSearchHeightMeters
-            )
-        )
-    }
-// End of beloved uniqAI onMapClick
-
-    // TODO Not finished!
     fun onMapClicked(currentMapState: MapStates, latLng: LatLng) {
         when (currentMapState) {
             MapStates.LOS_BUILDINGS_TO_LOCATION -> {
+                _isProgressBarVisible.postValue(false)
                 _locationClickedIcon.value = latLng
                 updateBuildingsWithinLOS(latLng)
-                _mapStateChanged.value = MapStates.REGULAR
                 selectLocationManual = false
             }
             MapStates.CALCULATE_COORDINATES_IN_RANGE -> {
                 _locationClickedIcon.value = latLng
-                _calculateCoverage.postValue(latLng)
+                calculateCoverage(latLng)
             }
             MapStates.DRAWING -> {
                 drawPolygonMode(latLng)
@@ -530,6 +488,59 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun calculateCoverage(latLng: LatLng) {
+        _isProgressBarVisible.postValue(false)
+        val coverageRangeMeters: Double = Constants.DEFAULT_COVERAGE_RANGE_METERS
+        val coverageResolutionMeters: Double = Constants.DEFAULT_COVERAGE_RESOLUTION_METERS
+        val coverageSearchHeightMeters: Double = Constants.DEFAULT_COVERAGE_HEIGHT_METERS
+        var coordinates: Deferred<List<Coordinate>>
+        viewModelScope.launch {
+            coordinates = async {
+                if (coverageSearchHeightMetersChecked) {
+                    return@async topographyService.calculateCoverageAlpha(
+                        latLng,
+                        coverageRangeMeters,
+                        coverageResolutionMeters,
+                        coverageSearchHeightMeters
+                    )
+                } else {
+                    return@async topographyService.calculateCoverageAlpha(
+                        latLng,
+                        coverageRangeMeters,
+                        coverageResolutionMeters,
+                        Constants.DEFAULT_COVERAGE_HEIGHT_METERS
+                    )
+                }
+            }
+
+            _coordinatesFeaturesInCoverage.postValue(coordinates.await().map { coordinate ->
+                Feature.fromGeometry(
+                    Point.fromLngLat(
+                        coordinate.longitude,
+                        coordinate.latitude
+                    )
+                )
+            })
+            _isProgressBarVisible.postValue(true)
+            _mapStateChanged.postValue(MapStates.REGULAR)
+        }
+    }
+
+    fun coverageSearchHeightMetersCheckedChanged(coverageSearchHeightChecked: Boolean) {
+        coverageSearchHeightMetersChecked = coverageSearchHeightChecked
+    }
+
+    private fun updateBuildingsWithinLOS(latLng: LatLng) {
+        viewModelScope.launch {
+            _buildingsWithinLOS.value = topographyService.getBuildingsWithinLOS(
+                latLng,
+                getBuildingAtLocation(latLng, Constants.BUILDINGS_LAYER_ID),
+                vectorLayersManager.getLayerById(Constants.BUILDINGS_LAYER_ID)
+            ).map { MapboxParser.parseToMapboxFeature(it) }
+            _mapStateChanged.value = MapStates.REGULAR
+            _isProgressBarVisible.postValue(true)
+        }
+    }
 
     // TODO rename getThreatMetadata
     fun buildingThreatToCurrentLocation(building: Feature): Threat {
@@ -557,7 +568,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun getBuildingAtLocation(
+    private fun getBuildingAtLocation(
         location: LatLng,
         layerId: String
     ): Feature? {
@@ -575,7 +586,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
     // End of beloved uniqAI onMapClick
 
-    // TODO restructure, part to alertManager. create function zoomOnGivenLocation
+    // TODO restructure, part to alertManager.
     fun zoomOnLocation(threatID: String) {
         zoomOnGivenLocation(vectorLayersManager.getFeatureLocation(threatID))
     }
