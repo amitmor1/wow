@@ -26,7 +26,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val mapStateChanged: LiveData<MapStates>
         get() = _mapStateChanged
     val chosenLayerId = MutableLiveData<String>()
-    val filterSelected = MutableLiveData<Boolean>()
     val coverageSettingsSelected = MutableLiveData<Boolean>()
     val shouldDefineArea = MutableLiveData<Boolean>()
     val shouldOpenAlertsFragment = MutableLiveData<Boolean>()

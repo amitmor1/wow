@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity(),
     NavigationView.OnNavigationItemSelectedListener,
     ThreatFragment.OnListFragmentInteractionListener,
     MapFragment.OnMapFragmentInteractionListener,
-    FilterFragment.OnFragmentInteractionListener,
     BottomNavigationView.OnNavigationItemSelectedListener,
     AlertsFragment.OnAlertsFragmentInteractionListener,
     AlertFragment.OnAlertFragmentInteractionListener {
@@ -112,11 +111,6 @@ class MainActivity : AppCompatActivity(),
         mainViewModel.isSelectAllChecked.observe(this, Observer {
             sharedViewModel.isSelectAllChecked.value = it
             filterAllClicked(it)
-        })
-        mainViewModel.filterSelected.observe(this, Observer {
-            if (it) {
-                filterButtonClicked()
-            }
         })
         mainViewModel.shouldDefineArea.observe(this, Observer {
             if (it) {
@@ -249,14 +243,6 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private fun filterButtonClicked() {
-        val filterFragment = FilterFragment.newInstance()
-        supportFragmentManager.beginTransaction().apply {
-            add(R.id.fragmentMenuParent, filterFragment).commit()
-            addToBackStack(filterFragment.javaClass.simpleName)
-        }
-    }
-
     private fun coverageSettingsButtonClicked() {
         val coverageSettingsFragment = CoverageSettingsFragment.newInstance()
         val fragmentTransaction = supportFragmentManager.beginTransaction()
@@ -356,9 +342,6 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onMapFragmentInteraction() {
-    }
-
-    override fun onFilterFragmentInteraction() {
     }
 
     override fun onDataCardFragmentInteraction() {
