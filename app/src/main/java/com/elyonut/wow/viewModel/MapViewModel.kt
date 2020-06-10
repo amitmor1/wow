@@ -22,7 +22,6 @@ import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.utilities.Constants.Companion.LOCATION_CHECK_INTERVAL
 import com.elyonut.wow.utilities.MapStates
 import com.elyonut.wow.utilities.Maps
-import com.elyonut.wow.utilities.NumericFilterTypes
 import com.mapbox.geojson.*
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -238,54 +237,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     fun setLayerVisibility(layerId: String, visibility: PropertyValue<String>) {
         val layer = map.style?.getLayer(layerId)
         layer?.setProperties(visibility)
-    }
-
-    // TODO remove filter
-    fun applyFilter(
-        loadedStyle: Style,
-        layerId: String,
-        propertyId: String,
-        isStringType: Boolean,
-        numericType: NumericFilterTypes,
-        stringValue: String,
-        specificValue: Number,
-        minValue: Number,
-        maxValue: Number
-    ) {
-        if (isStringType) {
-            FilterHandler.filterLayerByStringProperty(loadedStyle, layerId, propertyId, stringValue)
-        } else {
-            when (numericType) {
-                NumericFilterTypes.RANGE -> {
-                    FilterHandler.filterLayerByNumericRange(
-                        loadedStyle,
-                        layerId,
-                        propertyId,
-                        minValue,
-                        maxValue
-                    )
-                }
-                NumericFilterTypes.LOWER -> {
-                    FilterHandler.filterLayerByMaxValue(loadedStyle, layerId, propertyId, maxValue)
-                }
-                NumericFilterTypes.GREATER -> {
-                    FilterHandler.filterLayerByMinValue(loadedStyle, layerId, propertyId, minValue)
-                }
-                NumericFilterTypes.SPECIFIC -> {
-                    FilterHandler.filterLayerBySpecificNumericProperty(
-                        loadedStyle,
-                        layerId,
-                        propertyId,
-                        specificValue
-                    )
-                }
-            }
-        }
-    }
-
-    // TODO remove filter
-    fun removeFilter(style: Style, layerId: String) {
-        FilterHandler.removeFilter(style, layerId)
     }
 
     fun filterLayerByType(newFilter: Pair<String, Boolean>) {
@@ -704,90 +655,5 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         )
-    }
-}
-
-class FilterHandler {
-    companion object {
-        fun filterLayerByStringProperty(
-            style: Style,
-            layerId: String,
-            propertyId: String,
-            type: String
-        ) {
-            val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter(
-                all(eq(get(propertyId), type))
-            )
-        }
-
-        fun filterLayerBySpecificNumericProperty(
-            style: Style,
-            layerId: String,
-            propertyId: String,
-            value: Number
-        ) {
-            val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter(
-                (eq(
-                    get(propertyId),
-                    value
-                ))
-            )
-        }
-
-        fun filterLayerByNumericRange(
-            style: Style,
-            layerId: String,
-            propertyId: String,
-            minValue: Number,
-            maxValue: Number
-        ) {
-            val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter(
-                all(
-                    gte(
-                        get(propertyId),
-                        minValue
-                    ), lte(get(propertyId), maxValue)
-                )
-            )
-        }
-
-        fun filterLayerByMinValue(
-            style: Style,
-            layerId: String,
-            propertyId: String,
-            minValue: Number
-        ) {
-            val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter(
-                all(
-                    gte(
-                        get(propertyId),
-                        minValue
-                    )
-                )
-            )
-        }
-
-        fun filterLayerByMaxValue(
-            style: Style,
-            layerId: String,
-            propertyId: String,
-            maxValue: Number
-        ) {
-            val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter(
-                all(
-                    lte(get(propertyId), maxValue)
-                )
-            )
-        }
-
-        fun removeFilter(style: Style, layerId: String) {
-            val layer = style.getLayer(layerId)
-            (layer as FillExtrusionLayer).setFilter(literal(true))
-        }
     }
 }

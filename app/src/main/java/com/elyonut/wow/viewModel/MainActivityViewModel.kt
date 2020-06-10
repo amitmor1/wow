@@ -94,6 +94,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             }
             item.itemId == R.id.calculate_coverage -> {
                 _mapStateChanged.value = MapStates.CALCULATE_COORDINATES_IN_RANGE
+                Toast.makeText(getApplication(), "Select Location", Toast.LENGTH_LONG).show()
             }
             item.itemId == R.id.define_area -> {
                 _mapStateChanged.value = MapStates.DRAWING

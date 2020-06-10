@@ -260,7 +260,6 @@ class MainActivity : AppCompatActivity(),
         toolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
-    // Do we need this function??
     private fun initNavigationMenu() {
         navigationView.setNavigationItemSelectedListener(this)
     }
