@@ -8,9 +8,11 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.SubMenu
+import android.view.WindowManager
 import android.widget.CheckBox
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -26,16 +28,15 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.elyonut.wow.utilities.Constants
-import com.elyonut.wow.interfaces.ILogger
 import com.elyonut.wow.R
 import com.elyonut.wow.adapter.TimberLogAdapter
+import com.elyonut.wow.interfaces.ILogger
 import com.elyonut.wow.model.AlertModel
 import com.elyonut.wow.model.LayerModel
 import com.elyonut.wow.model.Threat
+import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.utilities.Maps
 import com.elyonut.wow.utilities.Menus
-import com.elyonut.wow.utilities.toggleViewVisibility
 import com.elyonut.wow.viewModel.MainActivityViewModel
 import com.elyonut.wow.viewModel.SharedViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -44,7 +45,6 @@ import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.android.synthetic.main.app_bar_main.*
 
 private const val PERMISSION_REQUEST_ACCESS_LOCATION = 101
@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity(),
     private val gson = Gson()
     private lateinit var alertsFragmentInstance: AlertsFragment
     private lateinit var navigationView: NavigationView
-    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

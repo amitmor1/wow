@@ -4,7 +4,7 @@ class Menus {
     companion object {
         // Navigation Drawer
         const val LAYERS_MENU = 0
-        const val FILTER_SUB_MENU = 2
+        const val FILTER_SUB_MENU = 1
 
         // Bottom Navigation Bar
         const val AWARENESS = 1

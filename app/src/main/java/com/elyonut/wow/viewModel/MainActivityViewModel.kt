@@ -3,27 +3,25 @@ package com.elyonut.wow.viewModel
 import android.app.Application
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.lifecycle.*
-import com.elyonut.wow.VectorLayersManager
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.elyonut.wow.R
+import com.elyonut.wow.VectorLayersManager
 import com.elyonut.wow.adapter.LocationService
 import com.elyonut.wow.adapter.PermissionsService
 import com.elyonut.wow.analysis.ThreatAnalyzer
 import com.elyonut.wow.interfaces.ILocationService
 import com.elyonut.wow.interfaces.IPermissions
-import com.elyonut.wow.model.Coordinate
 import com.elyonut.wow.model.LayerModel
 import com.elyonut.wow.utilities.Constants
 import com.elyonut.wow.utilities.MapStates
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.mapbox.geojson.Feature
-import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.geometry.LatLng
-import kotlinx.coroutines.*
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     private val vectorLayersManager = VectorLayersManager.getInstance(application)
-    private val threatAnalyzer = ThreatAnalyzer.getInstance(getApplication())
     private var _mapStateChanged = MutableLiveData<MapStates>()
     val mapStateChanged: LiveData<MapStates>
         get() = _mapStateChanged
@@ -47,6 +45,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val coordinatesFeaturesInCoverage = MutableLiveData<List<Feature>>()
     var mapLayers: LiveData<List<LayerModel>> =
         Transformations.map(vectorLayersManager.layers, ::layersUpdated)
+
+    init {
+        ThreatAnalyzer.getInstance(getApplication())
+    }
 
     private fun layersUpdated(layers: List<LayerModel>) = layers
 
@@ -73,10 +75,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             item.groupId == R.id.nav_layers -> {
                 val layerModel = item.actionView.tag as LayerModel
                 chosenLayerId.postValue(layerModel.id)
-                shouldCloseDrawer = false
-            }
-            item.itemId == R.id.filterButton -> {
-                filterSelected.postValue(true)
                 shouldCloseDrawer = false
             }
             item.itemId == R.id.select_all -> {
