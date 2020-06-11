@@ -39,5 +39,5 @@ task clean(type: Delete) {
 mavenDependencyExport {
     exportSources = true
     exportJavadoc = true
-    setExportDir(file("/home/user152/downloads/exportedDependencies"))
+    setExportDir(file("/home/user152/Downloads/exportedDependencies"))
 }
